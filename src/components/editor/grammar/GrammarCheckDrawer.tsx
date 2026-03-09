@@ -1,3 +1,5 @@
+"use client";
+
 
 import { useGrammarCheck } from "@/hooks/useGrammarCheck";
 import { useResumeStore } from "@/store/useResumeStore";

@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 import { Layout, PanelsLeftBottom } from "lucide-react";
 import { motion } from "framer-motion";

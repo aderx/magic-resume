@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "@/i18n/compat/client";
 import { motion } from "framer-motion";

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import { useTranslations } from "@/i18n/compat/client";

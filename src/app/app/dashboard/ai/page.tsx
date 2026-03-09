@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { Check, ExternalLink, Sparkles } from "lucide-react";
 import { useTranslations } from "@/i18n/compat/client";

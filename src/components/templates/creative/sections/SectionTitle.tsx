@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo } from "react";
 import { GlobalSettings } from "@/types/resume";
 import { useTemplateContext } from "../../TemplateContext";

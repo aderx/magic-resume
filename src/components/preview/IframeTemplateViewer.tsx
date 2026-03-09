@@ -1,3 +1,5 @@
+"use client";
+
 
 import React, { useMemo } from "react";
 import { useParams } from "@tanstack/react-router";
