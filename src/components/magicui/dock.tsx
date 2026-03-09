@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import React, { PropsWithChildren } from "react";
 import { motion } from "framer-motion";

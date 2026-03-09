@@ -1,3 +1,5 @@
+"use client";
+
 
 import { DateInput } from "@heroui/date-input";
 import { HeroUIProvider } from "@heroui/react";

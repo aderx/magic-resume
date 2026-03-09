@@ -1,4 +1,6 @@
 
+"use client";
+
 import { ThemeProvider } from "next-themes";
 import { HeroUIProvider } from "@heroui/react";
 import { useLocale } from "@/i18n/compat/client";

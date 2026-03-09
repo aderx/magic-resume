@@ -1,3 +1,5 @@
+"use client";
+
 import { motion } from "framer-motion";
 import { useResumeStore } from "@/store/useResumeStore";
 import { cn } from "@/lib/utils";

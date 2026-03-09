@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { useResumeStore } from "@/store/useResumeStore";
 import { Reorder } from "framer-motion";

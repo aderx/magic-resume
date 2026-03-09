@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { Reorder } from "framer-motion";
 import { PlusCircle } from "lucide-react";

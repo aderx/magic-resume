@@ -1,3 +1,5 @@
+"use client";
+
 import { createContext, ReactNode, useContext, useMemo } from "react";
 import type { Locale } from "@/i18n/config";
 import { createTranslator, Translator } from "./utils";
@@ -49,4 +51,3 @@ export function useTranslations(namespace?: string): Translator {
   const { messages } = useI18nContext();
   return useMemo(() => createTranslator(messages, namespace), [messages, namespace]);
 }
-
