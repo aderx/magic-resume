@@ -1,4 +1,4 @@
-import { Link as TanStackLink } from "@tanstack/react-router";
+import NextLink from "next/link";
 import { AnchorHTMLAttributes, forwardRef, PropsWithChildren } from "react";
 
 type Props = PropsWithChildren<
@@ -12,9 +12,9 @@ const Link = forwardRef<HTMLAnchorElement, Props>(function Link(
   ref
 ) {
   return (
-    <TanStackLink ref={ref} to={href} {...(rest as any)}>
+    <NextLink ref={ref} href={href} {...(rest as any)}>
       {children}
-    </TanStackLink>
+    </NextLink>
   );
 });
 

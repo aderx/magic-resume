@@ -1,4 +1,7 @@
-import { Link as RouterLink, useLocation } from "@tanstack/react-router";
+"use client";
+
+import NextLink from "next/link";
+import { usePathname as useNextPathname } from "next/navigation";
 import { ComponentProps } from "react";
 import { Locale } from "@/i18n/config";
 import { replacePathLocale } from "@/i18n/runtime";
@@ -15,18 +18,16 @@ export function createNavigation(_routing: {
     href,
     locale,
     ...rest
-  }: Omit<ComponentProps<typeof RouterLink>, "to"> & {
+  }: Omit<ComponentProps<typeof NextLink>, "href"> & {
     href: string;
     locale?: Locale;
   }) {
-    const to = locale ? replacePathLocale(href, locale) : href;
-    return <RouterLink to={to} {...rest} />;
+    const nextHref = locale ? replacePathLocale(href, locale) : href;
+    return <NextLink href={nextHref} {...rest} />;
   }
 
   function usePathname() {
-    return useLocation({
-      select: (location) => location.pathname
-    });
+    return useNextPathname();
   }
 
   return {
@@ -34,4 +35,3 @@ export function createNavigation(_routing: {
     usePathname
   };
 }
-

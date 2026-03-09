@@ -1,5 +1,7 @@
+"use client";
+
 import { useLocale } from "@/i18n/compat/client";
-import { useLocation, useNavigate } from "@tanstack/react-router";
+import { usePathname, useRouter } from "@/lib/navigation";
 import { Languages } from "lucide-react";
 import {
   DropdownMenu,
@@ -13,17 +15,15 @@ import { getLocaleFromPathname, replacePathLocale } from "@/i18n/runtime";
 
 export default function LanguageSwitch() {
   const locale = useLocale();
-  const navigate = useNavigate();
-  const pathname = useLocation({
-    select: (location) => location.pathname
-  });
+  const router = useRouter();
+  const pathname = usePathname();
 
   const handleSwitchLocale = (nextLocale: (typeof locales)[number]) => {
     document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=31536000`;
 
     const currentPathLocale = getLocaleFromPathname(pathname);
     if (currentPathLocale) {
-      navigate({ to: replacePathLocale(pathname, nextLocale) });
+      router.push(replacePathLocale(pathname, nextLocale));
     }
   };
 

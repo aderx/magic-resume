@@ -1,4 +1,4 @@
-import { redirect } from "@/lib/navigation";
+import { redirect } from "next/navigation";
 
 export const runtime = "edge";
 

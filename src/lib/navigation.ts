@@ -1,32 +1,24 @@
-import { useLocation, useNavigate } from "@tanstack/react-router";
+"use client";
+
+import {
+  usePathname as useNextPathname,
+  useRouter as useNextRouter,
+} from "next/navigation";
 
 type NavigateTarget = string;
 
 export function useRouter() {
-  const navigate = useNavigate();
+  const router = useNextRouter();
 
   return {
-    push: (to: NavigateTarget) => navigate({ to }),
-    replace: (to: NavigateTarget) => navigate({ to, replace: true }),
-    back: () => window.history.back(),
-    forward: () => window.history.forward(),
-    refresh: () => window.location.reload()
+    push: (to: NavigateTarget) => router.push(to),
+    replace: (to: NavigateTarget) => router.replace(to),
+    back: () => router.back(),
+    forward: () => router.forward(),
+    refresh: () => router.refresh(),
   };
 }
 
 export function usePathname() {
-  return useLocation({
-    select: (location) => location.pathname
-  });
-}
-
-export function redirect(to: string): never {
-  if (typeof window !== "undefined") {
-    window.location.href = to;
-  }
-  throw new Error(`Redirected to ${to}`);
-}
-
-export function notFound(): never {
-  throw new Error("Not Found");
+  return useNextPathname();
 }

@@ -29,7 +29,6 @@ import {
     createResumeFromAIResult,
     toStringArray
 } from "./utils";
-import pdfWorkerUrl from "pdfjs-dist/legacy/build/pdf.worker.min.mjs?url";
 
 const MAX_PDF_IMPORT_PAGES = 3;
 const PDF_IMAGE_QUALITY = 0.82;
@@ -164,8 +163,7 @@ export const ResumeWorkbench = () => {
         const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
         const buffer = await file.arrayBuffer();
         const typedPdfjs = pdfjs as any;
-
-        typedPdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+        typedPdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${typedPdfjs.version}/pdf.worker.min.mjs`;
 
         const loadingTask = typedPdfjs.getDocument({
             data: new Uint8Array(buffer),

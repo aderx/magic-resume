@@ -2,7 +2,7 @@
 
 
 import React, { useMemo } from "react";
-import { useParams } from "@tanstack/react-router";
+import { useParams } from "next/navigation";
 import { DEFAULT_TEMPLATES } from "../../config";
 import { initialResumeState, initialResumeStateEn } from "../../config/initialResumeData";
 import ResumeTemplateComponent from "../templates";
@@ -11,7 +11,8 @@ import { ResumeData } from "../../types/resume";
 import { ResumeTemplate } from "../../types/template";
 
 const IframeTemplateViewer = () => {
-  const { id } = useParams({ from: "/app/preview-template/$id" });
+  const params = useParams<{ id?: string | string[] }>();
+  const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
   
   // Use cookie to determine locale
   const locale =

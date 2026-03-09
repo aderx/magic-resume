@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Metadata } from "next";
-import { notFound } from "@/lib/navigation";
+import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "@/i18n/compat/client";
 import {
   getMessages,
