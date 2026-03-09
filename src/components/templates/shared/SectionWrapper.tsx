@@ -1,6 +1,6 @@
-import React from "react";
 import { motion } from "framer-motion";
 import { useResumeStore } from "@/store/useResumeStore";
+import { cn } from "@/lib/utils";
 
 interface SectionWrapperProps {
     sectionId: string;
@@ -23,7 +23,11 @@ const SectionWrapper: React.FC<SectionWrapperProps> = ({
 
     return (
         <motion.div
-            className={`hover:cursor-pointer hover:bg-gray-100 rounded-md transition-all duration-300 ease-in-out hover:shadow-md ${className}`}
+            className={cn(
+                "hover:cursor-pointer rounded-md transition-all duration-300 ease-in-out hover:shadow-md",
+                "hover:bg-[#f9f8f3]",
+                className
+            )}
             style={style}
             onClick={() => setActiveSection(sectionId)}
         >

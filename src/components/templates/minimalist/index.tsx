@@ -6,7 +6,12 @@ import ExperienceSection from "./sections/ExperienceSection";
 import EducationSection from "./sections/EducationSection";
 import ProjectSection from "./sections/ProjectSection";
 import SkillSection from "./sections/SkillSection";
+import SelfEvaluationSection from "./sections/SelfEvaluationSection";
 import CustomSection from "./sections/CustomSection";
+import SectionTitle from "./sections/SectionTitle";
+import SectionWrapper from "../shared/SectionWrapper";
+import CertificatesSection from "../shared/CertificatesSection";
+
 
 interface MinimalistTemplateProps {
     data: ResumeData;
@@ -29,6 +34,16 @@ const MinimalistTemplate: React.FC<MinimalistTemplateProps> = ({ data, template 
                 return <SkillSection skill={data.skillContent} globalSettings={data.globalSettings} />;
             case "projects":
                 return <ProjectSection projects={data.projects} globalSettings={data.globalSettings} />;
+            case "certificates":
+                return (
+                    <SectionWrapper sectionId="certificates" style={{ marginTop: `${data.globalSettings?.sectionSpacing || 24}px` }}>
+                        <SectionTitle type="certificates" globalSettings={data.globalSettings} />
+                        <CertificatesSection certificates={data.certificates} />
+                    </SectionWrapper>
+                );
+
+            case "selfEvaluation":
+                return <SelfEvaluationSection content={data.selfEvaluationContent} globalSettings={data.globalSettings} />;
             default:
                 if (sectionId in data.customData) {
                     const title = data.menuSections.find((s) => s.id === sectionId)?.title || sectionId;

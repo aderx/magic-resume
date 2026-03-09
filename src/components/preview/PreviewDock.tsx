@@ -16,6 +16,8 @@ import {
 import { toast } from "sonner";
 import { useTranslations } from "@/i18n/compat/client";
 import { useRouter } from "@/lib/navigation";
+import { exportResumeToBrowserPrint } from "@/utils/print";
+import { exportToPdf } from "@/utils/export";
 import { Dock, DockIcon } from "@/components/magicui/dock";
 import { Button } from "@/components/ui/button";
 import {
@@ -91,151 +93,16 @@ const PreviewDock = ({
   const { duplicateResume, setActiveResume, activeResumeId, activeResume, updateGlobalSettings } = useResumeStore();
   const { globalSettings = {}, title } = activeResume || {};
 
-  const getOptimizedStyles = () => {
-    const styleCache = new Map();
-    const startTime = performance.now();
-
-    const styles = Array.from(document.styleSheets)
-      .map((sheet) => {
-        try {
-          return Array.from(sheet.cssRules)
-            .filter((rule) => {
-              const ruleText = rule.cssText;
-              const normalizedRuleText = ruleText.toLowerCase();
-              if (styleCache.has(ruleText)) return false;
-              styleCache.set(ruleText, true);
-
-              if (rule instanceof CSSFontFaceRule) return false;
-              if (rule instanceof CSSImportRule) return false;
-              if (normalizedRuleText.includes("fonts.googleapis.com")) return false;
-              if (normalizedRuleText.includes("fonts.gstatic.com")) return false;
-              if (ruleText.includes("font-family")) return false;
-              if (ruleText.includes("@keyframes")) return false;
-              if (ruleText.includes("animation")) return false;
-              if (ruleText.includes("transition")) return false;
-              if (ruleText.includes("hover")) return false;
-              return true;
-            })
-            .map((rule) => rule.cssText)
-            .join("\n");
-        } catch (e) {
-          console.warn("Style processing error:", e);
-          return "";
-        }
-      })
-      .join("\n");
-
-    console.log(`Style processing took ${performance.now() - startTime}ms`);
-    return styles;
-  };
-
-  const optimizeImages = async (element: HTMLElement) => {
-    const startTime = performance.now();
-    const images = element.getElementsByTagName("img");
-
-    const imagePromises = Array.from(images)
-      .filter((img) => !img.src.startsWith("data:"))
-      .map(async (img) => {
-        try {
-          const response = await fetch(img.src);
-          const blob = await response.blob();
-          return new Promise<void>((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              img.src = reader.result as string;
-              resolve();
-            };
-            reader.readAsDataURL(blob);
-          });
-        } catch (error) {
-          console.error("Image conversion error:", error);
-          return Promise.resolve();
-        }
-      });
-
-    await Promise.all(imagePromises);
-    console.log(`Image processing took ${performance.now() - startTime}ms`);
-  };
-
   const handleExportPdf = async () => {
-    const exportStartTime = performance.now();
-    setIsExporting(true);
-
-    try {
-      const pdfElement = document.querySelector<HTMLElement>("#resume-preview");
-      if (!pdfElement) {
-        throw new Error("PDF element not found");
-      }
-
-      const clonedElement = pdfElement.cloneNode(true) as HTMLElement;
-      const pagePadding = globalSettings?.pagePadding || 0;
-      const transformValue = clonedElement.style.transform || "";
-      const scaleMatch = transformValue.match(/scale\(([\d.]+)\)/);
-      if (scaleMatch) {
-        const scale = Number(scaleMatch[1]);
-        if (Number.isFinite(scale) && scale > 0 && scale < 1) {
-          // 服务端导出前将 transform 缩放转为 zoom，避免分页计算偏差
-          clonedElement.style.removeProperty("transform");
-          clonedElement.style.removeProperty("transform-origin");
-          clonedElement.style.setProperty("width", "100%", "important");
-          clonedElement.style.setProperty("zoom", String(scale));
-        }
-      } else {
-        // 未开启一页纸模式时，宽度需减去 padding
-        clonedElement.style.setProperty(
-          "width",
-          `calc(210mm - ${2 * pagePadding}px)`,
-          "important"
-        );
-      }
-      clonedElement.style.setProperty("padding", "0", "important");
-      clonedElement.style.setProperty("box-sizing", "border-box");
-
-      const pageBreakLines =
-        clonedElement.querySelectorAll<HTMLElement>(".page-break-line");
-      pageBreakLines.forEach((line) => {
-        line.style.display = "none";
-      });
-
-      const [styles] = await Promise.all([
-        getOptimizedStyles(),
-        optimizeImages(clonedElement)
-      ]);
-
-      const response = await fetch(PDF_EXPORT_CONFIG.SERVER_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          content: clonedElement.outerHTML,
-          styles,
-          margin: globalSettings.pagePadding
-        }),
-        mode: "cors",
-        signal: AbortSignal.timeout(PDF_EXPORT_CONFIG.TIMEOUT)
-      });
-
-      if (!response.ok) {
-        throw new Error(`PDF generation failed: ${response.status}`);
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `${title}.pdf`;
-      link.click();
-
-      window.URL.revokeObjectURL(url);
-      console.log(`Total export took ${performance.now() - exportStartTime}ms`);
-      toast.success(tPdf("toast.success"));
-    } catch (error) {
-      console.error("Export error:", error);
-      toast.error(tPdf("toast.error"));
-    } finally {
-      setIsExporting(false);
-    }
+    await exportToPdf({
+      elementId: "resume-preview",
+      title: title || "resume",
+      pagePadding: globalSettings?.pagePadding || 0,
+      onStart: () => setIsExporting(true),
+      onEnd: () => setIsExporting(false),
+      successMessage: tPdf("toast.success"),
+      errorMessage: tPdf("toast.error")
+    });
   };
 
   const handleExportJson = () => {
@@ -269,178 +136,8 @@ const PreviewDock = ({
       console.error("Resume content not found");
       return;
     }
-
-    const actualContent = resumeContent.parentElement;
-    if (!actualContent) {
-      console.error("Actual content not found");
-      return;
-    }
-
-    const printFrame = document.createElement("iframe");
-    printFrame.style.position = "absolute";
-    printFrame.style.width = "210mm";
-    printFrame.style.height = "297mm";
-    printFrame.style.visibility = "hidden";
-    printFrame.style.zIndex = "-1";
-    document.body.appendChild(printFrame);
-
     const pagePadding = globalSettings?.pagePadding || 0;
-    const iframeWindow = printFrame.contentWindow;
-    if (!iframeWindow) {
-      console.error("IFrame window not found");
-      document.body.removeChild(printFrame);
-      return;
-    }
-
-    try {
-      iframeWindow.document.open();
-
-      const clonedContent = actualContent.cloneNode(true) as HTMLElement;
-      const previewEl = clonedContent.querySelector<HTMLElement>("#resume-preview");
-      if (previewEl) {
-        const transformValue = previewEl.style.transform || "";
-        const match = transformValue.match(/scale\(([\d.]+)\)/);
-        if (match) {
-          const scale = Number(match[1]);
-          if (Number.isFinite(scale) && scale > 0 && scale < 1) {
-            // 打印时使用 zoom 参与分页布局计算，比 transform 更接近最终分页效果
-            previewEl.style.removeProperty("transform");
-            previewEl.style.removeProperty("transform-origin");
-            previewEl.style.setProperty("width", "100%");
-            previewEl.style.setProperty("zoom", String(scale));
-          }
-        }
-      }
-
-      const htmlContent = `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>Print Resume</title>
-            <style>
-              @font-face {
-                font-family: "Alibaba PuHuiTi";
-                src: url("/fonts/AlibabaPuHuiTi-3-55-Regular.ttf") format("truetype");
-                font-weight: normal;
-                font-style: normal;
-                font-display: swap;
-              }
-
-              @page {
-                size: A4;
-                margin: 0;
-                padding: 0;
-              }
-              * {
-                box-sizing: border-box;
-              }
-              html, body {
-                margin: 0;
-                padding: 0;
-                width: 100%;
-                background: white;
-              }
-              body {
-                font-family: sans-serif;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-              }
-
-              #resume-preview {
-                margin: 0 !important;
-                padding: ${pagePadding}px !important;
-                -webkit-box-decoration-break: clone;
-                box-decoration-break: clone;
-                font-family: "Alibaba PuHuiTi", sans-serif !important;
-              }
-
-              #print-content {
-                width: 210mm;
-                min-height: 297mm;
-                margin: 0 auto;
-                padding: 0;
-                background: white;
-                box-shadow: none;
-              }
-              #print-content * {
-                box-shadow: none !important;
-              }
-              
-              .page-break-line {
-                display: none;
-              }
-
-              ${Array.from(document.styleSheets)
-          .map((sheet) => {
-            try {
-              return Array.from(sheet.cssRules)
-                .map((rule) => rule.cssText)
-                .join("\n");
-            } catch (e) {
-              console.warn("Could not copy styles from sheet:", e);
-              return "";
-            }
-          })
-          .join("\n")}
-            </style>
-          </head>
-          <body>
-            <div id="print-content">
-              ${clonedContent.innerHTML}
-            </div>
-          </body>
-        </html>
-      `;
-
-      iframeWindow.document.write(htmlContent);
-      iframeWindow.document.close();
-
-      const printWhenReady = async () => {
-        try {
-          const doc = iframeWindow.document;
-          if (doc.fonts?.ready) {
-            await doc.fonts.ready;
-          }
-
-          const images = Array.from(doc.images);
-          await Promise.all(
-            images
-              .filter((img) => !img.complete)
-              .map(
-                (img) =>
-                  new Promise<void>((resolve) => {
-                    img.onload = () => resolve();
-                    img.onerror = () => resolve();
-                  })
-              )
-          );
-
-          await new Promise<void>((resolve) => {
-            iframeWindow.requestAnimationFrame(() => {
-              iframeWindow.requestAnimationFrame(() => resolve());
-            });
-          });
-
-          iframeWindow.focus();
-          iframeWindow.print();
-
-          // 打印完成后清理iframe
-          setTimeout(() => {
-            if (document.body.contains(printFrame)) {
-              document.body.removeChild(printFrame);
-            }
-          }, 1000);
-        } catch (error) {
-          console.error("Error print:", error);
-          document.body.removeChild(printFrame);
-        }
-      };
-
-      void printWhenReady();
-    } catch (error) {
-      console.error("Error setting up print:", error);
-      document.body.removeChild(printFrame);
-    }
+    exportResumeToBrowserPrint(resumeContent, pagePadding);
   };
 
   const { checkConfiguration } = useAIConfiguration();

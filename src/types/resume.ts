@@ -117,6 +117,12 @@ export interface Project {
   link?: string;
 }
 
+export interface Certificate {
+  id: string;
+  url: string; // Base64 encoding for the image or direct URL
+  width: number; // Width percentage to support flex layouts
+}
+
 export type GlobalSettings = {
   themeColor?: string | undefined;
   fontFamily?: string | undefined;
@@ -181,8 +187,10 @@ export interface ResumeData {
   education: Education[];
   experience: Experience[];
   projects: Project[];
+  certificates: Certificate[];
   customData: Record<string, CustomItem[]>;
   skillContent: string;
+  selfEvaluationContent: string;
   activeSection: string;
   draggingProjectId: string | null;
   menuSections: MenuSection[];
@@ -211,4 +219,8 @@ export interface ResumeStore {
   ) => void;
   removeExperience: (experienceId: string) => void;
   updateSkillContent: (skillContent: string) => void;
+  addCertificate: (certificate: Certificate) => void;
+  updateCertificate: (id: string, updates: Partial<Certificate>) => void;
+  updateCertificatesBatch: (certificates: Certificate[]) => void;
+  removeCertificate: (id: string) => void;
 }

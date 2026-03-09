@@ -7,7 +7,12 @@ import ExperienceSection from "./sections/ExperienceSection";
 import EducationSection from "./sections/EducationSection";
 import ProjectSection from "./sections/ProjectSection";
 import SkillSection from "./sections/SkillSection";
+import SelfEvaluationSection from "./sections/SelfEvaluationSection";
 import CustomSection from "./sections/CustomSection";
+import SectionTitle from "./sections/SectionTitle";
+import SectionWrapper from "../shared/SectionWrapper";
+import CertificatesSection from "../shared/CertificatesSection";
+
 
 interface CreativeTemplateProps {
     data: ResumeData;
@@ -31,6 +36,16 @@ const CreativeTemplate: React.FC<CreativeTemplateProps> = ({ data, template }) =
                 return <SkillSection skill={data.skillContent} globalSettings={data.globalSettings} />;
             case "projects":
                 return <ProjectSection projects={data.projects} globalSettings={data.globalSettings} />;
+            case "certificates":
+                return (
+                    <SectionWrapper sectionId="certificates" style={{ marginTop: `${data.globalSettings?.sectionSpacing || 24}px` }}>
+                        <SectionTitle type="certificates" globalSettings={data.globalSettings} />
+                        <CertificatesSection certificates={data.certificates} />
+                    </SectionWrapper>
+                );
+
+            case "selfEvaluation":
+                return <SelfEvaluationSection content={data.selfEvaluationContent} globalSettings={data.globalSettings} />;
             default:
                 if (sectionId in data.customData) {
                     const title = data.menuSections.find((s) => s.id === sectionId)?.title || sectionId;
@@ -44,7 +59,7 @@ const CreativeTemplate: React.FC<CreativeTemplateProps> = ({ data, template }) =
         <div className="flex flex-col w-full min-h-screen" style={{ backgroundColor: colorScheme.background, color: colorScheme.text }}>
             {/* Top colored header block */}
             {basicSection && (
-                <div className="w-full relative py-8 px-8 mb-6 rounded-b-3xl" style={{ backgroundColor: data.globalSettings.themeColor, color: "#ffffff" }}>
+                <div className="w-full relative py-8 px-4 rounded-b-3xl pr-0" style={{ backgroundColor: data.globalSettings.themeColor, color: "#ffffff" }}>
                     <div className="relative z-10 w-full">
                         <BaseInfo basic={data.basic} globalSettings={data.globalSettings} template={template} />
                         {data.basic.githubContributionsVisible && (
@@ -54,7 +69,7 @@ const CreativeTemplate: React.FC<CreativeTemplateProps> = ({ data, template }) =
                 </div>
             )}
             {/* Content sections */}
-            <div className="px-8 w-full w-max-4xl mx-auto">
+            <div className=" w-full w-max-4xl mx-auto">
                 {otherSections.map((section) => (
                     <div key={section.id}>{renderSection(section.id)}</div>
                 ))}

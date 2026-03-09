@@ -316,7 +316,9 @@
           "skills": "Skills",
           "experience": "Experience",
           "projects": "Projects",
-          "education": "Education"
+          "education": "Education",
+          "selfEvaluation": "Self Evaluation",
+          "certificates": "Certificates"
         }
       },
       "theme": {
@@ -533,11 +535,20 @@
         "show": "Show",
         "hide": "Hide"
       }
+    },
+    "certificatesPanel": {
+      "title": "Certificates",
+      "addButton": "Add Certificate",
+      "tips": "Upload or paste (Cmd/Ctrl + V) images directly. Adjust width ratio for horizontal layout.",
+      "width": "Width (%)",
+      "delete": "Delete",
+      "empty": "No images yet. Please upload or paste images."
     }
   },
   "field": {
     "selectDate": "Select Date",
-    "enterYear": "Enter Year"
+    "enterYear": "Enter Year",
+    "toPresent": "To Present"
   },
   "richEditor": {
     "bold": "Bold",

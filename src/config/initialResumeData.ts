@@ -16,7 +16,7 @@ const initialGlobalSettings: GlobalSettings = {
 export const initialResumeState = {
   title: "新建简历",
   basic: {
-    name: "魔方",
+    name: "宋哈娜",
     title: "高级前端工程师",
     employementStatus: "离职",
     email: "zhangsan@example.com",
@@ -76,6 +76,7 @@ export const initialResumeState = {
     <li>技术管理：具备团队管理经验，主导过多个大型项目的技术选型和架构设计</li>
   </ul>
 </div>`,
+  selfEvaluationContent: "",
   experience: [
     {
       id: "1",
@@ -163,6 +164,7 @@ export const initialResumeState = {
       order: 4,
     },
   ],
+  certificates: [],
   customData: {},
   activeSection: "basic",
   globalSettings: initialGlobalSettings,
@@ -171,7 +173,7 @@ export const initialResumeState = {
 export const initialResumeStateEn = {
   title: "New Resume",
   basic: {
-    name: "John Smith",
+    name: "Dva",
     title: "Senior Frontend Engineer",
     employementStatus: "Available",
     email: "john.smith@123.com",
@@ -224,6 +226,7 @@ export const initialResumeStateEn = {
     <li>Technical Leadership: Team management experience, led technology selection and architecture design for large projects</li>
   </ul>
 </div>`,
+  selfEvaluationContent: "",
   experience: [
     {
       id: "1",
@@ -322,6 +325,7 @@ export const initialResumeStateEn = {
       order: 4,
     },
   ],
+  certificates: [],
   customData: {},
   activeSection: "basic",
   globalSettings: initialGlobalSettings,
@@ -344,8 +348,10 @@ export const blankResumeState = {
   },
   education: [],
   skillContent: "",
+  selfEvaluationContent: "",
   experience: [],
   projects: [],
+  certificates: [],
   menuSections: [initialResumeState.menuSections[0]],
 };
 
@@ -366,7 +372,9 @@ export const blankResumeStateEn = {
   },
   education: [],
   skillContent: "",
+  selfEvaluationContent: "",
   experience: [],
   projects: [],
+  certificates: [],
   menuSections: [initialResumeStateEn.menuSections[0]],
 };
