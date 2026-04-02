@@ -18,30 +18,23 @@ const CustomPanel = memo(({ sectionId }: { sectionId: string }) => {
   };
 
   return (
-    <div
-      className={cn(
-        "space-y-4 px-4 py-4 rounded-lg",
-        "bg-card"
-      )}
+    <Reorder.Group
+      axis="y"
+      values={items}
+      onReorder={(newOrder) => {
+        updateCustomData(sectionId, newOrder);
+      }}
+      className="space-y-3"
     >
-      <Reorder.Group
-        axis="y"
-        values={items}
-        onReorder={(newOrder) => {
-          updateCustomData(sectionId, newOrder);
-        }}
-        className="space-y-3"
-      >
-        {items.map((item: CustomItemType) => (
-          <CustomItem key={item.id} item={item} sectionId={sectionId} />
-        ))}
+      {items.map((item: CustomItemType) => (
+        <CustomItem key={item.id} item={item} sectionId={sectionId} />
+      ))}
 
-        <Button onClick={handleCreateItem} className={cn("w-full")}>
-          <PlusCircle className="w-4 h-4 mr-2" />
-          添加
-        </Button>
-      </Reorder.Group>
-    </div>
+      <Button onClick={handleCreateItem} className={cn("w-full")}>
+        <PlusCircle className="w-4 h-4 mr-2" />
+        添加
+      </Button>
+    </Reorder.Group>
   );
 });
 

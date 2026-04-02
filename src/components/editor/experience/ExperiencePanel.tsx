@@ -28,30 +28,23 @@ const ExperiencePanel = () => {
   };
 
   return (
-    <div
-      className={cn(
-        "space-y-4 px-4 py-4 rounded-lg",
-        "bg-card border-border"
-      )}
+    <Reorder.Group
+      axis="y"
+      values={experience}
+      onReorder={(newOrder) => {
+        updateExperienceBatch(newOrder);
+      }}
+      className="space-y-3"
     >
-      <Reorder.Group
-        axis="y"
-        values={experience}
-        onReorder={(newOrder) => {
-          updateExperienceBatch(newOrder);
-        }}
-        className="space-y-3"
-      >
-        {experience.map((item) => (
-          <ExperienceItem key={item.id} experience={item}></ExperienceItem>
-        ))}
+      {experience.map((item) => (
+        <ExperienceItem key={item.id} experience={item}></ExperienceItem>
+      ))}
 
-        <Button onClick={handleCreateProject} className="w-full">
-          <PlusCircle className="w-4 h-4 mr-2" />
-          {t("addButton")}
-        </Button>
-      </Reorder.Group>
-    </div>
+      <Button onClick={handleCreateProject} className="w-full">
+        <PlusCircle className="w-4 h-4 mr-2" />
+        {t("addButton")}
+      </Button>
+    </Reorder.Group>
   );
 };
 

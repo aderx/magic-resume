@@ -27,8 +27,8 @@ const SectionWrapper: React.FC<SectionWrapperProps> = ({
         <motion.div
             data-resume-section-id={sectionId}
             className={cn(
-                "hover:cursor-pointer rounded-md transition-all duration-300 ease-in-out hover:shadow-md",
-                "hover:bg-[#f9f8f3]",
+                "hover:cursor-pointer transition-all duration-300 ease-in-out",
+                "hover:bg-accent/50 hover:shadow-md",
                 className
             )}
             style={style}

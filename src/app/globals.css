@@ -19,9 +19,9 @@
 
 @layer base {
   :root {
-    --background: 48 20% 97%; /* #F9F9F7 */
+    --background: 100 100% 100%; /* #fff */
     --foreground: 60 5% 10%; /* #1B1B18 */
-    --card: 48 20% 97%;
+    --card: 0 0% 99%;
     --card-foreground: 60 5% 10%;
     --popover: 48 20% 97%;
     --popover-foreground: 60 5% 10%;
@@ -146,11 +146,11 @@
   }
 
   /* Reset headings in resume preview to inherit or use sans */
-  #resume-preview h1, 
-  #resume-preview h2, 
-  #resume-preview h3, 
-  #resume-preview h4, 
-  #resume-preview h5, 
+  #resume-preview h1,
+  #resume-preview h2,
+  #resume-preview h3,
+  #resume-preview h4,
+  #resume-preview h5,
   #resume-preview h6 {
     font-family: inherit;
   }

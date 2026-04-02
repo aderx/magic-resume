@@ -28,30 +28,23 @@ const ProjectPanel = () => {
   };
 
   return (
-    <div
-      className={cn(
-        "space-y-4 px-4 py-4 rounded-lg",
-        "bg-card border-border",
-      )}
+    <Reorder.Group
+      axis="y"
+      values={projects}
+      onReorder={(newOrder) => {
+        updateProjectsBatch(newOrder);
+      }}
+      className="space-y-3"
     >
-      <Reorder.Group
-        axis="y"
-        values={projects}
-        onReorder={(newOrder) => {
-          updateProjectsBatch(newOrder);
-        }}
-        className="space-y-3"
-      >
-        {projects.map((project) => (
-          <ProjectItem key={project.id} project={project}></ProjectItem>
-        ))}
+      {projects.map((project) => (
+        <ProjectItem key={project.id} project={project}></ProjectItem>
+      ))}
 
-        <Button onClick={handleCreateProject} className="w-full">
-          <PlusCircle className="w-4 h-4 mr-2" />
-          {t("addButton")}
-        </Button>
-      </Reorder.Group>
-    </div>
+      <Button onClick={handleCreateProject} className="w-full">
+        <PlusCircle className="w-4 h-4 mr-2" />
+        {t("addButton")}
+      </Button>
+    </Reorder.Group>
   );
 };
 

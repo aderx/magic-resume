@@ -29,7 +29,6 @@ export function EditPanel() {
     switch (activeSection) {
       case "basic":
         return <BasicPanel />;
-
       case "projects":
         return <ProjectPanel />;
       case "education":
@@ -81,7 +80,7 @@ export function EditPanel() {
               <>
                 <input
                   className={cn(
-                    "flex-1 text-lg  font-medium  text-primary border-black  bg-transparent outline-none   pb-1 text-primary"
+                    "flex-1 text-lg  font-medium border-black  bg-transparent outline-none pb-1 text-primary"
                   )}
                   type="text"
                   value={
@@ -100,26 +99,12 @@ export function EditPanel() {
                     updateMenuSections(newMenuSections);
                   }}
                 />
-                <TooltipProvider delayDuration={300}>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Pencil size={16} className="text-primary" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>点击文字部分即可聚焦编辑</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
               </>
             )}
           </div>
         </motion.div>
 
         <motion.div
-          className={cn(
-            "rounded-lg",
-            "bg-card border-border"
-          )}
         >
           {renderFields()}
         </motion.div>

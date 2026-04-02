@@ -30,33 +30,26 @@ const EducationPanel = () => {
   };
 
   return (
-    <div
-      className={cn(
-        "space-y-4 px-4 py-4 rounded-lg",
-        "dark:bg-neutral-900/30",
-      )}
+    <Reorder.Group
+      axis="y"
+      values={education}
+      onReorder={(newOrder) => {
+        updateEducationBatch(newOrder);
+      }}
+      className="space-y-3"
     >
-      <Reorder.Group
-        axis="y"
-        values={education}
-        onReorder={(newOrder) => {
-          updateEducationBatch(newOrder);
-        }}
-        className="space-y-3"
-      >
-        {(education || []).map((education) => (
-          <EducationItem
-            key={education.id}
-            education={education}
-          ></EducationItem>
-        ))}
+      {(education || []).map((education) => (
+        <EducationItem
+          key={education.id}
+          education={education}
+        ></EducationItem>
+      ))}
 
-        <Button onClick={handleCreateProject} className="w-full">
-          <PlusCircle className="w-4 h-4 mr-2" />
-          {t('addButton')}
-        </Button>
-      </Reorder.Group>
-    </div>
+      <Button onClick={handleCreateProject} className="w-full">
+        <PlusCircle className="w-4 h-4 mr-2" />
+        {t('addButton')}
+      </Button>
+    </Reorder.Group>
   );
 };
 
