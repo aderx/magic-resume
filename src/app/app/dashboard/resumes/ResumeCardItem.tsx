@@ -1,14 +1,6 @@
 "use client";
 
-import React from "react";
-import { motion } from "framer-motion";
-import { toast } from "sonner";
-import {
-    Card,
-    CardContent,
-    CardFooter,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import ResumeTemplateComponent from "@/components/templates";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -17,22 +9,36 @@ import {
     AlertDialogDescription,
     AlertDialogFooter,
     AlertDialogHeader,
+    AlertDialogOverlay,
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import ResumeTemplateComponent from "@/components/templates";
+import {
+    Card,
+    CardContent,
+    CardFooter,
+} from "@/components/ui/card";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 import { DEFAULT_TEMPLATES } from "@/config";
 import { cn } from "@/lib/utils";
+import { useResumeStore } from "@/store/useResumeStore";
 import { normalizeFontFamily } from "@/utils/fonts";
+import { motion } from "framer-motion";
+import { Copy, EllipsisVertical, Trash2 } from "lucide-react";
+import React, { useCallback } from "react";
+import { toast } from "sonner";
 
 interface ResumeCardItemProps {
     id: string;
     resume: any;
     t: any;
     locale: string;
-    setActiveResume: (id: string) => void;
     router: any;
-    deleteResume: (resume: any) => void;
     index: number;
 }
 
@@ -41,11 +47,11 @@ export const ResumeCardItem = ({
     resume,
     t,
     locale,
-    setActiveResume,
     router,
-    deleteResume,
     index,
 }: ResumeCardItemProps) => {
+    const { duplicateResume, setActiveResume, activeResumeId, deleteResume } = useResumeStore();
+
     const containerRef = React.useRef<HTMLDivElement>(null);
     const [scale, setScale] = React.useState(0.24);
     const activeTemplate =
@@ -66,6 +72,25 @@ export const ResumeCardItem = ({
         return () => observer.disconnect();
     }, []);
 
+    const handleCopyResume = useCallback(() => {
+        if (!activeResumeId) return;
+        try {
+            const newId = duplicateResume(activeResumeId);
+            const targetPath = `/app/workbench/${newId}`;
+            setActiveResume(newId);
+            toast.success(t("copyResume.success"));
+            router.push(targetPath);
+
+            requestAnimationFrame(() => {
+                if (window.location.pathname !== targetPath) {
+                    window.location.assign(targetPath);
+                }
+            });
+        } catch (error) {
+            toast.error(t("copyResume.error"));
+        }
+    }, [activeResumeId, duplicateResume, router, setActiveResume, t]);
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -84,6 +109,11 @@ export const ResumeCardItem = ({
                     "hover:border-primary/40 hover:shadow-lg",
                     "dark:hover:border-primary/40"
                 )}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveResume(id);
+                    router.push(`/app/workbench/${id}`);
+                }}
             >
                 <CardContent className="p-0 flex-1 relative bg-gray-50 dark:bg-gray-900 overflow-hidden cursor-pointer">
                     <div className="absolute inset-0 pb-6 flex items-center justify-center pointer-events-none transition-transform duration-300 group-hover:scale-[1.02] overflow-hidden" ref={containerRef}>
@@ -110,90 +140,79 @@ export const ResumeCardItem = ({
                             <span className="text-[15px] font-semibold truncate text-gray-900 dark:text-gray-100 drop-shadow-sm w-[90%]">
                                 {resume.title || t("dashboard.resumes.untitled")}
                             </span>
-                            <span className="text-[11px] text-gray-600 dark:text-gray-300 mt-0.5 font-medium">
-                                {t(`dashboard.templates.${templateNameKey}.name`)} · {new Intl.DateTimeFormat(locale, {
-                                    year: 'numeric',
-                                    month: 'short',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: false
-                                }).format(new Date(resume.createdAt))}
-                            </span>
                         </div>
                     </div>
                 </CardContent>
-                <CardFooter className="pt-2 pb-2 px-2 bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800 z-10">
-                    <div className="grid grid-cols-2 gap-2 w-full">
-                        <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 400,
-                                damping: 17,
-                            }}
-                        >
-                            <Button
-                                variant="outline"
-                                className="w-full text-sm hover:bg-gray-100 dark:border-primary/50 dark:hover:bg-primary/10"
-                                size="sm"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setActiveResume(id);
-                                    router.push(`/app/workbench/${id}`);
-                                }}
-                            >
-                                {t("common.edit")}
-                            </Button>
-                        </motion.div>
-
-                        <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 400,
-                                damping: 17,
-                            }}
-                        >
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        className="w-full text-sm text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-500 dark:hover:bg-red-950/50 dark:hover:text-red-400"
-                                        size="sm"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                        }}
-                                    >
-                                        {t("common.delete")}
-                                    </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>{t("dashboard.resumes.deleteConfirmTitle")}</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            {t("dashboard.resumes.deleteConfirmDescription")}
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel onClick={(e) => e.stopPropagation()}>{t("common.cancel")}</AlertDialogCancel>
-                                        <AlertDialogAction
-                                            className="bg-red-600 hover:bg-red-700 text-white focus:ring-red-600 border-none"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                deleteResume(resume);
-                                                toast.success(t("common.deleteSuccess"));
-                                            }}
-                                        >
-                                            {t("common.confirm")}
-                                        </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                        </motion.div>
+                <CardFooter className="relative pt-2 pb-2 px-2 bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800 z-10 justify-between">
+                    <div className="text-[11px] text-gray-600 dark:text-gray-300 mt-0.5 font-medium flex-1">
+                        <p>{t(`dashboard.templates.${templateNameKey}.name`)}</p>
+                        <p>{new Intl.DateTimeFormat(locale, {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false
+                        }).format(new Date(resume.createdAt))}</p>
                     </div>
+
+                    <AlertDialog>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <div
+                                    className={cn(
+                                        "flex cursor-pointer h-7 w-7 items-center justify-center rounded-lg",
+                                        "hover:bg-gray-100/50 dark:hover:bg-neutral-800/50",
+                                        "transition-all duration-200",
+                                    )}
+                                    onClick={(e) => e.stopPropagation()}
+                                    onPointerDown={(e) => e.stopPropagation()}
+                                >
+                                    <EllipsisVertical className="h-4 w-4" />
+                                </div>
+                            </DropdownMenuTrigger>
+
+                            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                                <DropdownMenuItem
+                                    className="cursor-pointer"
+                                    onClick={handleCopyResume}
+                                >
+                                    <Copy className="w-4 h-4 mr-2" />
+                                    {t("common.copy")}
+                                </DropdownMenuItem>
+
+                                <AlertDialogTrigger asChild>
+                                    <DropdownMenuItem
+                                        className="cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50"
+                                    >
+                                        <Trash2 className="w-4 h-4 mr-2" />
+                                        {t("common.delete")}
+                                    </DropdownMenuItem>
+                                </AlertDialogTrigger>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>{t("dashboard.resumes.deleteConfirmTitle")}</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    {t("dashboard.resumes.deleteConfirmDescription")}
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+                                <AlertDialogAction
+                                    className="bg-red-600 hover:bg-red-700 text-white focus:ring-red-600 border-none"
+                                    onClick={(e) => {
+                                        deleteResume(resume);
+                                        toast.success(t("common.deleteSuccess"));
+                                    }}
+                                >
+                                    {t("common.confirm")}
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                 </CardFooter>
             </Card>
         </motion.div>

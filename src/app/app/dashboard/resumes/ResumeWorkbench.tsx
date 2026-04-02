@@ -480,9 +480,7 @@ export const ResumeWorkbench = () => {
                                         resume={resume}
                                         t={t}
                                         locale={locale}
-                                        setActiveResume={setActiveResume}
                                         router={router}
-                                        deleteResume={deleteResume}
                                         index={index}
                                     />
                                 ))}
