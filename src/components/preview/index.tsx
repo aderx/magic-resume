@@ -13,12 +13,7 @@ import { normalizeFontFamily } from "@/utils/fonts";
 import ResumeTemplateComponent from "../templates";
 
 interface PreviewPanelProps {
-  sidePanelCollapsed: boolean;
-  editPanelCollapsed: boolean;
-  previewPanelCollapsed: boolean;
-  toggleSidePanel: () => void;
-  toggleEditPanel: () => void;
-  togglePreviewPanel: () => void;
+
 }
 
 const PageBreakLine = React.memo(
@@ -56,14 +51,7 @@ PageBreakLine.displayName = "PageBreakLine";
 
 const PreviewPanel = React.forwardRef<HTMLDivElement, PreviewPanelProps>(
   (
-    {
-      sidePanelCollapsed,
-      editPanelCollapsed,
-      previewPanelCollapsed,
-      toggleSidePanel,
-      toggleEditPanel,
-      togglePreviewPanel,
-    },
+    { },
     ref
   ) => {
     const { activeResume, setActiveSection } = useResumeStore();
@@ -206,7 +194,7 @@ const PreviewPanel = React.forwardRef<HTMLDivElement, PreviewPanelProps>(
           fontFamily: selectedFontFamily,
         }}
       >
-        <div className="py-4 ml-4 px-4 min-h-screen flex justify-center scale-[58%] origin-top md:scale-90 md:origin-top-left">
+        <div className="py-4 ml-4 px-4 min-h-screen flex justify-center scale-[58%] origin-top md:scale-90">
           <div
             ref={startRef}
             className={cn(

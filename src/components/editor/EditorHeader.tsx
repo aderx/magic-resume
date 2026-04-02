@@ -30,17 +30,13 @@ interface EditorHeaderProps {
 }
 
 export function EditorHeader(props: EditorHeaderProps) {
-  const { isMobile, sidePanelCollapsed, editPanelCollapsed, previewPanelCollapsed, toggleSidePanel, toggleEditPanel, togglePreviewPanel } = props;
-  const { activeResume, setActiveSection, updateResumeTitle } =
+  const { sidePanelCollapsed, editPanelCollapsed, previewPanelCollapsed, toggleSidePanel, toggleEditPanel, togglePreviewPanel } = props;
+  const { activeResume, updateResumeTitle } =
     useResumeStore();
-  const { menuSections = [], activeSection } = activeResume || {};
-  const themeConfig = getThemeConfig();
-  const { errors, selectError } = useGrammarCheck();
+  const { errors } = useGrammarCheck();
   const router = useRouter();
   const t = useTranslations();
-  const visibleSections = menuSections
-    ?.filter((section) => section.enabled)
-    .sort((a, b) => a.order - b.order);
+
 
   return (
     <motion.header
@@ -107,7 +103,7 @@ export function EditorHeader(props: EditorHeaderProps) {
             placeholder="简历名称"
           />
 
-          <ThemeToggle></ThemeToggle>
+          <ThemeToggle />
           <div className="md:flex items-center ">
             <PdfExport />
           </div>

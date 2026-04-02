@@ -62,48 +62,44 @@ const PreviewDock = ({
 
   return (
     <>
-      <div className="hidden md:flex flex-col items-center fixed top-1/2 right-3 transform -translate-y-1/2 z-[50]">
-        <TooltipProvider delayDuration={0}>
-          <Dock className="bg-background/80 border border-border/40 shadow-xl mb-0">
-            <div className="flex flex-col gap-2">
+      {/* <div className="hidden md:flex flex-col items-center fixed top-1/2 right-3 transform -translate-y-1/2 z-[50]">
 
-              <DockIcon>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div
-                      className={cn(
-                        "flex cursor-pointer h-7 w-7 items-center justify-center rounded-lg",
-                        "hover:bg-gray-100/50 dark:hover:bg-neutral-800/50",
-                        "transition-all duration-200",
-                        isChecking && "animate-pulse"
-                      )}
-                      onClick={handleGrammarCheck}
-                    >
-                      <SpellCheck2
-                        className={cn("h-4 w-4", isChecking && "animate-spin")}
-                      />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="left" sideOffset={10}>
-                    <p>
-                      {isChecking
-                        ? t("grammarCheck.checking")
-                        : t("grammarCheck.idle")}
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </DockIcon>
+        <Dock className="bg-background/80 border border-border/40 shadow-xl mb-0">
+          <div className="flex flex-col gap-2">
 
-
-              <div className="w-full h-[1px] bg-gray-200" />
+            <DockIcon>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div
+                    className={cn(
+                      "flex cursor-pointer h-7 w-7 items-center justify-center rounded-lg",
+                      "hover:bg-gray-100/50 dark:hover:bg-neutral-800/50",
+                      "transition-all duration-200",
+                      isChecking && "animate-pulse"
+                    )}
+                    onClick={handleGrammarCheck}
+                  >
+                    <SpellCheck2
+                      className={cn("h-4 w-4", isChecking && "animate-spin")}
+                    />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="left" sideOffset={10}>
+                  <p>
+                    {isChecking
+                      ? t("grammarCheck.checking")
+                      : t("grammarCheck.idle")}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </DockIcon>
 
 
-            </div>
-          </Dock>
-        </TooltipProvider>
+          </div>
+        </Dock>
 
 
-      </div>
+      </div> */}
     </>
   );
 };

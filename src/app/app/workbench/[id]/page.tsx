@@ -1,28 +1,26 @@
 "use client";
 
 
-import React, { useState, useEffect, memo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Eye, Edit2, Menu, PanelLeft, Minimize2 } from "lucide-react";
 import { EditorHeader } from "@/components/editor/EditorHeader";
-import { SidePanel } from "@/components/editor/SidePanel";
 import { EditPanel } from "@/components/editor/EditPanel";
-import PreviewPanel from "@/components/preview";
-import PreviewDock from "@/components/preview/PreviewDock";
+import { SidePanel } from "@/components/editor/SidePanel";
 import { MobileWorkbench } from "@/components/mobile/MobileWorkbench";
+import PreviewPanel from "@/components/preview";
+import { Button } from "@/components/ui/button";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { Edit2, Eye, Minimize2, PanelLeft } from "lucide-react";
+import React, { memo, useEffect, useState } from "react";
 
 const LAYOUT_CONFIG = {
   DEFAULT: [20, 32, 48],
@@ -30,6 +28,43 @@ const LAYOUT_CONFIG = {
   EDIT_FOCUSED: [20, 80],
   PREVIEW_FOCUSED: [20, 80],
 };
+
+const PANEL_COLLAPSE_SESSION_KEY = "workbench-panel-collapse-state";
+
+type PanelCollapseState = {
+  sidePanelCollapsed: boolean;
+  editPanelCollapsed: boolean;
+  previewPanelCollapsed: boolean;
+};
+
+const DEFAULT_PANEL_COLLAPSE_STATE: PanelCollapseState = {
+  sidePanelCollapsed: false,
+  editPanelCollapsed: false,
+  previewPanelCollapsed: false,
+};
+
+function readPanelCollapseState(): PanelCollapseState {
+  if (typeof window === "undefined") {
+    return DEFAULT_PANEL_COLLAPSE_STATE;
+  }
+
+  const rawState = window.sessionStorage.getItem(PANEL_COLLAPSE_SESSION_KEY);
+  if (!rawState) {
+    return DEFAULT_PANEL_COLLAPSE_STATE;
+  }
+
+  try {
+    const parsedState = JSON.parse(rawState);
+
+    return {
+      sidePanelCollapsed: Boolean(parsedState?.sidePanelCollapsed),
+      editPanelCollapsed: Boolean(parsedState?.editPanelCollapsed),
+      previewPanelCollapsed: Boolean(parsedState?.previewPanelCollapsed),
+    };
+  } catch {
+    return DEFAULT_PANEL_COLLAPSE_STATE;
+  }
+}
 
 const DragHandle = ({ show = true }) => {
   if (!show) return null;
@@ -158,10 +193,16 @@ const LayoutControls = memo(
 LayoutControls.displayName = "LayoutControls";
 
 export default function Home() {
-  const [sidePanelCollapsed, setSidePanelCollapsed] = useState(false);
-  const [editPanelCollapsed, setEditPanelCollapsed] = useState(false);
-  const [previewPanelCollapsed, setPreviewPanelCollapsed] = useState(false);
+  const [panelCollapseState, setPanelCollapseState] =
+    useState<PanelCollapseState>(DEFAULT_PANEL_COLLAPSE_STATE);
+  const [hasLoadedPanelCollapseState, setHasLoadedPanelCollapseState] =
+    useState(false);
   const [panelSizes, setPanelSizes] = useState<number[]>(LAYOUT_CONFIG.DEFAULT);
+  const {
+    sidePanelCollapsed,
+    editPanelCollapsed,
+    previewPanelCollapsed,
+  } = panelCollapseState;
 
   // Create a ref for the resume content that PreviewDock can access
   // Currently we can't get the inner ref easily across component boundaries
@@ -170,15 +211,24 @@ export default function Home() {
   const resumeContentRef = React.useRef<HTMLDivElement>(null);
 
   const toggleSidePanel = () => {
-    setSidePanelCollapsed(!sidePanelCollapsed);
+    setPanelCollapseState((prevState) => ({
+      ...prevState,
+      sidePanelCollapsed: !prevState.sidePanelCollapsed,
+    }));
   };
 
   const toggleEditPanel = () => {
-    setEditPanelCollapsed(!editPanelCollapsed);
+    setPanelCollapseState((prevState) => ({
+      ...prevState,
+      editPanelCollapsed: !prevState.editPanelCollapsed,
+    }));
   };
 
   const togglePreviewPanel = () => {
-    setPreviewPanelCollapsed(!previewPanelCollapsed);
+    setPanelCollapseState((prevState) => ({
+      ...prevState,
+      previewPanelCollapsed: !prevState.previewPanelCollapsed,
+    }));
   };
 
   const updateLayout = (sizes: number[]) => {
@@ -186,29 +236,18 @@ export default function Home() {
   };
 
   useEffect(() => {
-    // 如果预览面板已经收起，则不需要自动收起侧边栏，因为空间足够
-    if (previewPanelCollapsed) return;
+    setPanelCollapseState(readPanelCollapseState());
+    setHasLoadedPanelCollapseState(true);
+  }, []);
 
-    // 初始化检查屏幕宽度
-    if (window.innerWidth < 1440) {
-      setSidePanelCollapsed(true);
-    }
+  useEffect(() => {
+    if (!hasLoadedPanelCollapseState) return;
 
-    // 监听 resize
-    const handleResize = () => {
-      // 屏幕改变时，如果此时预览面板收起，也可以让侧边栏展开
-      if (previewPanelCollapsed) return;
-
-      if (window.innerWidth < 1440) {
-        setSidePanelCollapsed(true);
-      } else {
-        setSidePanelCollapsed(false);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [previewPanelCollapsed]);
+    window.sessionStorage.setItem(
+      PANEL_COLLAPSE_SESSION_KEY,
+      JSON.stringify(panelCollapseState)
+    );
+  }, [hasLoadedPanelCollapseState, panelCollapseState]);
 
   useEffect(() => {
     document.body.classList.add("workbench-body-lock");
@@ -352,23 +391,15 @@ export default function Home() {
                 className="h-full overflow-y-auto"
                 data-preview-scroll-container="true"
               >
-                <PreviewPanel
-                  sidePanelCollapsed={sidePanelCollapsed}
-                  editPanelCollapsed={editPanelCollapsed}
-                  previewPanelCollapsed={previewPanelCollapsed}
-                  toggleSidePanel={toggleSidePanel}
-                  toggleEditPanel={toggleEditPanel}
-                  togglePreviewPanel={togglePreviewPanel}
-                />
+                <PreviewPanel />
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
         </div>
 
-        <PreviewDock
-
+        {/* <PreviewDock
           resumeContentRef={resumeContentRef}
-        />
+        /> */}
       </div>
 
       {/* 移动端布局 */}
