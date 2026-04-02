@@ -31,6 +31,7 @@ import { Plus } from "lucide-react";
 import { STANDARD_MODULES } from "@/config/modules";
 import { DEFAULT_TEMPLATES } from "@/config";
 import { getFontOptions, normalizeFontFamily } from "@/utils/fonts";
+import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from "../ui/item";
 
 const lineHeightOptions = [
   { value: "normal", label: "默认" },
@@ -223,8 +224,8 @@ export function SidePanel() {
         </SettingCard>
 
         {/* 主题色设置  */}
-        <SettingCard 
-          icon={Palette} 
+        <SettingCard
+          icon={Palette}
           title={t("theme.title")}
           action={
             <ColorPicker
@@ -241,9 +242,9 @@ export function SidePanel() {
             >
               <Palette className="w-3.5 h-3.5" />
               <span className="text-xs font-medium">{t("theme.custom")}</span>
-              
+
               {!THEME_COLORS.includes(themeColor) && (
-                <div 
+                <div
                   className="w-2.5 h-2.5 rounded-full ml-0.5 border border-primary/20 shadow-sm"
                   style={{ backgroundColor: themeColor }}
                 />
@@ -741,57 +742,77 @@ export function SidePanel() {
         </SettingCard>
 
         {/* 模式设置 */}
-        <SettingCard icon={Zap} title={t("mode.title")}>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label className="text-muted-foreground">
-                {t("mode.useIconMode.title")}
-              </Label>
-              <div className="flex items-center gap-4">
-                <Switch
-                  checked={globalSettings.useIconMode}
-                  onCheckedChange={(checked) =>
-                    updateGlobalSettings({
-                      useIconMode: checked,
-                    })
-                  }
-                />
-              </div>
-            </div>
+        <Item variant="outline">
+          <ItemContent>
+            <ItemTitle>{t("mode.autoOnePage.title")}</ItemTitle>
+            <ItemDescription>{t("mode.autoOnePage.description")}</ItemDescription>
+          </ItemContent>
 
-            <div className="space-y-2">
-              <Label className="text-muted-foreground">
-                {t("mode.centerSubtitle.title")}
-              </Label>
-              <div className="flex items-center gap-4">
-                <Switch
-                  checked={globalSettings.centerSubtitle}
-                  onCheckedChange={(checked) =>
-                    updateGlobalSettings({
-                      centerSubtitle: checked,
-                    })
-                  }
-                />
-              </div>
-            </div>
+          <ItemActions>
+            <Switch
+              checked={globalSettings.autoOnePage}
+              onCheckedChange={(checked) =>
+                updateGlobalSettings({
+                  autoOnePage: checked,
+                })
+              }
+            />
+          </ItemActions>
+        </Item>
 
-            <div className="space-y-2">
-              <Label className="text-muted-foreground">
-                {t("mode.flexibleHeaderLayout.title")}
-              </Label>
-              <div className="flex items-center gap-4">
-                <Switch
-                  checked={globalSettings.flexibleHeaderLayout}
-                  onCheckedChange={(checked) =>
-                    updateGlobalSettings({
-                      flexibleHeaderLayout: checked,
-                    })
-                  }
-                />
-              </div>
-            </div>
-          </div>
-        </SettingCard>
+        <Item variant="outline">
+          <ItemContent>
+            <ItemTitle>{t("mode.useIconMode.title")}</ItemTitle>
+            <ItemDescription>{t("mode.useIconMode.description")}</ItemDescription>
+          </ItemContent>
+
+          <ItemActions>
+            <Switch
+              checked={globalSettings.useIconMode}
+              onCheckedChange={(checked) =>
+                updateGlobalSettings({
+                  useIconMode: checked,
+                })
+              }
+            />
+          </ItemActions>
+        </Item>
+
+        <Item variant="outline">
+          <ItemContent>
+            <ItemTitle>{t("mode.centerSubtitle.title")}</ItemTitle>
+            <ItemDescription>{t("mode.centerSubtitle.description")}</ItemDescription>
+          </ItemContent>
+
+          <ItemActions>
+            <Switch
+              checked={globalSettings.centerSubtitle}
+              onCheckedChange={(checked) =>
+                updateGlobalSettings({
+                  centerSubtitle: checked,
+                })
+              }
+            />
+          </ItemActions>
+        </Item>
+
+        <Item variant="outline">
+          <ItemContent>
+            <ItemTitle>{t("mode.flexibleHeaderLayout.title")}</ItemTitle>
+            <ItemDescription>{t("mode.flexibleHeaderLayout.description")}</ItemDescription>
+          </ItemContent>
+
+          <ItemActions>
+            <Switch
+              checked={globalSettings.flexibleHeaderLayout}
+              onCheckedChange={(checked) =>
+                updateGlobalSettings({
+                  flexibleHeaderLayout: checked,
+                })
+              }
+            />
+          </ItemActions>
+        </Item>
       </div>
     </motion.div>
   );

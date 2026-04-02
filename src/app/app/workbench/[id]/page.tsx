@@ -334,6 +334,7 @@ export default function Home() {
                 <DragHandle />
               </>
             )}
+
             {/* 预览面板 - 使用 CSS 隐藏而非条件渲染，确保导出时 #resume-preview 始终在 DOM 中 */}
             <ResizablePanel
               id="preview-panel"

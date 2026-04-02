@@ -6,6 +6,7 @@
     "dashboard": "仪表盘",
     "edit": "编辑",
     "delete": "删除",
+    "switchTemplate": "切换模板",
     "newResume": "新建简历",
     "copy": "复制",
     "cancel": "取消",
@@ -332,13 +333,20 @@
       "mode": {
         "title": "模式",
         "useIconMode": {
-          "title": "图标模式"
+          "title": "图标模式",
+          "description": "开启后在模块标题前显示图标，关闭后隐藏图标。"
         },
         "centerSubtitle": {
-          "title": "副标题居中"
+          "title": "副标题居中",
+          "description": "开启后副标题居中显示，关闭后与标题左对齐。"
         },
         "flexibleHeaderLayout": {
-          "title": "长标题模式"
+          "title": "长标题模式",
+          "description": "开启后模块标题将不受限于单行，适合标题较长的情况。"
+        },
+        "autoOnePage": {
+          "title": "自动一页纸",
+          "description": "开启后将自动调整排版以适应一页纸，适合内容较多的简历。"
         }
       }
     },
