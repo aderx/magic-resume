@@ -2,36 +2,18 @@
 
 import ResumeTemplateComponent from "@/components/templates";
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogOverlay,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
     Card,
     CardContent,
     CardFooter,
 } from "@/components/ui/card";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
 import { DEFAULT_TEMPLATES } from "@/config";
 import { cn } from "@/lib/utils";
 import { useResumeStore } from "@/store/useResumeStore";
 import { normalizeFontFamily } from "@/utils/fonts";
 import { motion } from "framer-motion";
-import { Copy, EllipsisVertical, Trash2 } from "lucide-react";
 import React, { useCallback } from "react";
 import { toast } from "sonner";
+import { ResumeCardActions } from "./ResumeCardActions";
 
 interface ResumeCardItemProps {
     id: string;
@@ -156,63 +138,11 @@ export const ResumeCardItem = ({
                         }).format(new Date(resume.createdAt))}</p>
                     </div>
 
-                    <AlertDialog>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <div
-                                    className={cn(
-                                        "flex cursor-pointer h-7 w-7 items-center justify-center rounded-lg",
-                                        "hover:bg-gray-100/50 dark:hover:bg-neutral-800/50",
-                                        "transition-all duration-200",
-                                    )}
-                                    onClick={(e) => e.stopPropagation()}
-                                    onPointerDown={(e) => e.stopPropagation()}
-                                >
-                                    <EllipsisVertical className="h-4 w-4" />
-                                </div>
-                            </DropdownMenuTrigger>
-
-                            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                                <DropdownMenuItem
-                                    className="cursor-pointer"
-                                    onClick={handleCopyResume}
-                                >
-                                    <Copy className="w-4 h-4 mr-2" />
-                                    {t("common.copy")}
-                                </DropdownMenuItem>
-
-                                <AlertDialogTrigger asChild>
-                                    <DropdownMenuItem
-                                        className="cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50"
-                                    >
-                                        <Trash2 className="w-4 h-4 mr-2" />
-                                        {t("common.delete")}
-                                    </DropdownMenuItem>
-                                </AlertDialogTrigger>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-
-                        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>{t("dashboard.resumes.deleteConfirmTitle")}</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    {t("dashboard.resumes.deleteConfirmDescription")}
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
-                                <AlertDialogAction
-                                    className="bg-red-600 hover:bg-red-700 text-white focus:ring-red-600 border-none"
-                                    onClick={(e) => {
-                                        deleteResume(resume);
-                                        toast.success(t("common.deleteSuccess"));
-                                    }}
-                                >
-                                    {t("common.confirm")}
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                    <ResumeCardActions
+                        onCopy={handleCopyResume}
+                        onDelete={() => deleteResume(resume)}
+                        t={t}
+                    />
                 </CardFooter>
             </Card>
         </motion.div>

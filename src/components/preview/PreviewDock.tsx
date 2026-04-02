@@ -1,7 +1,6 @@
 "use client";
 
 import { Dock, DockIcon } from "@/components/magicui/dock";
-import TemplateSheet from "@/components/shared/TemplateSheet";
 import {
   Tooltip,
   TooltipContent,
@@ -67,23 +66,7 @@ const PreviewDock = ({
         <TooltipProvider delayDuration={0}>
           <Dock className="bg-background/80 border border-border/40 shadow-xl mb-0">
             <div className="flex flex-col gap-2">
-              <DockIcon>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div
-                      className={cn(
-                        "flex cursor-pointer h-7 w-7 items-center justify-center rounded-lg",
-                        "hover:bg-gray-100/50 dark:hover:bg-neutral-800/50"
-                      )}
-                    >
-                      <TemplateSheet />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="left" sideOffset={10}>
-                    <p>{t("switchTemplate")}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </DockIcon>
+
               <DockIcon>
                 <Tooltip>
                   <TooltipTrigger asChild>

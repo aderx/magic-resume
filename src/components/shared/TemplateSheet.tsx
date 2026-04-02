@@ -1,17 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Layout, PanelsLeftBottom } from "lucide-react";
+import { Layout } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslations } from "@/i18n/compat/client";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger
-} from "@/components/ui/sheet-no-overlay";
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { DEFAULT_TEMPLATES } from "@/config";
 import { useResumeStore } from "@/store/useResumeStore";
@@ -30,6 +29,11 @@ interface TemplatePreviewProps {
   isActive: boolean;
   baseData: typeof initialResumeState;
   onSelect: (templateId: string) => void;
+}
+
+interface TemplateSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 const TemplatePreview = ({
@@ -70,9 +74,7 @@ const TemplatePreview = ({
           : "dark:border-neutral-800 dark:hover:border-neutral-700 border-gray-100 hover:border-gray-200"
       )}
     >
-      <div
-        className="relative aspect-[210/297] w-full overflow-hidden bg-gray-50 dark:bg-gray-900"
-      >
+      <div className="relative aspect-[210/297] w-full overflow-hidden bg-gray-50 dark:bg-gray-900">
         <div className="h-full w-full p-2 transition-all duration-300 group-hover:scale-[1.02] flex items-center justify-center pointer-events-none">
           <div
             ref={paperRef}
@@ -129,8 +131,9 @@ const TemplatePreview = ({
   );
 };
 
-const TemplateSheet = () => {
+const TemplateSheet = ({ open, onOpenChange }: TemplateSheetProps) => {
   const t = useTranslations("templates");
+  const commonT = useTranslations("common");
   const { activeResume, setTemplate } = useResumeStore();
   const currentTemplate =
     DEFAULT_TEMPLATES.find((t) => t.id === activeResume?.templateId) ||
@@ -140,35 +143,39 @@ const TemplateSheet = () => {
   const baseData = locale === "en" ? initialResumeStateEn : initialResumeState;
 
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <PanelsLeftBottom size={20} />
-      </SheetTrigger>
-      <SheetContent side="left" className="w-1/2 sm:max-w-1/2">
-        <SheetHeader>
-          <SheetTitle>{t("switchTemplate")}</SheetTitle>
-        </SheetHeader>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent
+        className="flex h-[85vh] w-[92vw] max-w-[1400px] flex-col gap-0 p-0"
+        onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        <AlertDialogHeader className="flex-row items-center justify-between space-y-0 border-b px-6 py-4">
+          <AlertDialogTitle>{t("switchTemplate")}</AlertDialogTitle>
+          <AlertDialogCancel className="mt-0">
+            {commonT("cancel")}
+          </AlertDialogCancel>
+        </AlertDialogHeader>
 
-        {/* 解决警告问题 */}
-        <SheetDescription></SheetDescription>
-
-        <div className="h-[calc(100vh-8rem)] mt-4">
+        <div className="min-h-0 flex-1 px-6 py-4">
           <ScrollArea className="h-full w-full pr-4">
-            <div className="grid grid-cols-4 gap-4 pb-8">
+            <div className="grid grid-cols-1 gap-4 pb-8 sm:grid-cols-2 xl:grid-cols-4">
               {DEFAULT_TEMPLATES.map((template) => (
                 <TemplatePreview
                   key={template.id}
                   template={template}
                   isActive={template.id === currentTemplate.id}
                   baseData={baseData}
-                  onSelect={setTemplate}
+                  onSelect={(templateId) => {
+                    setTemplate(templateId);
+                    onOpenChange(false);
+                  }}
                 />
               ))}
             </div>
           </ScrollArea>
         </div>
-      </SheetContent>
-    </Sheet>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 
