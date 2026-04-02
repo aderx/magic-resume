@@ -13,10 +13,6 @@ import { useGrammarCheck } from "@/hooks/useGrammarCheck";
 import { useTranslations } from "@/i18n/compat/client";
 import { cn } from "@/lib/utils";
 import {
-  Edit2,
-  Eye,
-  PanelRightClose,
-  PanelRightOpen,
   SpellCheck2
 } from "lucide-react";
 import React, { useCallback } from "react";
@@ -25,22 +21,11 @@ import { toast } from "sonner";
 export type IconProps = React.HTMLAttributes<SVGElement>;
 
 interface PreviewDockProps {
-  sidePanelCollapsed: boolean;
-  editPanelCollapsed: boolean;
-  previewPanelCollapsed: boolean;
-  toggleSidePanel: () => void;
-  toggleEditPanel: () => void;
-  togglePreviewPanel: () => void;
+
   resumeContentRef: React.RefObject<HTMLDivElement>;
 }
 
 const PreviewDock = ({
-  sidePanelCollapsed,
-  editPanelCollapsed,
-  previewPanelCollapsed,
-  toggleSidePanel,
-  toggleEditPanel,
-  togglePreviewPanel,
   resumeContentRef
 }: PreviewDockProps) => {
   const t = useTranslations("previewDock");
@@ -128,87 +113,7 @@ const PreviewDock = ({
 
 
               <div className="w-full h-[1px] bg-gray-200" />
-              <DockIcon>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={toggleSidePanel}
-                      className={cn(
-                        "flex h-[30px] w-[30px] items-center justify-center rounded-sm transition-all",
-                        "hover:bg-gray-100/50 dark:hover:bg-neutral-800/50",
-                        "active:scale-95",
-                        !sidePanelCollapsed && [
-                          "bg-primary text-primary-foreground",
-                          "hover:bg-primary/90 dark:hover:bg-primary/90",
-                          "shadow-sm"
-                        ]
-                      )}
-                    >
-                      {sidePanelCollapsed && <PanelRightClose size={20} />}
-                      {!sidePanelCollapsed && <PanelRightOpen size={20} />}
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="left" sideOffset={10}>
-                    <p>
-                      {sidePanelCollapsed
-                        ? t("sidePanel.expand")
-                        : t("sidePanel.collapse")}
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </DockIcon>
-              <DockIcon>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={toggleEditPanel}
-                      className={cn(
-                        "flex h-[30px] w-[30px] items-center justify-center rounded-sm transition-all",
-                        "hover:bg-gray-100/50 dark:hover:bg-neutral-800/50",
-                        "active:scale-95",
-                        !editPanelCollapsed && [
-                          "bg-primary text-primary-foreground",
-                          "hover:bg-primary/90 dark:hover:bg-primary/90",
-                          "shadow-sm"
-                        ]
-                      )}
-                    >
-                      <Edit2 size={20} />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="left" sideOffset={10}>
-                    {editPanelCollapsed
-                      ? t("editPanel.expand")
-                      : t("editPanel.collapse")}
-                  </TooltipContent>
-                </Tooltip>
-              </DockIcon>
-              <DockIcon>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={togglePreviewPanel}
-                      className={cn(
-                        "flex h-[30px] w-[30px] items-center justify-center rounded-sm transition-all",
-                        "hover:bg-gray-100/50 dark:hover:bg-neutral-800/50",
-                        "active:scale-95",
-                        !previewPanelCollapsed && [
-                          "bg-primary text-primary-foreground",
-                          "hover:bg-primary/90 dark:hover:bg-primary/90",
-                          "shadow-sm"
-                        ]
-                      )}
-                    >
-                      <Eye size={20} />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="left" sideOffset={10}>
-                    {previewPanelCollapsed
-                      ? t("previewPanel.expand")
-                      : t("previewPanel.collapse")}
-                  </TooltipContent>
-                </Tooltip>
-              </DockIcon>
+
 
             </div>
           </Dock>

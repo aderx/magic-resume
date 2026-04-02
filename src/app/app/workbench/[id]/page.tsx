@@ -281,9 +281,14 @@ export default function Home() {
         "bg-background text-foreground"
       )}
     >
-      <EditorHeader />
+      <EditorHeader sidePanelCollapsed={sidePanelCollapsed}
+        editPanelCollapsed={editPanelCollapsed}
+        previewPanelCollapsed={previewPanelCollapsed}
+        toggleSidePanel={toggleSidePanel}
+        toggleEditPanel={toggleEditPanel}
+        togglePreviewPanel={togglePreviewPanel} />
       {/* 桌面端布局 */}
-      <div className="hidden md:block h-[calc(100vh-64px)] relative flex w-full">
+      <div className="md:block h-[calc(100vh-64px)] relative flex w-full">
         <div className={cn(
           "h-full transition-all duration-300",
           previewPanelCollapsed ? "w-[calc(100%-4rem)]" : "w-full"
@@ -361,12 +366,7 @@ export default function Home() {
         </div>
 
         <PreviewDock
-          sidePanelCollapsed={sidePanelCollapsed}
-          editPanelCollapsed={editPanelCollapsed}
-          previewPanelCollapsed={previewPanelCollapsed}
-          toggleSidePanel={toggleSidePanel}
-          toggleEditPanel={toggleEditPanel}
-          togglePreviewPanel={togglePreviewPanel}
+
           resumeContentRef={resumeContentRef}
         />
       </div>

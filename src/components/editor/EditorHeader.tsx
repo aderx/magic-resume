@@ -1,28 +1,36 @@
 "use client";
 
-import { useTranslations } from "@/i18n/compat/client";
-import { AlertCircle } from "lucide-react";
-import { motion } from "framer-motion";
-import { useRouter } from "@/lib/navigation";
 import { Input } from "@/components/ui/input";
-import PdfExport from "../shared/PdfExport";
-import ThemeToggle from "../shared/ThemeToggle";
+import { useGrammarCheck } from "@/hooks/useGrammarCheck";
+import { useTranslations } from "@/i18n/compat/client";
+import { useRouter } from "@/lib/navigation";
 import { useResumeStore } from "@/store/useResumeStore";
 import { getThemeConfig } from "@/theme/themeConfig";
-import { useGrammarCheck } from "@/hooks/useGrammarCheck";
+import { motion } from "framer-motion";
 import {
-  HoverCard,
-  HoverCardTrigger,
-  HoverCardContent
-} from "@/components/ui/hover-card";
-import { Button } from "@/components/ui/button";
+  AlertCircle, Edit2,
+  Eye,
+  Layout,
+  PanelRightClose
+} from "lucide-react";
+import PdfExport from "../shared/PdfExport";
+import ThemeToggle from "../shared/ThemeToggle";
+import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { GrammarCheckDrawer } from "./grammar/GrammarCheckDrawer";
 
 interface EditorHeaderProps {
   isMobile?: boolean;
+
+  sidePanelCollapsed: boolean;
+  editPanelCollapsed: boolean;
+  previewPanelCollapsed: boolean;
+  toggleSidePanel: () => void;
+  toggleEditPanel: () => void;
+  togglePreviewPanel: () => void;
 }
 
-export function EditorHeader({ isMobile }: EditorHeaderProps) {
+export function EditorHeader(props: EditorHeaderProps) {
+  const { isMobile, sidePanelCollapsed, editPanelCollapsed, previewPanelCollapsed, toggleSidePanel, toggleEditPanel, togglePreviewPanel } = props;
   const { activeResume, setActiveSection, updateResumeTitle } =
     useResumeStore();
   const { menuSections = [], activeSection } = activeResume || {};
@@ -41,7 +49,7 @@ export function EditorHeader({ isMobile }: EditorHeaderProps) {
       animate={{ y: 0 }}
     >
       <div className="flex items-center justify-between px-6 h-full pr-2">
-        <div className="flex items-center space-x-6  scrollbar-hide">
+        <div className="flex items-center space-x-6 scrollbar-hide">
           <motion.div
             className="flex items-center space-x-2 shrink-0 cursor-pointer"
             whileHover={{ scale: 1.02 }}
@@ -52,20 +60,42 @@ export function EditorHeader({ isMobile }: EditorHeaderProps) {
           >
             <span className="text-lg font-semibold">{t("common.title")}</span>
           </motion.div>
+
+
+          <ToggleGroup
+            variant="outline"
+            type="multiple"
+            value={[
+              !sidePanelCollapsed ? 'slide' : '',
+              !editPanelCollapsed ? 'edit' : '',
+              !previewPanelCollapsed ? 'preview' : ''
+            ]}
+          >
+            <ToggleGroupItem value="slide" onClick={toggleSidePanel}>
+              <Layout />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="edit" onClick={toggleEditPanel}>
+              <Edit2 />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="preview" onClick={togglePreviewPanel}>
+              <Eye />
+            </ToggleGroupItem>
+          </ToggleGroup>
+
         </div>
 
         <div className="flex items-center space-x-3">
           <GrammarCheckDrawer />
           {errors.length > 0 && (
-             <div 
-                className="flex items-center space-x-1 cursor-pointer animate-pulse"
-                onClick={() => document.dispatchEvent(new CustomEvent('open-grammar-drawer'))}
-             >
-                  <AlertCircle className="w-4 h-4 text-red-500" />
-                  <span className="text-sm text-red-500">
-                    {t("grammarCheck.found_issues", { count: errors.length })}
-                  </span>
-             </div>
+            <div
+              className="flex items-center space-x-1 cursor-pointer animate-pulse"
+              onClick={() => document.dispatchEvent(new CustomEvent('open-grammar-drawer'))}
+            >
+              <AlertCircle className="w-4 h-4 text-red-500" />
+              <span className="text-sm text-red-500">
+                {t("grammarCheck.found_issues", { count: errors.length })}
+              </span>
+            </div>
           )}
           <Input
             key={activeResume?.id || "resume-title"}
