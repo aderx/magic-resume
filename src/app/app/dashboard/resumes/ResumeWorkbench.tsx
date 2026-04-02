@@ -17,6 +17,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { getConfig, getFileHandle, verifyPermission } from "@/utils/fileSystem";
+import { markdownToResume } from "@/utils/resumeMarkdown";
 import { useResumeStore } from "@/store/useResumeStore";
 import { useAIConfigStore } from "@/store/useAIConfigStore";
 import { DEFAULT_TEMPLATES } from "@/config";
@@ -27,7 +28,6 @@ import { AnimatedImportButton } from "./AnimatedImportButton";
 import {
     extractJsonContent,
     createResumeFromAIResult,
-    toStringArray
 } from "./utils";
 
 const MAX_PDF_IMPORT_PAGES = 3;
@@ -56,6 +56,7 @@ export const ResumeWorkbench = () => {
     const [isImporting, setIsImporting] = useState(false);
     const jsonFileInputRef = useRef<HTMLInputElement>(null);
     const pdfFileInputRef = useRef<HTMLInputElement>(null);
+    const mdFileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         const syncResumesFromFiles = async () => {
@@ -254,6 +255,24 @@ export const ResumeWorkbench = () => {
         router.push(`/app/workbench/${resumeId}`);
     };
 
+    const importResumeFromMarkdown = async (file: File) => {
+        const content = (await file.text()).trim();
+        if (!content) {
+            throw new Error("Markdown file is empty");
+        }
+
+        const nameWithoutExt = file.name.replace(/\.[^.]+$/, "").trim();
+        const resume = markdownToResume(content, {
+            locale,
+            fileName: nameWithoutExt,
+        });
+        const resumeId = addResume(resume);
+        setActiveResume(resumeId);
+        setIsImportDialogOpen(false);
+        toast.success(t("dashboard.resumes.importSuccess"));
+        router.push(`/app/workbench/${resumeId}`);
+    };
+
     const handleJsonFileChange = async (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
@@ -288,6 +307,28 @@ export const ResumeWorkbench = () => {
                 error instanceof Error && error.message
                     ? error.message
                     : t("dashboard.resumes.importDialog.pdfError");
+            toast.error(message);
+        } finally {
+            setIsImporting(false);
+        }
+    };
+
+    const handleMdFileChange = async (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = event.target.files?.[0];
+        event.target.value = "";
+        if (!file || isImporting) return;
+
+        try {
+            setIsImporting(true);
+            await importResumeFromMarkdown(file);
+        } catch (error) {
+            console.error("Import Markdown error:", error);
+            const message =
+                error instanceof Error && error.message
+                    ? error.message
+                    : t("dashboard.resumes.importError");
             toast.error(message);
         } finally {
             setIsImporting(false);
@@ -457,8 +498,10 @@ export const ResumeWorkbench = () => {
                     onOpenChange={setIsImportDialogOpen}
                     jsonFileInputRef={jsonFileInputRef}
                     pdfFileInputRef={pdfFileInputRef}
+                    mdFileInputRef={mdFileInputRef}
                     onJsonFileChange={handleJsonFileChange}
                     onPdfFileChange={handlePdfFileChange}
+                    onMdFileChange={handleMdFileChange}
                 />
             </motion.div>
         </ScrollArea>

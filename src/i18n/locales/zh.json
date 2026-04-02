@@ -126,6 +126,8 @@
         "title": "导入简历",
         "jsonTitle": "导入 JSON",
         "jsonDescription": "导入已导出的简历配置文件（.json）",
+        "mdTitle": "导入 Markdown",
+        "mdDescription": "导入已导出的简历文本（.md）",
         "pdfTitle": "导入 PDF",
         "pdfDescription": "使用 Gemini 自动识别生成简历结构",
         "importing": "正在导入，请稍候...",
