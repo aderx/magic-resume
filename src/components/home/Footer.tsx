@@ -1,3 +1,5 @@
+"use client";
+
 import { useTranslations } from "@/i18n/compat/client";
 import Logo from "@/components/shared/Logo";
 

@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useTranslations } from "@/i18n/compat/client";
 import { cn } from "@/lib/utils";

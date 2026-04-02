@@ -1,3 +1,5 @@
+"use client";
+
 import { useTranslations } from "@/i18n/compat/client";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowRight, Play } from "lucide-react";

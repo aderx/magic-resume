@@ -17,7 +17,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { getConfig, getFileHandle, verifyPermission } from "@/utils/fileSystem";
-import { markdownToResume } from "@/utils/resumeMarkdown";
 import { useResumeStore } from "@/store/useResumeStore";
 import { useAIConfigStore } from "@/store/useAIConfigStore";
 import { DEFAULT_TEMPLATES } from "@/config";
@@ -64,12 +63,16 @@ export const ResumeWorkbench = () => {
                 const handle = await getFileHandle("syncDirectory");
                 if (!handle) return;
 
+                if (handle.kind !== "directory" || typeof (handle as any).entries !== "function") {
+                    return;
+                }
+
                 const hasPermission = await verifyPermission(handle);
                 if (!hasPermission) return;
 
                 const dirHandle = handle as FileSystemDirectoryHandle;
 
-                for await (const entry of (dirHandle as any).values()) {
+                for await (const [name, entry] of (dirHandle as any).entries()) {
                     if (entry.kind === "file" && entry.name.endsWith(".json")) {
                         try {
                             const file = await entry.getFile();
@@ -96,7 +99,7 @@ export const ResumeWorkbench = () => {
             try {
                 const handle = await getFileHandle("syncDirectory");
                 const path = await getConfig("syncDirectoryPath");
-                if (handle && path) {
+                if (handle?.kind === "directory" && typeof (handle as any).entries === "function" && path) {
                     setHasConfiguredFolder(true);
                 }
             } catch (error) {
@@ -262,6 +265,7 @@ export const ResumeWorkbench = () => {
         }
 
         const nameWithoutExt = file.name.replace(/\.[^.]+$/, "").trim();
+        const { markdownToResume } = await import("@/utils/resumeMarkdown");
         const resume = markdownToResume(content, {
             locale,
             fileName: nameWithoutExt,

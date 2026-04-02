@@ -83,6 +83,10 @@ const syncResumeToFile = async (
       return;
     }
 
+    if (handle.kind !== "directory" || typeof (handle as any).getFileHandle !== "function") {
+      return;
+    }
+
     const hasPermission = await verifyPermission(handle);
     if (!hasPermission) {
       return;
@@ -242,6 +246,10 @@ export const useResumeStore = create(
           try {
             const handle = await getFileHandle("syncDirectory");
             if (!handle) return;
+
+            if (handle.kind !== "directory" || typeof (handle as any).removeEntry !== "function") {
+              return;
+            }
 
             const hasPermission = await verifyPermission(handle);
             if (!hasPermission) return;
