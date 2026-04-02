@@ -14,6 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import ResumeTemplateComponent from "@/components/templates";
 import { initialResumeState, initialResumeStateEn } from "@/config/initialResumeData";
 import type { ResumeTemplate } from "@/types/template";
+import { normalizeFontFamily } from "@/utils/fonts";
 
 const A4_WIDTH_PX = 793.700787;
 const PREVIEW_MODAL_SCALE = 0.529166667;
@@ -42,22 +43,22 @@ const buildTemplatePreviewData = (
   selectedColor: string,
   mockId: string
 ) =>
-  ({
-    ...baseData,
-    id: mockId,
-    templateId: template.id,
-    globalSettings: {
-      ...baseData.globalSettings,
-      themeColor: selectedColor || template.colorScheme.primary,
-      sectionSpacing: template.spacing.sectionGap,
-      paragraphSpacing: template.spacing.itemGap,
-      pagePadding: template.spacing.contentPadding,
-    },
-    basic: {
-      ...baseData.basic,
-      layout: template.basic.layout,
-    },
-  } as any);
+({
+  ...baseData,
+  id: mockId,
+  templateId: template.id,
+  globalSettings: {
+    ...baseData.globalSettings,
+    themeColor: selectedColor || template.colorScheme.primary,
+    sectionSpacing: template.spacing.sectionGap,
+    paragraphSpacing: template.spacing.itemGap,
+    pagePadding: template.spacing.contentPadding,
+  },
+  basic: {
+    ...baseData.basic,
+    layout: template.basic.layout,
+  },
+} as any);
 
 interface TemplateCardItemProps {
   index: number;
@@ -140,7 +141,7 @@ const TemplateCardItem = ({
                   transform: `scale(${scale})`,
                   transformOrigin: "top left",
                   padding: `${template.spacing.contentPadding}px`,
-                  fontFamily: "Alibaba PuHuiTi, sans-serif",
+                  fontFamily: normalizeFontFamily(previewData.globalSettings?.fontFamily),
                 }}
               >
                 <ResumeTemplateComponent data={previewData} template={template} />
@@ -354,7 +355,14 @@ const TemplatesPage = () => {
                           transform: `scale(${PREVIEW_MODAL_SCALE})`,
                           transformOrigin: "top left",
                           padding: `${activePreviewTemplate.spacing.contentPadding}px`,
-                          fontFamily: "Alibaba PuHuiTi, sans-serif",
+                          fontFamily: normalizeFontFamily(
+                            buildTemplatePreviewData(
+                              baseData,
+                              activePreviewTemplate,
+                              selectedColor,
+                              "template-preview-modal"
+                            ).globalSettings?.fontFamily
+                          ),
                         }}
                       >
                         <ResumeTemplateComponent

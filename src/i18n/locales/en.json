@@ -246,6 +246,10 @@
       "creative": {
         "name": "Creative",
         "description": "Visual contrast design, vibrant and personalized"
+      },
+      "editorial": {
+        "name": "Editorial",
+        "description": "Luxurious blend of bold serif and refined sans-serif typography"
       }
     }
   },
@@ -304,6 +308,11 @@
       "enabled": "One page mode enabled",
       "disabled": "One page mode disabled",
       "cannotFit": "Too much content. Optimized as much as possible but cannot fit on one page. Try simplifying the content or adjusting margins and font size in the sidebar."
+    },
+    "backup": {
+      "configured": "Backup Configured",
+      "notConfigured": "Backup Not Configured",
+      "clickToConfigure": "Click to configure"
     }
   },
   "workbench": {
@@ -329,9 +338,11 @@
         "title": "Typography",
         "font": {
           "title": "Font",
-          "sans": "Sans-serif",
-          "serif": "Serif",
-          "mono": "Monospace"
+          "alibaba": "Alibaba PuHuiTi",
+          "misans": "MiSans",
+          "notosanssc": "Noto Sans SC",
+          "sourcehanserifsc": "Source Han Serif SC",
+          "note": "MiSans is used under its free commercial license. Keep MiSans attribution when distributing this project."
         },
         "lineHeight": {
           "title": "Line Height",
@@ -385,6 +396,7 @@
           "label": "Label",
           "value": "Value"
         },
+        "displayLabel": "Show label",
         "addButton": "Add Custom Field"
       },
       "basicFields": {
@@ -467,7 +479,8 @@
         "date": "Project Period",
         "description": "Project Description",
         "technologies": "Tech Stack",
-        "link": "Project Link"
+        "link": "Project Link",
+        "linkLabel": "Display Text"
       },
       "placeholders": {
         "name": "Enter project name",
@@ -475,7 +488,11 @@
         "date": "Project time range",
         "description": "Briefly describe project background and goals",
         "technologies": "Technologies and tools used",
-        "link": "Project link"
+        "link": "Project link",
+        "linkLabel": "Display text"
+      },
+      "hints": {
+        "linkLabel": "If display text is empty, the domain or full URL will be shown automatically. Only http:// and https:// links are supported."
       },
       "buttons": {
         "edit": "Edit",
@@ -554,6 +571,11 @@
     "bold": "Bold",
     "italic": "Italic",
     "underline": "Underline",
+    "link": "Link",
+    "linkPlaceholder": "Enter a URL, for example https://example.com",
+    "linkApply": "Apply",
+    "linkRemove": "Remove",
+    "linkInvalid": "Please enter a valid URL",
     "textColor": "Text Color",
     "backgroundColor": "Background Color",
     "alignLeft": "Align Left",
@@ -664,6 +686,7 @@
   "aiPolishDialog": {
     "title": "AI Polish",
     "description": {
+      "ready": "Add optional instructions, then click \"Start polish\"",
       "polishing": "Polishing your content...",
       "finished": "Content has been optimized, please check the result"
     },
@@ -676,7 +699,10 @@
       "original": "Original Content",
       "polished": "Polished Content"
     },
+    "customInstructions": "Custom instructions",
+    "customInstructionsPlaceholder": "e.g. Use more technical terms, highlight metrics, keep tone formal… (optional)",
     "button": {
+      "start": "Start polish",
       "regenerate": "Regenerate",
       "generating": "Generating...",
       "apply": "Apply Content"
@@ -753,5 +779,27 @@
     "apply_error": "Text not found, cannot apply automatically",
     "no_errors_title": "Perfect!",
     "no_errors_desc": "No grammar or punctuation errors found."
+  },
+  "faqDialog": {
+    "title": "Frequently Asked Questions (FAQ)",
+    "description": "Common tips and solutions for the Magic Resume workbench.",
+    "items": {
+      "browser-compatibility": {
+        "question": "Which browser is recommended?",
+        "answer": "We recommend using the latest version of Chrome or Edge for the best layout and export experience. Some outdated browsers may cause styling issues."
+      },
+      "export-failure": {
+        "question": "What if export fails or style is broken?",
+        "answer": "1. We recommend using Google Chrome (https://www.google.cn/intl/zh-CN/chrome/) for best compatibility.\n2. If it still fails, try in 'Incognito Mode' to exclude extension interference.\n3. Alternatively, click 'PDF (Backup)' in the export menu and select 'Save as PDF' in the print dialog."
+      },
+      "export-methods": {
+        "question": "What's the difference between the two export methods?",
+        "answer": "• Export PDF: Uses a backend service for high-precision rendering, 100% restoring the layout. Recommended for formal submission to HR.\n\n• Browser Print: Invokes your current browser's native print function (Save as PDF). Suitable when the backend export service is busy or you need to fine-tune print margins via your browser."
+      },
+      "drag-and-drop": {
+        "question": "How do I drag and drop to reorder modules?",
+        "answer": "In the 'Layout' settings of the left edit panel, hover your cursor over the 'Drag Handle' (usually represented by a six-dot icon) on the left side of the module card. Click and hold the left mouse button to drag the module up or down to reorder the sections of your entire resume."
+      }
+    }
   }
 }

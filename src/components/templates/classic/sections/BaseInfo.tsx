@@ -9,6 +9,7 @@ import { ResumeTemplate } from "@/types/template";
 import SectionWrapper from "../../shared/SectionWrapper";
 import { useTranslations, useLocale } from "@/i18n/compat/client";
 import GithubContribution from "@/components/shared/GithubContribution";
+import { getCustomFieldDisplayText, getCustomFieldHref, shouldShowCustomFieldLabelPrefix } from "@/lib/customField";
 
 interface BaseInfoProps {
     basic: BasicInfo | undefined;
@@ -43,8 +44,8 @@ const BaseInfo = ({ basic = {} as BasicInfo, globalSettings, template }: BaseInf
 
     const allFields = [
         ...getOrderedFields,
-        ...(basic.customFields?.filter((field) => field.visible !== false).map((field) => ({
-            key: field.id, value: field.value, icon: field.icon, label: field.label, visible: true, custom: true,
+        ...(basic.customFields?.filter((field) => field.visible !== false && Boolean(getCustomFieldDisplayText(field))).map((field) => ({
+            key: field.id, value: getCustomFieldDisplayText(field), icon: field.icon, label: field.label, visible: true, custom: true, displayLabel: field.displayLabel, href: getCustomFieldHref(field),
         })) || []),
     ];
 
@@ -82,22 +83,25 @@ const BaseInfo = ({ basic = {} as BasicInfo, globalSettings, template }: BaseInf
                     </div>
                 </div>
                 <motion.div layout="position" className={styles.fields} style={{ fontSize: `${globalSettings?.baseFontSize || 14}px`, color: "rgb(75, 85, 99)", maxWidth: layout === "center" ? "none" : "600px" }}>
-                    {allFields.map((item) => (
+                    {allFields.map((item) => {
+                        const customFieldHref = item.custom && "href" in item && typeof item.href === "string" ? item.href : null;
+
+                        return (
                         <motion.div key={item.key} className="flex items-center whitespace-nowrap overflow-hidden text-baseFont">
                             {useIconMode ? (
                                 <div className="flex items-center gap-1">
                                     {getIcon(item.icon)}
-                                    {item.key === "email" ? <a href={`mailto:${item.value}`} className="underline">{item.value}</a> : <span>{item.value}</span>}
+                                    {item.key === "email" ? <a href={`mailto:${item.value}`} className="underline">{item.value}</a> : customFieldHref ? <a href={customFieldHref} target="_blank" rel="noopener noreferrer" className="underline truncate">{item.value}</a> : <span>{item.value}</span>}
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-2 overflow-hidden">
                                     {!item.custom && <span>{t(`basicPanel.basicFields.${item.key}`)}:</span>}
-                                    {item.custom && <span>{item.label}:</span>}
-                                    <span className="truncate" suppressHydrationWarning>{item.value}</span>
+                                    {item.custom && shouldShowCustomFieldLabelPrefix(item) && <span>{item.label}:</span>}
+                                    {customFieldHref ? <a href={customFieldHref} target="_blank" rel="noopener noreferrer" className="truncate underline" suppressHydrationWarning>{item.value}</a> : <span className="truncate" suppressHydrationWarning>{item.value}</span>}
                                 </div>
                             )}
                         </motion.div>
-                    ))}
+                    )})}
                 </motion.div>
             </div>
             {basic.githubContributionsVisible && (

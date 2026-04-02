@@ -31,7 +31,7 @@ export const toStringArray = (value: unknown) => {
 export const toListHtml = (value: unknown) => {
   const items = toStringArray(value);
   if (items.length === 0) return "";
-  return `<ul class="custom-list">${items
+  return `<ul>${items
     .map((item) => `<li>${escapeHtml(item)}</li>`)
     .join("")}</ul>`;
 };
@@ -123,6 +123,12 @@ export const createResumeFromAIResult = (result: any, fileName: string) => {
         date: toString(item?.date),
         description: toListHtml(item?.description || item?.details),
         link: toString(item?.link),
+        linkLabel: toString(
+          item?.linkLabel ??
+            item?.linkText ??
+            item?.displayText ??
+            item?.linkDisplayText
+        ),
         visible: true,
       }))
       .filter((item: any) => item.name || item.role || item.date || item.description),

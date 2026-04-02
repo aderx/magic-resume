@@ -8,6 +8,7 @@ import { BasicInfo, getBorderRadiusValue, GlobalSettings } from "@/types/resume"
 import { ResumeTemplate } from "@/types/template";
 import SectionWrapper from "../../shared/SectionWrapper";
 import { useTranslations, useLocale } from "@/i18n/compat/client";
+import { getCustomFieldDisplayText, getCustomFieldHref, shouldShowCustomFieldLabelPrefix } from "@/lib/customField";
 
 interface BaseInfoProps {
     basic: BasicInfo | undefined;
@@ -44,8 +45,8 @@ const BaseInfo = ({ basic = {} as BasicInfo, globalSettings, template }: BaseInf
 
     const allFields = [
         ...getOrderedFields,
-        ...(basic.customFields?.filter((field) => field.visible !== false).map((field) => ({
-            key: field.id, value: field.value, icon: field.icon, label: field.label, visible: true, custom: true,
+        ...(basic.customFields?.filter((field) => field.visible !== false && Boolean(getCustomFieldDisplayText(field))).map((field) => ({
+            key: field.id, value: getCustomFieldDisplayText(field), icon: field.icon, label: field.label, visible: true, custom: true, displayLabel: field.displayLabel, href: getCustomFieldHref(field),
         })) || []),
     ];
 
@@ -76,22 +77,25 @@ const BaseInfo = ({ basic = {} as BasicInfo, globalSettings, template }: BaseInf
                 </div>
                 <motion.div layout="position" className="w-full flex flex-col gap-2"
                     style={{ fontSize: `${globalSettings?.baseFontSize || 14}px`, color: "#fff" }}>
-                    {allFields.map((item) => (
+                    {allFields.map((item) => {
+                        const customFieldHref = item.custom && "href" in item && typeof item.href === "string" ? item.href : null;
+
+                        return (
                         <motion.div key={item.key} className="flex items-center whitespace-nowrap overflow-hidden text-baseFont" style={{ width: "100%", color: "#fff" }}>
                             {useIconMode ? (
                                 <div className="flex items-center gap-1" style={{ color: "#fff" }}>
                                     {getIcon(item.icon)}
-                                    {item.key === "email" ? <a href={`mailto:${item.value}`} className="underline" style={{ color: "#fff" }}>{item.value}</a> : <span style={{ color: "#fff" }}>{item.value}</span>}
+                                    {item.key === "email" ? <a href={`mailto:${item.value}`} className="underline" style={{ color: "#fff" }}>{item.value}</a> : customFieldHref ? <a href={customFieldHref} target="_blank" rel="noopener noreferrer" className="underline truncate" style={{ color: "#fff" }}>{item.value}</a> : <span style={{ color: "#fff" }}>{item.value}</span>}
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-2 overflow-hidden" style={{ color: "#fff" }}>
                                     {!item.custom && <span style={{ color: "#fff" }}>{t(`basicPanel.basicFields.${item.key}`)}:</span>}
-                                    {item.custom && <span style={{ color: "#fff" }}>{item.label}:</span>}
-                                    <span className="truncate" suppressHydrationWarning style={{ color: "#fff" }}>{item.value}</span>
+                                    {item.custom && shouldShowCustomFieldLabelPrefix(item) && <span style={{ color: "#fff" }}>{item.label}:</span>}
+                                    {customFieldHref ? <a href={customFieldHref} target="_blank" rel="noopener noreferrer" className="truncate underline" suppressHydrationWarning style={{ color: "#fff" }}>{item.value}</a> : <span className="truncate" suppressHydrationWarning style={{ color: "#fff" }}>{item.value}</span>}
                                 </div>
                             )}
                         </motion.div>
-                    ))}
+                    )})}
                 </motion.div>
             </div>
         </SectionWrapper>

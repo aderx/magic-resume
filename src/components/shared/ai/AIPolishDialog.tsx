@@ -18,6 +18,8 @@ import {
   DialogTitle
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useAIConfigStore } from "@/store/useAIConfigStore";
 import { AI_MODEL_CONFIGS } from "@/config/ai";
 import { cn } from "@/lib/utils";
@@ -51,6 +53,7 @@ export default function AIPolishDialog({
   const t = useTranslations("aiPolishDialog");
   const [isPolishing, setIsPolishing] = useState(false);
   const [polishedContent, setPolishedContent] = useState("");
+  const [customInstructions, setCustomInstructions] = useState("");
   const {
     selectedModel,
     doubaoApiKey,
@@ -108,7 +111,8 @@ export default function AIPolishDialog({
           apiKey,
           apiEndpoint: selectedModel === "openai" ? openaiApiEndpoint : undefined,
           model: config.requiresModelId ? modelId : config.defaultModel,
-          modelType: selectedModel
+          modelType: selectedModel,
+          customInstructions: customInstructions.trim() || undefined
         }),
         signal: abortControllerRef.current.signal
       });
@@ -155,14 +159,13 @@ export default function AIPolishDialog({
   }, [polishedContent]);
 
   useEffect(() => {
-    if (open) {
-      handlePolish();
-    } else {
+    if (!open) {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
         abortControllerRef.current = null;
       }
       setPolishedContent("");
+      setCustomInstructions("");
     }
   }, [open]);
 
@@ -176,10 +179,7 @@ export default function AIPolishDialog({
   };
 
   const handleApply = () => {
-    // 将 Markdown 转为 HTML，并补回 Tiptap 所需的 ul/ol 类名
-    const htmlContent = md.render(polishedContent)
-      .replace(/<ul>/g, '<ul class="custom-list">')
-      .replace(/<ol>/g, '<ol class="custom-list-ordered">');
+    const htmlContent = md.render(polishedContent);
     onApply(htmlContent);
     handleClose();
     toast.success(t("error.applied"));
@@ -233,9 +233,38 @@ export default function AIPolishDialog({
           >
             {isPolishing
               ? t("description.polishing")
-              : t("description.finished")}
+              : polishedContent
+                ? t("description.finished")
+                : t("description.ready")}
           </DialogDescription>
         </DialogHeader>
+
+        <div className="space-y-2">
+          <Label
+            htmlFor="custom-instructions"
+            className={cn(
+              "text-sm font-medium",
+              "text-neutral-600 dark:text-neutral-400"
+            )}
+          >
+            {t("customInstructions")}
+          </Label>
+          <Textarea
+            id="custom-instructions"
+            placeholder={t("customInstructionsPlaceholder")}
+            value={customInstructions}
+            onChange={(e) => setCustomInstructions(e.target.value)}
+            disabled={isPolishing}
+            rows={2}
+            className={cn(
+              "resize-none rounded-xl border",
+              "bg-neutral-50 dark:bg-neutral-800/50",
+              "border-neutral-200 dark:border-neutral-800",
+              "text-neutral-700 dark:text-neutral-300",
+              "placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
+            )}
+          />
+        </div>
 
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2">
@@ -325,6 +354,8 @@ export default function AIPolishDialog({
                 <Loader2 className="h-4 w-4 animate-spin" />
                 {t("button.generating")}
               </div>
+            ) : !polishedContent ? (
+              t("button.start")
             ) : (
               t("button.regenerate")
             )}

@@ -218,7 +218,7 @@
       "title": "模板",
       "useTemplate": "使用此模板",
       "preview": "预览",
-      "switchTemplate": "切换模版",
+      "switchTemplate": "切换模板",
       "classic": {
         "name": "经典模板",
         "description": "传统简约的简历布局，适合大多数求职场景"
@@ -247,6 +247,10 @@
       "creative": {
         "name": "创意模板",
         "description": "视觉错落设计，灵动活泼展现个性"
+      },
+      "editorial": {
+        "name": "画报风模板",
+        "description": "大号精美衬线体与窄体无衬线的完美结合，极具奢华感"
       }
     }
   },
@@ -289,9 +293,11 @@
         "title": "排版",
         "font": {
           "title": "字体",
-          "sans": "无衬线体",
-          "serif": "衬线体",
-          "mono": "等宽体"
+          "alibaba": "阿里巴巴普惠体",
+          "misans": "MiSans",
+          "notosanssc": "Noto Sans SC",
+          "sourcehanserifsc": "思源宋体",
+          "note": "MiSans 依据其许可免费商用；使用本项目时请保留 MiSans 字体说明。"
         },
         "lineHeight": {
           "title": "行高",
@@ -349,6 +355,7 @@
           "label": "标签",
           "value": "值"
         },
+        "displayLabel": "显示标签",
         "addButton": "添加自定义字段"
       },
       "basicFields": {
@@ -431,14 +438,19 @@
         "role": "项目角色",
         "date": "项目时间",
         "description": "项目描述",
-        "link": "项目链接"
+        "link": "项目链接",
+        "linkLabel": "显示文字"
       },
       "placeholders": {
         "name": "请输入项目名称",
         "role": "你在项目中的角色",
         "date": "项目时间范围",
         "description": "简要描述项目背景和目标",
-        "link": "项目链接（可选）"
+        "link": "项目链接",
+        "linkLabel": "显示文字"
+      },
+      "hints": {
+        "linkLabel": "显示文字留空时，将自动显示域名或完整链接。链接仅支持 http:// 或 https:// 链接。"
       },
       "buttons": {
         "edit": "编辑",
@@ -515,6 +527,11 @@
     "bold": "加粗",
     "italic": "斜体",
     "underline": "下划线",
+    "link": "链接",
+    "linkPlaceholder": "输入链接，例如 https://example.com",
+    "linkApply": "应用",
+    "linkRemove": "移除",
+    "linkInvalid": "请输入有效链接",
     "textColor": "文字颜色",
     "backgroundColor": "背景颜色",
     "alignLeft": "左对齐",
@@ -666,7 +683,7 @@
     }
   },
   "previewDock": {
-    "switchTemplate": "切换模版",
+    "switchTemplate": "切换模板",
     "grammarCheck": {
       "idle": "AI语法纠错",
       "checking": "检查中...",
@@ -704,11 +721,17 @@
       "enabled": "已开启一页纸模式",
       "disabled": "已关闭一页纸模式",
       "cannotFit": "内容较多，已尽量压缩但无法完美一页，建议精简内容, 也可在此基础上调节页边距、字体大小等左侧设置栏选项"
+    },
+    "backup": {
+      "configured": "备份已配置",
+      "notConfigured": "未配置备份目录",
+      "clickToConfigure": "点击前往设置"
     }
   },
   "aiPolishDialog": {
     "title": "AI 润色",
     "description": {
+      "ready": "填写可选的自定义要求后，点击「开始润色」",
       "polishing": "正在为您润色内容...",
       "finished": "已经为您优化了内容，请查看效果"
     },
@@ -721,7 +744,10 @@
       "original": "原始内容",
       "polished": "润色后的内容"
     },
+    "customInstructions": "自定义要求",
+    "customInstructionsPlaceholder": "例如：请用更技术化的表述、突出量化成果、语气偏正式…（选填，留空则按默认规则润色）",
     "button": {
+      "start": "开始润色",
       "regenerate": "重新生成",
       "generating": "生成中...",
       "apply": "应用内容"
@@ -755,5 +781,27 @@
     "apply_error": "未找到对应文本，无法自动修改",
     "no_errors_title": "太棒了！",
     "no_errors_desc": "文档非常完美，没有发现任何错别字或标点错误。"
+  },
+  "faqDialog": {
+    "title": "常见问题 (FAQ)",
+    "description": "关于 Magic Resume 工作台的一些常用技巧和解答。",
+    "items": {
+      "browser-compatibility": {
+        "question": "推荐使用什么浏览器？",
+        "answer": "推荐使用最新版的 Chrome (谷歌浏览器) 或 Edge 浏览器以获得最佳排版和导出体验。部分不兼容的旧版浏览器可能会导致样式错乱。"
+      },
+      "export-methods": {
+        "question": "两种导出方式有什么不同？",
+        "answer": "• PDF 导出：使用后端服务进行高精度渲染，100% 还原排版，推荐用于正式发送给 HR。\n\n• 浏览器打印：调用您当前浏览器的自带打印功能（另存为 PDF）。适合在后端导出服务繁忙或您需要通过浏览器微调打印边距时使用。"
+      },
+      "export-failure": {
+        "question": "导出失败或样式错乱怎么办？",
+        "answer": "1. 推荐使用 Google Chrome 浏览器 (https://www.google.cn/intl/zh-CN/chrome/) 以获得最佳兼容性。\n2. 如果导出依然失败，请尝试在“无痕模式”下进行操作，排除插件干扰。\n3. 或者点击导出菜单中的“PDF (备份)”选项，并在打印预览界面选择“另存为 PDF”。"
+      },
+      "drag-and-drop": {
+        "question": "如何拖拽调整模块顺序？",
+        "answer": "在左侧编辑面板的“布局”设置中，将光标悬停在模块卡片左侧的「拖拽手柄」（通常表现为六个点状图标）上，按住鼠标左键即可上下拖拽模块以重新排序整个简历的章节。"
+      }
+    }
   }
 }

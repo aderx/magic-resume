@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { useResumeStore } from "@/store/useResumeStore";
 import { useAutoOnePage } from "@/hooks/useAutoOnePage";
 import { useTranslations } from "@/i18n/compat/client";
+import { normalizeFontFamily } from "@/utils/fonts";
 import ResumeTemplateComponent from "../templates";
 
 interface PreviewPanelProps {
@@ -65,7 +66,10 @@ const PreviewPanel = React.forwardRef<HTMLDivElement, PreviewPanelProps>(
     },
     ref
   ) => {
-    const { activeResume } = useResumeStore();
+    const { activeResume, setActiveSection } = useResumeStore();
+    const selectedFontFamily = normalizeFontFamily(
+      activeResume?.globalSettings?.fontFamily
+    );
     const t = useTranslations("previewDock");
     const template = useMemo(() => {
       return (
@@ -178,12 +182,28 @@ const PreviewPanel = React.forwardRef<HTMLDivElement, PreviewPanelProps>(
 
     if (!activeResume) return null;
 
+    const handlePreviewClickCapture = (
+      event: React.MouseEvent<HTMLDivElement>
+    ) => {
+      const target = event.target as HTMLElement | null;
+      const sectionElement = target?.closest<HTMLElement>(
+        "[data-resume-section-id]"
+      );
+      const sectionId = sectionElement?.dataset.resumeSectionId;
+
+      if (!sectionId || sectionId === activeResume.activeSection) {
+        return;
+      }
+
+      setActiveSection(sectionId);
+    };
+
     return (
       <div
         ref={previewRef}
         className="relative w-full h-full  bg-gray-100"
         style={{
-          fontFamily: "Alibaba PuHuiTi, sans-serif",
+          fontFamily: selectedFontFamily,
         }}
       >
         <div className="py-4 ml-4 px-4 min-h-screen flex justify-center scale-[58%] origin-top md:scale-90 md:origin-top-left">
@@ -199,7 +219,9 @@ const PreviewPanel = React.forwardRef<HTMLDivElement, PreviewPanelProps>(
             <div
               ref={resumeContentRef}
               id="resume-preview"
+              onClickCapture={handlePreviewClickCapture}
               style={{
+                fontFamily: selectedFontFamily,
                 padding: `${activeResume.globalSettings?.pagePadding}px`,
                 ...(isScaled
                   ? {

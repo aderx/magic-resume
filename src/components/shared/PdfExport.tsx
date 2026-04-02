@@ -34,6 +34,7 @@ const PdfExport = () => {
       elementId: "resume-preview",
       title: title || "resume",
       pagePadding: globalSettings?.pagePadding || 0,
+      fontFamily: globalSettings?.fontFamily,
       onStart: () => setIsExporting(true),
       onEnd: () => setIsExporting(false),
       successMessage: t("toast.success"),
@@ -74,7 +75,11 @@ const PdfExport = () => {
     }
 
     const pagePadding = globalSettings?.pagePadding || 0;
-    await exportResumeToBrowserPrint(resumeContent, pagePadding);
+    await exportResumeToBrowserPrint(
+      resumeContent,
+      pagePadding,
+      globalSettings?.fontFamily
+    );
   };
 
   const isLoading = isExporting || isExportingJson;

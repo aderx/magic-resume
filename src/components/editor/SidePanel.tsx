@@ -30,12 +30,7 @@ import {
 import { Plus } from "lucide-react";
 import { STANDARD_MODULES } from "@/config/modules";
 import { DEFAULT_TEMPLATES } from "@/config";
-
-const fontOptions = [
-  { value: "sans", label: "无衬线体" },
-  { value: "serif", label: "衬线体" },
-  { value: "mono", label: "等宽体" },
-];
+import { getFontOptions, normalizeFontFamily } from "@/utils/fonts";
 
 const lineHeightOptions = [
   { value: "normal", label: "默认" },
@@ -46,10 +41,12 @@ const lineHeightOptions = [
 function SettingCard({
   icon: Icon,
   title,
+  action,
   children,
 }: {
   icon: any;
   title: string;
+  action?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
@@ -59,7 +56,7 @@ function SettingCard({
         "bg-card border-border shadow-sm"
       )}
     >
-      <CardHeader className="p-4 pb-0">
+      <CardHeader className="p-4 pb-0 flex flex-row items-center justify-between space-y-0">
         <CardTitle className="flex items-center gap-2 text-base font-medium">
           <Icon
             className={cn("w-4 h-4 text-muted-foreground")}
@@ -68,6 +65,7 @@ function SettingCard({
             {title}
           </span>
         </CardTitle>
+        {action && <div className="ml-auto">{action}</div>}
       </CardHeader>
       <CardContent className="p-4">{children}</CardContent>
     </Card>
@@ -112,11 +110,8 @@ export function SidePanel() {
     return availableModules.filter((m) => !existingIds.has(m.id));
   }, [availableModules, menuSections]);
 
-  const fontOptions = [
-    { value: "sans", label: t("typography.font.sans") },
-    { value: "serif", label: t("typography.font.serif") },
-    { value: "mono", label: t("typography.font.mono") },
-  ];
+  const fontOptions = getFontOptions((key) => t(`typography.font.${key}`));
+  const selectedFontFamily = normalizeFontFamily(globalSettings?.fontFamily);
 
   const lineHeightOptions = [
     { value: "normal", label: t("typography.lineHeight.normal") },
@@ -228,66 +223,65 @@ export function SidePanel() {
         </SettingCard>
 
         {/* 主题色设置  */}
-        <SettingCard icon={Palette} title={t("theme.title")}>
-          <div className="space-y-4">
-            <div className="grid grid-cols-6 gap-2">
-              {THEME_COLORS.map((presetTheme) => (
-                <button
-                  key={presetTheme}
-                  className={cn(
-                    "relative group aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200",
-                    themeColor === presetTheme
-                      ? "border-primary"
-                      : "border-border hover:border-primary/50"
-                  )}
-                  onClick={() => setThemeColor(presetTheme)}
-                >
-                  {/* 颜色展示 */}
-                  <div
-                    className="absolute inset-0"
-                    style={{ backgroundColor: presetTheme }}
-                  />
-
-                  {/* 选中指示器 */}
-                  {themeColor === presetTheme && (
-                    <motion.div
-                      layoutId="theme-selected"
-                      className="absolute inset-0 flex items-center justify-center bg-black/20 dark:bg-white/20"
-                      initial={false}
-                      transition={{
-                        type: "spring",
-                        bounce: 0.2,
-                        duration: 0.6,
-                      }}
-                    >
-                      <div className="w-2 h-2 rounded-full bg-white dark:bg-black" />
-                    </motion.div>
-                  )}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <div className="text-sm text-muted-foreground">
-                {t("theme.custom")}
-              </div>
-              <ColorPicker
-                value={themeColor}
-                onChange={(value) => debouncedSetColor(value)}
-              />
-            </div>
+        <SettingCard 
+          icon={Palette} 
+          title={t("theme.title")}
+          action={
+            <ColorPicker
+              value={themeColor}
+              onChange={(value) => debouncedSetColor(value)}
+              className={cn(
+                "h-7 w-auto px-3 py-0 rounded-full border shadow-none transition-all flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 focus:ring-offset-background",
+                !THEME_COLORS.includes(themeColor)
+                  ? "border-primary/40 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary/60"
+                  : "border-border text-muted-foreground bg-transparent hover:bg-accent/50 hover:text-foreground"
+              )}
+              style={{ backgroundColor: "transparent" }}
+              title={t("theme.custom")}
+            >
+              <Palette className="w-3.5 h-3.5" />
+              <span className="text-xs font-medium">{t("theme.custom")}</span>
+              
+              {!THEME_COLORS.includes(themeColor) && (
+                <div 
+                  className="w-2.5 h-2.5 rounded-full ml-0.5 border border-primary/20 shadow-sm"
+                  style={{ backgroundColor: themeColor }}
+                />
+              )}
+            </ColorPicker>
+          }
+        >
+          <div className="flex flex-wrap gap-2.5 pt-1">
+            {THEME_COLORS.map((presetTheme) => (
+              <button
+                key={presetTheme}
+                className={cn(
+                  "relative group w-6 h-6 rounded-full overflow-hidden transition-all duration-200 focus:outline-none",
+                  themeColor === presetTheme
+                    ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                    : "ring-1 ring-border hover:ring-primary/50 hover:scale-110"
+                )}
+                onClick={() => setThemeColor(presetTheme)}
+                title={presetTheme}
+              >
+                <div
+                  className="absolute inset-0"
+                  style={{ backgroundColor: presetTheme }}
+                />
+              </button>
+            ))}
           </div>
         </SettingCard>
 
         {/* 排版设置 */}
         <SettingCard icon={Type} title={t("typography.title")}>
           <div className="space-y-6">
-            {/* <div className="space-y-2">
+            <div className="space-y-2">
               <Label className="text-muted-foreground">
                 {t('typography.font.title')}
               </Label>
               <Select
-                value={globalSettings?.fontFamily}
+                value={selectedFontFamily}
                 onValueChange={(value) =>
                   updateGlobalSettings?.({ fontFamily: value })
                 }
@@ -316,7 +310,10 @@ export function SidePanel() {
                   ))}
                 </SelectContent>
               </Select>
-            </div> */}
+              <p className="text-xs leading-5 text-muted-foreground">
+                {t("typography.font.note")}
+              </p>
+            </div>
 
             {/* 行高选择 */}
             <div className="space-y-2">
