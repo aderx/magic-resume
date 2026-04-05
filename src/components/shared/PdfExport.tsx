@@ -8,7 +8,8 @@ import {
   FileJson,
   Printer,
   ChevronDown,
-  FileText
+  FileText,
+  FileImage
 } from "lucide-react";
 import { toast } from "sonner";
 import { useResumeStore } from "@/store/useResumeStore";
@@ -153,16 +154,16 @@ const PdfExport = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={handleExport} disabled={isLoading}>
-          <Download className="w-4 h-4 mr-2" />
-          {t("button.exportPdf")}
-        </DropdownMenuItem>
         <DropdownMenuItem onClick={handlePrint} disabled={isLoading}>
           <Printer className="w-4 h-4 mr-2" />
           {t("button.print")}
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleExport} disabled={isLoading}>
+          <Download className="w-4 h-4 mr-2" />
+          {t("button.exportPdf")}
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={handleImageExport} disabled={isLoading}>
-          <FileText className="w-4 h-4 mr-2" />
+          <FileImage className="w-4 h-4 mr-2" />
           {t("button.exportImage")}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleJsonExport} disabled={isLoading}>
