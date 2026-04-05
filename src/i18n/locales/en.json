@@ -258,6 +258,7 @@
       "export": "Export",
       "exportPdf": "Export PDF (Server)",
       "exportJson": "Export JSON Config",
+      "exportMd": "Export Markdown",
       "exporting": "Exporting...",
       "exportingJson": "Exporting...",
       "print": "Browser Print"
@@ -266,7 +267,9 @@
       "success": "PDF exported successfully",
       "error": "PDF export failed",
       "jsonSuccess": "Configuration exported successfully",
-      "jsonError": "Configuration export failed"
+      "jsonError": "Configuration export failed",
+      "mdSuccess": "Markdown exported successfully",
+      "mdError": "Markdown export failed"
     }
   },
   "previewDock": {

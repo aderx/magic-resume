@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { useTranslations } from "@/i18n/compat/client";
 import {
   Download,
   Loader2,
   FileJson,
   Printer,
-  ChevronDown
+  ChevronDown,
+  FileText
 } from "lucide-react";
 import { toast } from "sonner";
 import { useResumeStore } from "@/store/useResumeStore";
@@ -24,10 +25,10 @@ import {
 const PdfExport = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingJson, setIsExportingJson] = useState(false);
+  const [isExportingMd, setIsExportingMd] = useState(false);
   const { activeResume } = useResumeStore();
   const { globalSettings = {}, title } = activeResume || {};
   const t = useTranslations("pdfExport");
-  const printFrameRef = useRef<HTMLIFrameElement>(null);
 
   const handleExport = async () => {
     await exportToPdf({
@@ -82,52 +83,80 @@ const PdfExport = () => {
     );
   };
 
-  const isLoading = isExporting || isExportingJson;
+  const handleMdExport = async () => {
+    try {
+      setIsExportingMd(true);
+      if (!activeResume) {
+        throw new Error("No active resume");
+      }
+
+      const { resumeToMarkdown } = await import("@/utils/resumeMarkdown");
+      const markdown = resumeToMarkdown(activeResume);
+      const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${title || "resume"}.md`;
+      link.click();
+
+      window.URL.revokeObjectURL(url);
+      toast.success(t("toast.mdSuccess"));
+    } catch (error) {
+      console.error("Markdown export error:", error);
+      toast.error(t("toast.mdError"));
+    } finally {
+      setIsExportingMd(false);
+    }
+  };
+
+  const isLoading = isExporting || isExportingJson || isExportingMd;
   const loadingText = isExporting
     ? t("button.exporting")
-    : isExportingJson
+    : isExportingJson || isExportingMd
       ? t("button.exportingJson")
       : "";
 
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2
               disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>{loadingText}</span>
-              </>
-            ) : (
-              <>
-                <Download className="w-4 h-4" />
-                <span>{t("button.export")}</span>
-                <ChevronDown className="w-4 h-4 ml-1" />
-              </>
-            )}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={handleExport} disabled={isLoading}>
-            <Download className="w-4 h-4 mr-2" />
-            {t("button.exportPdf")}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handlePrint} disabled={isLoading}>
-            <Printer className="w-4 h-4 mr-2" />
-            {t("button.print")}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleJsonExport} disabled={isLoading}>
-            <FileJson className="w-4 h-4 mr-2" />
-            {t("button.exportJson")}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>{loadingText}</span>
+            </>
+          ) : (
+            <>
+              <Download className="w-4 h-4" />
+              <span>{t("button.export")}</span>
+              <ChevronDown className="w-4 h-4 ml-1" />
+            </>
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={handleExport} disabled={isLoading}>
+          <Download className="w-4 h-4 mr-2" />
+          {t("button.exportPdf")}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handlePrint} disabled={isLoading}>
+          <Printer className="w-4 h-4 mr-2" />
+          {t("button.print")}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleJsonExport} disabled={isLoading}>
+          <FileJson className="w-4 h-4 mr-2" />
+          {t("button.exportJson")}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleMdExport} disabled={isLoading}>
+          <FileText className="w-4 h-4 mr-2" />
+          {t("button.exportMd")}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

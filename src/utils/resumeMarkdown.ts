@@ -71,6 +71,37 @@ const cleanupMarkdown = (value: string) =>
 
 const escapeMarkdown = (value: string) => value.replace(/\n+/g, " ").trim();
 
+const formatResumeHeading = (name?: string, jobTitle?: string) => {
+  const normalizedName = escapeMarkdown(name || "");
+  const normalizedTitle = escapeMarkdown(jobTitle || "");
+
+  if (normalizedName && normalizedTitle) {
+    return `${normalizedName}（${normalizedTitle}）`;
+  }
+
+  return normalizedName || normalizedTitle || "Resume";
+};
+
+const parseResumeHeading = (heading?: string) => {
+  const normalizedHeading = heading?.trim() || "";
+  if (!normalizedHeading) {
+    return { name: "", title: "" };
+  }
+
+  const match = normalizedHeading.match(/^(.*?)\s*[（(]\s*(.+?)\s*[)）]\s*$/);
+  if (match) {
+    return {
+      name: match[1].trim(),
+      title: match[2].trim(),
+    };
+  }
+
+  return {
+    name: normalizedHeading,
+    title: "",
+  };
+};
+
 const getVisibleBasicFieldOrder = (resume: ResumeData) => {
   const fieldOrder = resume.basic.fieldOrder?.length
     ? resume.basic.fieldOrder
@@ -196,17 +227,9 @@ const renderCustomItem = (item: CustomItem) => {
 
 export const resumeToMarkdown = (resume: ResumeData): string => {
   const lines: string[] = [];
-  const visibleFieldKeys = new Set(getVisibleBasicFieldOrder(resume).map((field) => field.key));
   const visibleMenuSections = getVisibleMenuSections(resume);
 
-  lines.push(`# ${escapeMarkdown(resume.title || resume.basic.name || "Resume")}`);
-
-  if (visibleFieldKeys.has("name") && resume.basic.name.trim()) {
-    lines.push(resume.basic.name.trim());
-  }
-  if (visibleFieldKeys.has("title") && resume.basic.title.trim()) {
-    lines.push(resume.basic.title.trim());
-  }
+  lines.push(`# ${formatResumeHeading(resume.basic.name, resume.basic.title)}`);
 
   const basicSection = renderBasicSection(resume);
   if (basicSection) {
@@ -391,9 +414,12 @@ export const markdownToResume = (
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean);
-
-  const subtitleLine = preludeLines.find((line) => !line.startsWith("- ") && !line.includes(":"));
-  const title = parsed.title || fileName?.trim() || baseResume.title;
+  const plainPreludeLines = preludeLines.filter(
+    (line) => !line.startsWith("- ") && !line.includes(":")
+  );
+  const [preludeNameLine = "", preludeTitleLine = ""] = plainPreludeLines;
+  const headingInfo = parseResumeHeading(parsed.title);
+  const title = fileName?.trim() || baseResume.title;
 
   const menuSections: MenuSection[] = [
     createMenuSection("basic", baseResume.menuSections[0]?.title || "基本信息", 0),
@@ -514,8 +540,16 @@ export const markdownToResume = (
     templateId: DEFAULT_TEMPLATES[0]?.id,
     basic: {
       ...baseResume.basic,
-      name: getBasicFieldValue(basicMap, BASIC_FIELD_LABELS.Name) || "",
-      title: getBasicFieldValue(basicMap, BASIC_FIELD_LABELS.Title) || subtitleLine || "",
+      name:
+        getBasicFieldValue(basicMap, BASIC_FIELD_LABELS.Name) ||
+        preludeNameLine ||
+        headingInfo.name ||
+        "",
+      title:
+        getBasicFieldValue(basicMap, BASIC_FIELD_LABELS.Title) ||
+        preludeTitleLine ||
+        headingInfo.title ||
+        "",
       email: getBasicFieldValue(basicMap, BASIC_FIELD_LABELS.Email) || "",
       phone: getBasicFieldValue(basicMap, BASIC_FIELD_LABELS.Phone) || "",
       location: getBasicFieldValue(basicMap, BASIC_FIELD_LABELS.Location) || "",
@@ -524,9 +558,17 @@ export const markdownToResume = (
       fieldOrder: DEFAULT_FIELD_ORDER.map((field) => ({
         ...field,
         visible: field.key === "name"
-          ? Boolean(getBasicFieldValue(basicMap, BASIC_FIELD_LABELS.Name))
+          ? Boolean(
+              getBasicFieldValue(basicMap, BASIC_FIELD_LABELS.Name) ||
+                preludeNameLine ||
+                headingInfo.name
+            )
           : field.key === "title"
-            ? Boolean(getBasicFieldValue(basicMap, BASIC_FIELD_LABELS.Title) || subtitleLine)
+            ? Boolean(
+                getBasicFieldValue(basicMap, BASIC_FIELD_LABELS.Title) ||
+                  preludeTitleLine ||
+                  headingInfo.title
+              )
             : Boolean(
                 field.key === "email"
                   ? getBasicFieldValue(basicMap, BASIC_FIELD_LABELS.Email)
