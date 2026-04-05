@@ -81,7 +81,7 @@ const DragHandle = ({ show = true }) => {
   if (!show) return null;
 
   return (
-    <ResizableHandle className="relative w-1.5 group">
+    <ResizableHandle className="relative w-0.5 group">
       <div
         className={cn(
           "absolute inset-y-0 left-1/2 w-1 -translate-x-1/2",
