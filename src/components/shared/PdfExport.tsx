@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { useResumeStore } from "@/store/useResumeStore";
 import { Button } from "@/components/ui/button";
 import { exportToPdf } from "@/utils/export";
+import { exportToImage } from "@/utils/export-image";
 import { exportResumeToBrowserPrint } from "@/utils/print";
 import {
   DropdownMenu,
@@ -24,6 +25,7 @@ import {
 
 const PdfExport = () => {
   const [isExporting, setIsExporting] = useState(false);
+  const [isExportingImage, setIsExportingImage] = useState(false);
   const [isExportingJson, setIsExportingJson] = useState(false);
   const [isExportingMd, setIsExportingMd] = useState(false);
   const { activeResume } = useResumeStore();
@@ -83,6 +85,18 @@ const PdfExport = () => {
     );
   };
 
+  const handleImageExport = async () => {
+    await exportToImage({
+      elementId: "resume-preview",
+      title: title || "resume",
+      fontFamily: globalSettings?.fontFamily,
+      onStart: () => setIsExportingImage(true),
+      onEnd: () => setIsExportingImage(false),
+      successMessage: t("toast.imageSuccess"),
+      errorMessage: t("toast.imageError"),
+    });
+  };
+
   const handleMdExport = async () => {
     try {
       setIsExportingMd(true);
@@ -109,8 +123,8 @@ const PdfExport = () => {
     }
   };
 
-  const isLoading = isExporting || isExportingJson || isExportingMd;
-  const loadingText = isExporting
+  const isLoading = isExporting || isExportingImage || isExportingJson || isExportingMd;
+  const loadingText = isExporting || isExportingImage
     ? t("button.exporting")
     : isExportingJson || isExportingMd
       ? t("button.exportingJson")
@@ -146,6 +160,10 @@ const PdfExport = () => {
         <DropdownMenuItem onClick={handlePrint} disabled={isLoading}>
           <Printer className="w-4 h-4 mr-2" />
           {t("button.print")}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleImageExport} disabled={isLoading}>
+          <FileText className="w-4 h-4 mr-2" />
+          {t("button.exportImage")}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleJsonExport} disabled={isLoading}>
           <FileJson className="w-4 h-4 mr-2" />

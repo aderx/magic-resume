@@ -260,6 +260,7 @@
     "button": {
       "export": "导出",
       "exportPdf": "PDF",
+      "exportImage": "图片",
       "exportJson": "JSON配置",
       "exportMd": "Markdown",
       "exporting": "导出中...",
@@ -269,6 +270,8 @@
     "toast": {
       "success": "PDF导出成功",
       "error": "PDF导出失败",
+      "imageSuccess": "图片导出成功",
+      "imageError": "图片导出失败",
       "jsonSuccess": "配置导出成功",
       "jsonError": "配置导出失败",
       "mdSuccess": "Markdown导出成功",

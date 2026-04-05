@@ -257,6 +257,7 @@
     "button": {
       "export": "Export",
       "exportPdf": "Export PDF (Server)",
+      "exportImage": "Export Image",
       "exportJson": "Export JSON Config",
       "exportMd": "Export Markdown",
       "exporting": "Exporting...",
@@ -266,6 +267,8 @@
     "toast": {
       "success": "PDF exported successfully",
       "error": "PDF export failed",
+      "imageSuccess": "Image exported successfully",
+      "imageError": "Image export failed",
       "jsonSuccess": "Configuration exported successfully",
       "jsonError": "Configuration export failed",
       "mdSuccess": "Markdown exported successfully",
