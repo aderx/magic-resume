@@ -133,8 +133,11 @@
         "pdfError": "PDF import failed. Please check PDF content or Gemini configuration"
       },
       "notice": {
-        "title": "Attention",
+        "title": "Local Storage",
         "description": "It is recommended to configure a resume backup folder in the settings to prevent your data from being lost when the browser cache is cleared",
+        "summary": "Data is stored locally only and is never synced to the server.",
+        "pending": "Backup folder not configured",
+        "recommendation": "We recommend configuring a resume backup folder in Settings to avoid losing data if the browser cache is cleared.",
         "goToSettings": "Go to Settings"
       },
       "deleteConfirmTitle": "Confirm Delete Resume?",

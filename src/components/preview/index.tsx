@@ -49,7 +49,7 @@ PageBreakLine.displayName = "PageBreakLine";
 
 const PreviewPanel = React.forwardRef<HTMLDivElement, PreviewPanelProps>(
   (
-    props,
+    _props,
     ref
   ) => {
     const { activeResume, setActiveSection } = useResumeStore();

@@ -137,8 +137,10 @@
         "pdfError": "PDF 导入失败，请检查 PDF 内容或 Gemini 配置"
       },
       "notice": {
-        "title": "注意",
-        "description": "建议在设置里中配置简历备份文件夹，防止您的数据可能会在浏览器清除缓存后丢失",
+        "title": "数据说明",
+        "summary": "数据仅保存在本地，不会被同步到服务端。",
+        "pending": "待配置备份文件夹",
+        "recommendation": "建议在设置里配置简历备份文件夹，防止您的数据可能会在浏览器清除缓存后丢失。",
         "goToSettings": "前往设置"
       },
       "deleteConfirmTitle": "确认删除简历？",

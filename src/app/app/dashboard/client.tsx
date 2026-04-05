@@ -14,8 +14,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
-  SidebarTrigger
+  useSidebar
 } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -24,6 +25,7 @@ import {
 } from "@/components/ui/tooltip";
 import Logo from "@/components/shared/Logo";
 import { useLocale, useTranslations } from "@/i18n/compat/client";
+import { PanelLeft } from "lucide-react";
 
 interface MenuItem {
   title: string;
@@ -31,6 +33,25 @@ interface MenuItem {
   href?: string;
   icon: any;
   items?: { title: string; href: string }[];
+}
+
+function SidebarToggleButton({ open }: { open: boolean }) {
+  const { toggleSidebar } = useSidebar();
+  const label = open ? "收起菜单" : "展开菜单";
+
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      className={`h-12 text-muted-foreground transition-all duration-200 ease-in-out hover:bg-accent hover:text-accent-foreground ${open ? "w-full justify-start gap-3 px-3" : "w-12 self-center justify-center px-0"}`}
+      onClick={toggleSidebar}
+      aria-label={label}
+      title={label}
+    >
+      <PanelLeft className="size-4 shrink-0" />
+      {open && <span className="text-sm font-medium">{label}</span>}
+    </Button>
+  );
 }
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
@@ -168,14 +189,11 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
-          <SidebarFooter />
+          <SidebarFooter className="border-t border-border/40 px-3 py-4">
+            <SidebarToggleButton open={open} />
+          </SidebarFooter>
         </Sidebar>
-        <main className="flex-1 flex flex-col">
-          <div className="p-2">
-            <SidebarTrigger />
-          </div>
-          <div className="flex-1">{children}</div>
-        </main>
+        <main className="flex-1 flex flex-col">{children}</main>
       </SidebarProvider>
     </div>
   );
