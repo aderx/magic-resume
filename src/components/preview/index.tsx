@@ -12,9 +12,7 @@ import { useTranslations } from "@/i18n/compat/client";
 import { normalizeFontFamily } from "@/utils/fonts";
 import ResumeTemplateComponent from "../templates";
 
-interface PreviewPanelProps {
-
-}
+interface PreviewPanelProps { }
 
 const PageBreakLine = React.memo(
   ({
@@ -36,10 +34,10 @@ const PageBreakLine = React.memo(
         className="absolute left-0 right-0 pointer-events-none page-break-line"
         style={{ top: `${top}px` }}
       >
-        <div className="relative w-full">
+        <div className="relative w-full opacity-50">
           <div className="absolute w-full border-t-2 border-dashed border-red-400" />
-          <div className="absolute right-0 -top-6 text-xs text-red-500">
-            第{pageNumber}页结束
+          <div className="absolute right-0 -top-2 text-xs text-white bg-red-500 size-4 rounded-full text-center">
+            {pageNumber}
           </div>
         </div>
       </div>
@@ -51,7 +49,7 @@ PageBreakLine.displayName = "PageBreakLine";
 
 const PreviewPanel = React.forwardRef<HTMLDivElement, PreviewPanelProps>(
   (
-    { },
+    props,
     ref
   ) => {
     const { activeResume, setActiveSection } = useResumeStore();

@@ -91,7 +91,7 @@ const BaseInfo = ({ basic = {} as BasicInfo, globalSettings, template }: BaseInf
                             {useIconMode ? (
                                 <div className="flex items-center gap-1">
                                     {getIcon(item.icon)}
-                                    {item.key === "email" ? <a href={`mailto:${item.value}`} className="underline">{item.value}</a> : customFieldHref ? <a href={customFieldHref} target="_blank" rel="noopener noreferrer" className="underline truncate">{item.value}</a> : <span>{item.value}</span>}
+                                    {item.key === "email" ? <a href={`mailto:${item.value}`}>{item.value}</a> : customFieldHref ? <a href={customFieldHref} target="_blank" rel="noopener noreferrer" className="underline truncate">{item.value}</a> : <span>{item.value}</span>}
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-2 overflow-hidden">
