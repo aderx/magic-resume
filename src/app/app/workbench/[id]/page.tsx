@@ -18,8 +18,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useResumeStore } from "@/store/useResumeStore";
 import { cn } from "@/lib/utils";
-import { Edit2, Eye, Minimize2, PanelLeft } from "lucide-react";
+import { Edit2, Eye, Loader2, Minimize2, PanelLeft } from "lucide-react";
+import { useParams } from "next/navigation";
 import React, { memo, useEffect, useState } from "react";
 
 const LAYOUT_CONFIG = {
@@ -41,6 +43,15 @@ const DEFAULT_PANEL_COLLAPSE_STATE: PanelCollapseState = {
   sidePanelCollapsed: false,
   editPanelCollapsed: false,
   previewPanelCollapsed: false,
+};
+
+type ResumeStorePersistApi = {
+  hasHydrated?: () => boolean;
+  onFinishHydration?: (listener: () => void) => () => void;
+};
+
+const resumeStoreWithPersist = useResumeStore as typeof useResumeStore & {
+  persist?: ResumeStorePersistApi;
 };
 
 function readPanelCollapseState(): PanelCollapseState {
@@ -192,17 +203,46 @@ const LayoutControls = memo(
 
 LayoutControls.displayName = "LayoutControls";
 
+function WorkbenchLoadingOverlay() {
+  return (
+    <div className="absolute inset-0 z-30 flex items-center justify-center bg-white">
+      <div className="flex flex-col items-center gap-3 text-center">
+        <Loader2 className="h-7 w-7 animate-spin text-gray-900" />
+        <p className="text-sm text-gray-500">正在加载，请稍候...</p>
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
+  const params = useParams<{ id?: string | string[] }>();
+  const resumeId = Array.isArray(params?.id) ? params.id[0] : params?.id;
+  const { resumes, activeResume, activeResumeId, setActiveResume } = useResumeStore();
   const [panelCollapseState, setPanelCollapseState] =
     useState<PanelCollapseState>(DEFAULT_PANEL_COLLAPSE_STATE);
   const [hasLoadedPanelCollapseState, setHasLoadedPanelCollapseState] =
     useState(false);
   const [panelSizes, setPanelSizes] = useState<number[]>(LAYOUT_CONFIG.DEFAULT);
+  const [isStoreHydrated, setIsStoreHydrated] = useState<boolean>(() =>
+    resumeStoreWithPersist.persist?.hasHydrated?.() ?? true
+  );
+  const [hasCompletedInitialPaint, setHasCompletedInitialPaint] = useState(false);
+  const [isPreviewReady, setIsPreviewReady] = useState(false);
   const {
     sidePanelCollapsed,
     editPanelCollapsed,
     previewPanelCollapsed,
   } = panelCollapseState;
+  const targetResume = resumeId ? resumes[resumeId] : null;
+  const isWorkbenchReady =
+    Boolean(
+      resumeId &&
+      targetResume &&
+      activeResume?.id === resumeId &&
+      isStoreHydrated &&
+      hasCompletedInitialPaint &&
+      isPreviewReady
+    );
 
   // Create a ref for the resume content that PreviewDock can access
   // Currently we can't get the inner ref easily across component boundaries
@@ -239,6 +279,54 @@ export default function Home() {
     setPanelCollapseState(readPanelCollapseState());
     setHasLoadedPanelCollapseState(true);
   }, []);
+
+  useEffect(() => {
+    const persistApi = resumeStoreWithPersist.persist;
+    if (!persistApi) return;
+
+    setIsStoreHydrated(persistApi.hasHydrated?.() ?? true);
+
+    const unsubscribe = persistApi.onFinishHydration?.(() => {
+      setIsStoreHydrated(true);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    setHasCompletedInitialPaint(false);
+    setIsPreviewReady(false);
+  }, [resumeId]);
+
+  useEffect(() => {
+    if (!isStoreHydrated || !resumeId || !targetResume) {
+      return;
+    }
+
+    if (activeResumeId !== resumeId) {
+      setActiveResume(resumeId);
+    }
+  }, [isStoreHydrated, resumeId, targetResume, activeResumeId, setActiveResume]);
+
+  useEffect(() => {
+    if (!isStoreHydrated || !resumeId || !targetResume || activeResume?.id !== resumeId) {
+      return;
+    }
+
+    let frame1 = 0;
+    let frame2 = 0;
+
+    frame1 = requestAnimationFrame(() => {
+      frame2 = requestAnimationFrame(() => {
+        setHasCompletedInitialPaint(true);
+      });
+    });
+
+    return () => {
+      cancelAnimationFrame(frame1);
+      cancelAnimationFrame(frame2);
+    };
+  }, [isStoreHydrated, resumeId, targetResume, activeResume?.id]);
 
   useEffect(() => {
     if (!hasLoadedPanelCollapseState) return;
@@ -315,11 +403,12 @@ export default function Home() {
   return (
     <main
       className={cn(
-        "w-full min-h-screen  overflow-hidden",
-        "w-full min-h-screen overflow-hidden",
+        "relative w-full min-h-screen overflow-hidden",
         "bg-background text-foreground"
       )}
+      aria-busy={!isWorkbenchReady}
     >
+      {!isWorkbenchReady && <WorkbenchLoadingOverlay />}
       <EditorHeader sidePanelCollapsed={sidePanelCollapsed}
         editPanelCollapsed={editPanelCollapsed}
         previewPanelCollapsed={previewPanelCollapsed}
@@ -391,7 +480,7 @@ export default function Home() {
                 className="h-full overflow-y-auto"
                 data-preview-scroll-container="true"
               >
-                <PreviewPanel />
+                <PreviewPanel onReady={() => setIsPreviewReady(true)} />
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>

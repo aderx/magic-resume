@@ -1,7 +1,7 @@
 "use client";
 
 
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import throttle from "lodash/throttle";
 import { toast } from "sonner";
 import { DEFAULT_TEMPLATES } from "@/config";
@@ -12,7 +12,9 @@ import { useTranslations } from "@/i18n/compat/client";
 import { normalizeFontFamily } from "@/utils/fonts";
 import ResumeTemplateComponent from "../templates";
 
-interface PreviewPanelProps { }
+interface PreviewPanelProps {
+    onReady?: () => void;
+}
 
 const PageBreakLine = React.memo(
   ({
@@ -49,7 +51,7 @@ PageBreakLine.displayName = "PageBreakLine";
 
 const PreviewPanel = React.forwardRef<HTMLDivElement, PreviewPanelProps>(
   (
-    _props,
+    { onReady },
     ref
   ) => {
     const { activeResume, setActiveSection } = useResumeStore();
@@ -67,19 +69,20 @@ const PreviewPanel = React.forwardRef<HTMLDivElement, PreviewPanelProps>(
     const startRef = useRef<HTMLDivElement>(null);
     const previewRef = useRef<HTMLDivElement>(null);
     const internalResumeContentRef = useRef<HTMLDivElement>(null);
+    const readyResumeIdRef = useRef<string | null>(null);
     const resumeContentRef = (ref as React.MutableRefObject<HTMLDivElement>) || internalResumeContentRef;
     const [contentHeight, setContentHeight] = useState(0);
 
-    const updateContentHeight = () => {
+    const updateContentHeight = useCallback(() => {
       if (resumeContentRef.current) {
         const height = resumeContentRef.current.clientHeight;
         if (height > 0) {
-          if (height !== contentHeight) {
-            setContentHeight(height);
-          }
+          setContentHeight((currentHeight) =>
+            currentHeight === height ? currentHeight : height
+          );
         }
       }
-    };
+    }, [resumeContentRef]);
 
     useEffect(() => {
       const debouncedUpdate = throttle(() => {
@@ -111,14 +114,35 @@ const PreviewPanel = React.forwardRef<HTMLDivElement, PreviewPanelProps>(
         observer.disconnect();
         resizeObserver.disconnect();
       };
-    }, []);
+    }, [resumeContentRef, updateContentHeight]);
 
     useEffect(() => {
       if (activeResume) {
         const timer = setTimeout(updateContentHeight, 300);
         return () => clearTimeout(timer);
       }
-    }, [activeResume]);
+    }, [activeResume, updateContentHeight]);
+
+    useEffect(() => {
+      readyResumeIdRef.current = null;
+    }, [activeResume?.id]);
+
+    useEffect(() => {
+      if (!onReady || !activeResume?.id || contentHeight <= 0) {
+        return;
+      }
+
+      if (readyResumeIdRef.current === activeResume.id) {
+        return;
+      }
+
+      const frame = requestAnimationFrame(() => {
+        readyResumeIdRef.current = activeResume.id;
+        onReady();
+      });
+
+      return () => cancelAnimationFrame(frame);
+    }, [onReady, activeResume?.id, contentHeight]);
 
     const pagePadding = activeResume?.globalSettings?.pagePadding || 0;
     const autoOnePageEnabled = activeResume?.globalSettings?.autoOnePage || false;
