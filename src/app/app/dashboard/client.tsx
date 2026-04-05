@@ -11,7 +11,6 @@ import {
   SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
   useSidebar
@@ -26,6 +25,7 @@ import {
 import Logo from "@/components/shared/Logo";
 import { useLocale, useTranslations } from "@/i18n/compat/client";
 import { PanelLeft } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface MenuItem {
   title: string;
@@ -35,22 +35,59 @@ interface MenuItem {
   items?: { title: string; href: string }[];
 }
 
+function getSidebarActionClass(open: boolean, active = false) {
+  return cn(
+    "rounded-xl border text-sm font-medium transition-all duration-200 ease-out shrink-0",
+    open ? "h-12 w-full justify-start gap-3 px-3" : "size-12 justify-center px-0 self-center",
+    active
+      ? "border-primary/15 bg-primary/10 text-primary shadow-sm hover:bg-primary/15 hover:text-primary"
+      : "border-transparent text-muted-foreground hover:border-border/60 hover:bg-accent/70 hover:text-accent-foreground"
+  );
+}
+
+function SidebarActionButton({
+  open,
+  active = false,
+  label,
+  title,
+  icon,
+  onClick,
+  className,
+}: {
+  open: boolean;
+  active?: boolean;
+  label: string;
+  title?: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+  className?: string;
+}) {
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      className={cn(getSidebarActionClass(open, active), className)}
+      onClick={onClick}
+      aria-label={label}
+      title={title ?? label}
+    >
+      {icon}
+      {open && <span className="text-sm font-medium">{label}</span>}
+    </Button>
+  );
+}
+
 function SidebarToggleButton({ open }: { open: boolean }) {
   const { toggleSidebar } = useSidebar();
   const label = open ? "收起菜单" : "展开菜单";
 
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      className={`h-12 text-muted-foreground transition-all duration-200 ease-in-out hover:bg-accent hover:text-accent-foreground ${open ? "w-full justify-start gap-3 px-3" : "w-12 self-center justify-center px-0"}`}
+    <SidebarActionButton
+      open={open}
+      label={label}
+      icon={<PanelLeft className="size-[18px] shrink-0" />}
       onClick={toggleSidebar}
-      aria-label={label}
-      title={label}
-    >
-      <PanelLeft className="size-4 shrink-0" />
-      {open && <span className="text-sm font-medium">{label}</span>}
-    </Button>
+    />
   );
 }
 
@@ -127,55 +164,39 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           <SidebarContent className="px-3 py-4">
             <SidebarGroup>
               <SidebarGroupContent>
-                <SidebarMenu className="space-y-1">
+                <SidebarMenu className="space-y-2">
                   {sidebarItems.map((item) => {
                     const active = isItemActive(item);
                     return (
                       <TooltipProvider delayDuration={0} key={item.title}>
                         <Tooltip>
-                          <TooltipTrigger asChild>
-                            <SidebarMenuItem key={item.title}>
-                              <SidebarMenuButton
-                                asChild
-                                isActive={active}
-                                className={`w-full transition-all duration-200 ease-in-out h-12 mb-1 [&>svg]:size-auto ${active
-                                  ? "bg-primary/10 text-primary font-bold hover:bg-primary/20 hover:text-primary"
-                                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                                  }`}
-                              >
-                                <div
-                                  className="flex items-center gap-2 px-2 cursor-pointer"
-                                  onClick={() => handleItemClick(item)}
-                                >
-                                  <item.icon
-                                    size={24}
-                                    active={active}
-                                  />
-                                  {open && (
-                                    <span className="flex-1 text-sm">
-                                      {item.title}
-                                    </span>
-                                  )}
-                                </div>
-                              </SidebarMenuButton>
-                              {item.items && open && (
-                                <div className="ml-9 mt-1 space-y-1 border-l-2 border-muted pl-2">
-                                  {item.items.map((subItem) => (
-                                    <div
-                                      key={subItem.href}
-                                      className={`cursor-pointer px-3 py-2 rounded-md text-sm transition-colors ${pathname === subItem.href
-                                        ? "text-primary font-medium bg-primary/10"
-                                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                                        }`}
-                                      onClick={() => router.push(subItem.href)}
-                                    >
-                                      {subItem.title}
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </SidebarMenuItem>
-                          </TooltipTrigger>
+                          <SidebarMenuItem key={item.title} className={!open ? "justify-center" : undefined}>
+                            <TooltipTrigger asChild>
+                              <SidebarActionButton
+                                open={open}
+                                active={active}
+                                label={item.title}
+                                icon={<item.icon size={24} active={active} />}
+                                onClick={() => handleItemClick(item)}
+                              />
+                            </TooltipTrigger>
+                            {item.items && open && (
+                              <div className="ml-6 mt-1 space-y-1 border-l border-border/60 pl-4">
+                                {item.items.map((subItem) => (
+                                  <div
+                                    key={subItem.href}
+                                    className={`cursor-pointer rounded-lg px-3 py-2 text-sm transition-colors ${pathname === subItem.href
+                                      ? "bg-primary/10 text-primary font-medium"
+                                      : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                                      }`}
+                                    onClick={() => router.push(subItem.href)}
+                                  >
+                                    {subItem.title}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </SidebarMenuItem>
                           {!open && (
                             <TooltipContent side="right" className="font-medium">
                               {item.title}
