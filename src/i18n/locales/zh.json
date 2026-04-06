@@ -584,7 +584,10 @@
   "field": {
     "selectDate": "选择日期",
     "enterYear": "输入年份",
-    "toPresent": "至今"
+    "toPresent": "至今",
+    "clear": "清空",
+    "startDate": "开始时间",
+    "endDate": "结束时间"
   },
   "richEditor": {
     "bold": "加粗",

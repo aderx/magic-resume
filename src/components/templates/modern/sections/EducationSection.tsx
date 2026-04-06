@@ -6,7 +6,7 @@ import SectionTitle from "./SectionTitle";
 import SectionWrapper from "../../shared/SectionWrapper";
 import { useLocale } from "@/i18n/compat/client";
 import { hasMeaningfulRichTextContent, normalizeRichTextContent } from "@/lib/richText";
-import { formatDateString, cn } from "@/lib/utils";
+import { formatDateRange, cn } from "@/lib/utils";
 
 interface EducationSectionProps {
     education?: Education[];
@@ -49,7 +49,7 @@ const EducationSection = ({ education, globalSettings, showTitle = true, variant
                             <span className={cn("text-subtitleFont shrink-0 whitespace-nowrap", !flexLayout && !isSidebar && "text-right", isSidebar && "opacity-80")}
                                 suppressHydrationWarning
                                 style={{ fontSize: isSidebar ? "12px" : `${globalSettings?.subheaderSize || 16}px`, color: isSidebar ? "#fff" : "inherit" }}>
-                                {`${formatDateString(edu.startDate, locale)} - ${formatDateString(edu.endDate, locale)}`}
+                                {formatDateRange(edu.startDate, edu.endDate, locale)}
                             </span>
                         </div>
                         {(!centerSubtitle || isSidebar) && (

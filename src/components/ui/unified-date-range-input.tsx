@@ -1,11 +1,9 @@
 "use client";
 
-
-import { DateInput } from "@heroui/date-input";
-import { HeroUIProvider } from "@heroui/react";
-import { CalendarDate, parseDate } from "@internationalized/date";
-import { useState } from "react";
+import { useMemo } from "react";
+import { useTranslations } from "@/i18n/compat/client";
 import { cn } from "@/lib/utils";
+import { UnifiedDateInput } from "./unified-date-input";
 
 interface UnifiedDateRangeInputProps {
   value: string;
@@ -16,134 +14,74 @@ interface UnifiedDateRangeInputProps {
 }
 
 const SEPARATOR = " - ";
-const PRESENT_VALUES = new Set(["至今", "Present", "Now"]);
 
-const parsePart = (part: string): CalendarDate | null => {
-  if (!part) return null;
-  const cleanPart = part.trim();
-  if (PRESENT_VALUES.has(cleanPart)) return null;
-
-  try {
-    let isoStr = cleanPart.replace(/[./]/g, "-");
-    if (isoStr.length === 7) isoStr += "-01";
-    if (isoStr.length === 4) isoStr += "-01-01";
-    return parseDate(isoStr);
-  } catch {
-    return null;
+function parseRangeValue(rangeValue: string) {
+  if (!rangeValue) {
+    return { start: "", end: "" };
   }
-};
-
-const parseRange = (rangeValue: string) => {
-  if (!rangeValue) return { start: null, end: null };
-
-  let startStr = "";
-  let endStr = "";
 
   if (rangeValue.includes(SEPARATOR)) {
-    [startStr, endStr] = rangeValue.split(SEPARATOR);
-  } else {
-    const match = rangeValue.match(/^([^\s]+)\s*(?:-|–|—)\s*([^\s]+)$/);
-    if (match) {
-      startStr = match[1];
-      endStr = match[2];
-    } else {
-      startStr = rangeValue;
-    }
+    const [start = "", end = ""] = rangeValue.split(SEPARATOR);
+    return { start: start.trim(), end: end.trim() };
   }
 
-  return { start: parsePart(startStr), end: parsePart(endStr) };
-};
+  const match = rangeValue.match(/^(.+?)\s*(?:-|–|—)\s*(.+)$/);
+  if (match) {
+    return {
+      start: match[1].trim(),
+      end: match[2].trim(),
+    };
+  }
+
+  return { start: rangeValue.trim(), end: "" };
+}
 
 export function UnifiedDateRangeInput({
   value,
   onChange,
+  placeholder,
   className,
 }: UnifiedDateRangeInputProps) {
-  const [range, setRange] = useState<{ start: CalendarDate | null; end: CalendarDate | null }>(
-    () => parseRange(value)
-  );
+  const t = useTranslations();
+  const { start, end } = useMemo(() => parseRangeValue(value), [value]);
+  const isPresent = end === t("field.toPresent");
+  const hasStart = Boolean(start);
 
-  const isPresent = value.includes("至今") || value.includes("Present");
+  const updateValue = (nextStart: string, nextEnd: string) => {
+    const normalizedStart = nextStart.trim();
+    const normalizedEnd = nextEnd.trim();
 
-  const updateValue = (
-    newStart: CalendarDate | null,
-    newEnd: CalendarDate | null
-  ) => {
-    const format = (d: CalendarDate) =>
-      `${d.year}/${d.month.toString().padStart(2, "0")}`;
-
-    const startStr = newStart ? format(newStart) : "";
-    const endStr = isPresent ? (value.includes("至今") ? "至今" : "Present") : (newEnd ? format(newEnd) : "");
-
-    if (!startStr && !endStr) {
+    if (!normalizedStart) {
       onChange("");
       return;
     }
 
-    if (startStr && !endStr) {
-      onChange(`${startStr}${SEPARATOR}`);
+    if (!normalizedEnd) {
+      onChange(`${normalizedStart}${SEPARATOR}`);
       return;
     }
 
-    onChange(`${startStr}${SEPARATOR}${endStr}`);
-  };
-
-  const handleStartChange = (newStart: CalendarDate | null) => {
-    setRange((prev) => {
-      const next = { start: newStart, end: prev.end };
-      updateValue(next.start, next.end);
-      return next;
-    });
-  };
-
-  const handleEndChange = (newEnd: CalendarDate | null) => {
-    setRange((prev) => {
-      const next = { start: prev.start, end: newEnd };
-      updateValue(next.start, next.end);
-      return next;
-    });
+    onChange(`${normalizedStart}${SEPARATOR}${normalizedEnd}`);
   };
 
   return (
     <div className={cn("w-full", className)}>
-      <HeroUIProvider locale="ja-JP">
-        <div className="flex items-center gap-2">
-          <div className="flex-1">
-            <DateInput
-              value={range.start}
-              onChange={handleStartChange}
-              variant="bordered"
-              granularity={"month" as any}
-              shouldForceLeadingZeros
-              aria-label="Start Date"
-              classNames={{
-                inputWrapper:
-                  "bg-background hover:bg-muted/20 h-9 min-h-0 py-0 px-3 shadow-sm ring-1 ring-inset ring-input border-0",
-                innerWrapper: "pb-0",
-              }}
-            />
-          </div>
-          <span className="text-muted-foreground">-</span>
-          <div className="flex-1 relative">
-            <DateInput
-              value={isPresent ? null : range.end}
-              onChange={handleEndChange}
-              variant="bordered"
-              granularity={"month" as any}
-              shouldForceLeadingZeros
-              aria-label="End Date"
-              isDisabled={isPresent}
-              className={cn(isPresent && "opacity-50")}
-              classNames={{
-                inputWrapper:
-                  "bg-background hover:bg-muted/20 h-9 min-h-0 py-0 px-3 shadow-sm ring-1 ring-inset ring-input border-0",
-                innerWrapper: "pb-0",
-              }}
-            />
-          </div>
-        </div>
-      </HeroUIProvider>
+      <div className="flex items-center gap-2">
+        <UnifiedDateInput
+          value={start}
+          onChange={(nextStart) => updateValue(nextStart, end)}
+          placeholder={placeholder || t("field.startDate")}
+          className="flex-1"
+        />
+        <span className="text-muted-foreground">-</span>
+        <UnifiedDateInput
+          value={isPresent ? "" : end}
+          onChange={(nextEnd) => updateValue(start, nextEnd)}
+          placeholder={placeholder || t("field.endDate")}
+          className={cn("flex-1", (!hasStart || isPresent) && "opacity-50")}
+          disabled={!hasStart || isPresent}
+        />
+      </div>
     </div>
   );
-
 }

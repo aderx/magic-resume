@@ -620,7 +620,10 @@
   "field": {
     "selectDate": "Select Date",
     "enterYear": "Enter Year",
-    "toPresent": "To Present"
+    "toPresent": "To Present",
+    "clear": "Clear",
+    "startDate": "Start Date",
+    "endDate": "End Date"
   },
   "richEditor": {
     "bold": "Bold",

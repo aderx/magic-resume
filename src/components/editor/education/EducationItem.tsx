@@ -29,10 +29,16 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
 }) => {
   const t = useTranslations("workbench.educationItem");
   const handleChange = (field: keyof Education, value: string) => {
-    onSave({
+    const nextEducation = {
       ...education,
       [field]: value,
-    });
+    };
+
+    if (field === "startDate" && !value) {
+      nextEducation.endDate = "";
+    }
+
+    onSave(nextEducation);
   };
 
   return (
@@ -84,6 +90,7 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
             type="date"
             placeholder="YYYY-MM"
             showPresentSwitch={true}
+            disabled={!education.startDate}
           />
         </div>
 

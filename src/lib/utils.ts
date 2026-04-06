@@ -38,7 +38,7 @@ export function formatDateString(dateStr: string | undefined, locale: string = "
 
   if (dateStr.includes(" - ")) {
     const [start, end] = dateStr.split(" - ");
-    return `${formatDateString(start, locale)} - ${formatDateString(end, locale)}`;
+    return formatDateRange(start, end, locale);
   }
 
   const date = parseToDate(dateStr);
@@ -57,4 +57,19 @@ export function formatDateString(dateStr: string | undefined, locale: string = "
   } catch (e) {
       return dateStr;
   }
+}
+
+export function formatDateRange(
+  startDate: string | undefined,
+  endDate: string | undefined,
+  locale: string = "zh"
+): string {
+  const start = formatDateString(startDate, locale);
+  const end = formatDateString(endDate, locale);
+
+  if (start && end) {
+    return `${start} - ${end}`;
+  }
+
+  return start || end || "";
 }

@@ -1,19 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { CalendarIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { useTranslations } from "@/i18n/compat/client";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import RichTextEditor from "../shared/rich-editor/RichEditor";
 import AIPolishDialog from "../shared/ai/AIPolishDialog";
@@ -30,6 +21,7 @@ interface FieldProps {
   required?: boolean;
   className?: string;
   showPresentSwitch?: boolean;
+  disabled?: boolean;
 }
 
 const Field = ({
@@ -41,45 +33,33 @@ const Field = ({
   required,
   className,
   showPresentSwitch,
+  disabled = false,
 }: FieldProps) => {
-  const [yearInput, setYearInput] = useState("");
-  const [displayMonth, setDisplayMonth] = useState<Date>(new Date());
-  const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
   const [showPolishDialog, setShowPolishDialog] = useState(false);
   const { checkConfiguration } = useAIConfiguration();
   const t = useTranslations();
-
-  const currentDate = useMemo(
-    () => (value ? new Date(value) : undefined),
-    [value]
-  );
-
-  useEffect(() => {
-    if (type === "date" && value) {
-      const date = new Date(value);
-      setYearInput(date.getFullYear().toString());
-      setDisplayMonth(date);
-    }
-  }, [type, value]);
-
-  useEffect(() => {
-    if (type === "date") {
-      if (!currentDate && fromDate) {
-        setFromDate(undefined);
-      } else if (
-        currentDate &&
-        (!fromDate || currentDate.getTime() !== fromDate.getTime())
-      ) {
-        setFromDate(currentDate);
-      }
-    }
-  }, [type, currentDate, fromDate]);
+  const [rangeStart] = value.split(" - ");
 
   const isPresentValue = useMemo(() => {
     return value === t("field.toPresent") || value.endsWith(` - ${t("field.toPresent")}`);
   }, [value, t]);
+  const presentSwitchDisabled = useMemo(() => {
+    if (disabled) {
+      return true;
+    }
+
+    if (type === "date-range") {
+      return !rangeStart.trim();
+    }
+
+    return false;
+  }, [disabled, type, rangeStart]);
 
   const handlePresentToggle = (checked: boolean) => {
+    if (presentSwitchDisabled) {
+      return;
+    }
+
     if (type === "date") {
       onChange(checked ? t("field.toPresent") : "");
     } else if (type === "date-range") {
@@ -100,6 +80,7 @@ const Field = ({
             <Switch
               checked={isPresentValue}
               onCheckedChange={handlePresentToggle}
+              disabled={presentSwitchDisabled}
             />
             <span className="text-xs text-muted-foreground">
               {t("field.toPresent")}
@@ -130,6 +111,7 @@ const Field = ({
           placeholder={placeholder}
           isRequired={required}
           className={className}
+          disabled={disabled}
         />
       </div>
     );
@@ -159,6 +141,7 @@ const Field = ({
           placeholder={placeholder}
           className={inputStyles}
           required={required}
+          disabled={disabled}
           rows={4}
           whileHover={{ scale: 1.005 }}
           whileTap={{ scale: 0.995 }}
@@ -206,6 +189,7 @@ const Field = ({
         placeholder={placeholder}
         className={inputStyles}
         required={required}
+        disabled={disabled}
         whileHover={{ scale: 1.005 }}
         whileTap={{ scale: 0.995 }}
       />
