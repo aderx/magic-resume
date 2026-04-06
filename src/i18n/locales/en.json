@@ -359,6 +359,18 @@
     }
   },
   "workbench": {
+    "header": {
+      "settings": {
+        "title": "Settings"
+      },
+      "appearance": {
+        "title": "Appearance",
+        "description": "Switch between light, dark, or system mode.",
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      }
+    },
     "sidePanel": {
       "layout": {
         "title": "Layout",

@@ -3,12 +3,10 @@
 
 import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import throttle from "lodash/throttle";
-import { toast } from "sonner";
 import { DEFAULT_TEMPLATES } from "@/config";
 import { cn } from "@/lib/utils";
 import { useResumeStore } from "@/store/useResumeStore";
 import { useAutoOnePage } from "@/hooks/useAutoOnePage";
-import { useTranslations } from "@/i18n/compat/client";
 import { normalizeFontFamily } from "@/utils/fonts";
 import ResumeTemplateComponent from "../templates";
 
@@ -58,7 +56,6 @@ const PreviewPanel = React.forwardRef<HTMLDivElement, PreviewPanelProps>(
     const selectedFontFamily = normalizeFontFamily(
       activeResume?.globalSettings?.fontFamily
     );
-    const t = useTranslations("previewDock");
     const template = useMemo(() => {
       return (
         DEFAULT_TEMPLATES.find((t) => t.id === activeResume?.templateId) ||
@@ -152,14 +149,6 @@ const PreviewPanel = React.forwardRef<HTMLDivElement, PreviewPanelProps>(
       pagePadding,
       enabled: autoOnePageEnabled,
     });
-
-    useEffect(() => {
-      if (cannotFit) {
-        toast.warning(t("autoOnePage.cannotFit"), {
-          duration: 4000,
-        });
-      }
-    }, [cannotFit, t]);
 
     const { contentPerPagePx, pageBreakCount } = useMemo(() => {
       const MM_TO_PX = 3.78;

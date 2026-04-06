@@ -315,6 +315,18 @@
     }
   },
   "workbench": {
+    "header": {
+      "settings": {
+        "title": "设置"
+      },
+      "appearance": {
+        "title": "显示模式",
+        "description": "切换浅色、深色或跟随系统。",
+        "light": "浅色",
+        "dark": "深色",
+        "system": "跟随系统"
+      }
+    },
     "sidePanel": {
       "layout": {
         "title": "布局",

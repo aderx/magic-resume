@@ -5,18 +5,22 @@ import { useGrammarCheck } from "@/hooks/useGrammarCheck";
 import { useTranslations } from "@/i18n/compat/client";
 import { useRouter } from "@/lib/navigation";
 import { useResumeStore } from "@/store/useResumeStore";
-import { getThemeConfig } from "@/theme/themeConfig";
 import { motion } from "framer-motion";
 import {
   AlertCircle, Edit2,
   Eye,
   Layout,
-  PanelRightClose
+  SlidersHorizontal
 } from "lucide-react";
 import PdfExport from "../shared/PdfExport";
-import ThemeToggle from "../shared/ThemeToggle";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../ui/popover";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { GrammarCheckDrawer } from "./grammar/GrammarCheckDrawer";
+import { WorkbenchSettingsPanel } from "./WorkbenchSettingsPanel";
 
 interface EditorHeaderProps {
   isMobile?: boolean;
@@ -78,6 +82,24 @@ export function EditorHeader(props: EditorHeaderProps) {
             </ToggleGroupItem>
           </ToggleGroup>
 
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-input bg-background text-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground">
+                <SlidersHorizontal className="h-4 w-4" />
+                <span className="sr-only">{t("workbench.header.settings.title")}</span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              align="start"
+              sideOffset={10}
+              className="w-[min(26rem,calc(100vw-2rem))] p-3"
+            >
+              <div className="max-h-[min(75vh,42rem)] overflow-y-auto pr-1">
+                <WorkbenchSettingsPanel />
+              </div>
+            </PopoverContent>
+          </Popover>
+
         </div>
 
         <div className="flex items-center space-x-3">
@@ -103,7 +125,6 @@ export function EditorHeader(props: EditorHeaderProps) {
             placeholder="简历名称"
           />
 
-          <ThemeToggle />
           <div className="md:flex items-center ">
             <PdfExport />
           </div>
