@@ -109,7 +109,9 @@
       "resumes": "我的简历",
       "settings": "通用设置",
       "templates": "简历模板",
-      "ai": "AI服务商"
+      "ai": "AI服务商",
+      "expandMenu": "展开菜单",
+      "collapseMenu": "收起菜单"
     },
     "resumes": {
       "created": "创建于",
@@ -187,6 +189,11 @@
         "title": "同步目录",
         "description": "选择一个文件夹来同步和备份您的简历。",
         "select": "选择文件夹"
+      },
+      "language": {
+        "title": "界面语言",
+        "description": "切换后台工作区的显示语言。",
+        "current": "当前语言：{language}"
       },
       "ai": {
         "title": "AI 配置",

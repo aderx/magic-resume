@@ -1,21 +1,18 @@
 import { ReactNode } from "react";
 import { Metadata } from "next";
 import { NextIntlClientProvider } from "@/i18n/compat/client";
-import { getLocale, getMessages, getTranslations } from "@/i18n/compat/server";
+import { getMessages, getTranslations } from "@/i18n/compat/server";
 import Document from "@/components/Document";
 import { Providers } from "@/app/providers";
 import { Toaster } from "@/components/ui/sonner";
+import { getUserLocale } from "@/i18n/db";
 
 type Props = {
   children: ReactNode;
-  params: {
-    locale: string;
-  };
 };
 
-export async function generateMetadata({
-  params: { locale }
-}: Props): Promise<Metadata> {
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getUserLocale();
   const t = await getTranslations({ locale, namespace: "common" });
   return {
     title: t("title") + " - " + t("dashboard")
@@ -23,16 +20,15 @@ export async function generateMetadata({
 }
 
 export default async function LocaleLayout({ children }: Props) {
-  const locale = await getLocale();
-
-  const messages = await getMessages();
+  const locale = await getUserLocale();
+  const messages = await getMessages({ locale });
 
   return (
     <Document
       locale={locale}
       bodyClassName="overflow-y-hidden w-full"
     >
-      <NextIntlClientProvider messages={messages}>
+      <NextIntlClientProvider locale={locale} messages={messages}>
         <Providers>{children}</Providers>
         <Toaster position="top-center" richColors />
       </NextIntlClientProvider>

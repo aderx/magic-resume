@@ -8,7 +8,7 @@ import {
   setRequestLocale
 } from "@/i18n/compat/server";
 import Document from "@/components/Document";
-import { locales } from "@/i18n/config";
+import { Locale, locales } from "@/i18n/config";
 import { Providers } from "@/app/providers";
 
 type Props = {
@@ -55,7 +55,7 @@ export default async function LocaleLayout({
 
   return (
     <Document locale={locale}>
-      <NextIntlClientProvider messages={messages}>
+      <NextIntlClientProvider locale={locale as Locale} messages={messages}>
         <Providers>{children}</Providers>
       </NextIntlClientProvider>
     </Document>

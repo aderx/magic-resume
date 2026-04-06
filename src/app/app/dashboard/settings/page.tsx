@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Folder, Trash2 } from "lucide-react";
-import { useTranslations } from "@/i18n/compat/client";
+import { Folder, Languages, Trash2 } from "lucide-react";
+import { useLocale, useTranslations } from "@/i18n/compat/client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,6 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useRouter } from "@/lib/navigation";
+import { localeNames, locales } from "@/i18n/config";
 import {
   getFileHandle,
   getConfig,
@@ -24,6 +26,8 @@ const SettingsPage = () => {
     useState<FileSystemDirectoryHandle | null>(null);
   const [folderPath, setFolderPath] = useState<string>("");
   const t = useTranslations();
+  const locale = useLocale();
+  const router = useRouter();
 
   useEffect(() => {
     const loadSavedConfig = async () => {
@@ -79,6 +83,15 @@ const SettingsPage = () => {
     } catch (error) {
       console.error("Error removing directory:", error);
     }
+  };
+
+  const handleLocaleChange = (nextLocale: (typeof locales)[number]) => {
+    if (nextLocale === locale) {
+      return;
+    }
+
+    document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=31536000`;
+    router.refresh();
   };
 
   return (
@@ -142,6 +155,55 @@ const SettingsPage = () => {
                       <Trash2 className="h-5 w-5" />
                     </Button>
                   )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 bg-white dark:bg-gray-900/50">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-800/50 pb-6">
+              <div className="flex items-start gap-4">
+                <div className="p-3 rounded-xl bg-sky-50 dark:bg-sky-900/20 shrink-0">
+                  <Languages className="h-6 w-6 text-sky-600 dark:text-sky-400" />
+                </div>
+                <div className="space-y-1">
+                  <CardTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                    {t("dashboard.settings.language.title")}
+                  </CardTitle>
+                  <CardDescription className="text-base text-gray-500 dark:text-gray-400 leading-relaxed">
+                    {t("dashboard.settings.language.description")}
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-8 px-6 pb-8 md:px-8">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                <div className="flex-1">
+                  <div className="h-12 px-4 flex items-center gap-3 bg-gray-50/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl">
+                    <Languages className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+                    <span className="truncate font-medium text-gray-700 dark:text-gray-300 text-sm">
+                      {t("dashboard.settings.language.current", {
+                        language: localeNames[locale],
+                      })}
+                    </span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3 w-full sm:w-auto">
+                  {locales.map((loc) => {
+                    const isActive = locale === loc;
+
+                    return (
+                      <Button
+                        key={loc}
+                        type="button"
+                        variant={isActive ? "default" : "outline"}
+                        className="h-12 min-w-[112px] rounded-xl font-medium"
+                        onClick={() => handleLocaleChange(loc)}
+                      >
+                        {localeNames[loc]}
+                      </Button>
+                    );
+                  })}
                 </div>
               </div>
             </CardContent>

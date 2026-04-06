@@ -77,9 +77,17 @@ function SidebarActionButton({
   );
 }
 
-function SidebarToggleButton({ open }: { open: boolean }) {
+function SidebarToggleButton({
+  open,
+  expandLabel,
+  collapseLabel,
+}: {
+  open: boolean;
+  expandLabel: string;
+  collapseLabel: string;
+}) {
   const { toggleSidebar } = useSidebar();
-  const label = open ? "收起菜单" : "展开菜单";
+  const label = open ? collapseLabel : expandLabel;
 
   return (
     <SidebarActionButton
@@ -210,7 +218,11 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             </SidebarGroup>
           </SidebarContent>
           <SidebarFooter className="border-t border-border/40 px-3 py-4">
-            <SidebarToggleButton open={open} />
+            <SidebarToggleButton
+              open={open}
+              expandLabel={t("sidebar.expandMenu")}
+              collapseLabel={t("sidebar.collapseMenu")}
+            />
           </SidebarFooter>
         </Sidebar>
         <main className="flex-1 flex flex-col">{children}</main>

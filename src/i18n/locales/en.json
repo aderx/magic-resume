@@ -107,7 +107,9 @@
       "resumes": "Resumes",
       "settings": "Settings",
       "templates": "Templates",
-      "ai": "AI Config"
+      "ai": "AI Config",
+      "expandMenu": "Expand Menu",
+      "collapseMenu": "Collapse Menu"
     },
     "resumes": {
       "created": "Created At",
@@ -184,6 +186,11 @@
         "title": "Sync Directory",
         "description": "Choose a folder to sync and backup your resumes.",
         "select": "Select Folder"
+      },
+      "language": {
+        "title": "Interface Language",
+        "description": "Switch the display language used in the workspace.",
+        "current": "Current language: {language}"
       },
       "ai": {
         "title": "AI Configuration",
