@@ -1,15 +1,69 @@
 import { NextResponse } from "next/server";
-import { AIModelType } from "@/config/ai";
-import { AI_MODEL_CONFIGS } from "@/config/ai";
+import {
+  AI_MODEL_CONFIGS,
+  AIModelType,
+  DEFAULT_POLISH_CONFIG,
+} from "@/config/ai";
+import { formatGeminiErrorMessage, getGeminiModelInstance } from "@/lib/server/gemini";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { apiKey, model, content, modelType, apiEndpoint } = body;
+    const { apiKey, model, content, modelType, apiEndpoint, temperature, topP, maxTokens, systemPrompt, customInstructions } = body;
 
     const modelConfig = AI_MODEL_CONFIGS[modelType as AIModelType];
     if (!modelConfig) {
       throw new Error("Invalid model type");
+    }
+
+    let resolvedSystemPrompt = systemPrompt?.trim() || DEFAULT_POLISH_CONFIG.systemPrompt;
+    const resolvedTemperature = typeof temperature === "number" ? temperature : DEFAULT_POLISH_CONFIG.temperature;
+    const resolvedTopP = typeof topP === "number" ? topP : DEFAULT_POLISH_CONFIG.topP;
+    const resolvedMaxTokens = typeof maxTokens === "number" ? maxTokens : DEFAULT_POLISH_CONFIG.maxTokens;
+
+    if (customInstructions?.trim()) {
+      resolvedSystemPrompt += `\n\n用户额外要求：\n${customInstructions.trim()}`;
+    }
+
+    if (modelType === "gemini") {
+      const geminiModel = model || "gemini-flash-latest";
+      const modelInstance = getGeminiModelInstance({
+        apiKey,
+        model: geminiModel,
+        systemInstruction: resolvedSystemPrompt,
+        generationConfig: {
+          temperature: resolvedTemperature,
+          topP: resolvedTopP,
+          maxOutputTokens: resolvedMaxTokens,
+        },
+      });
+
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        async start(controller) {
+          try {
+            const result = await modelInstance.generateContentStream(content);
+            for await (const chunk of result.stream) {
+              const chunkText = chunk.text();
+              if (chunkText) {
+                controller.enqueue(encoder.encode(chunkText));
+              }
+            }
+          } catch (error) {
+            controller.error(error);
+            return;
+          }
+          controller.close();
+        },
+      });
+
+      return new Response(stream, {
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+        },
+      });
     }
 
     const response = await fetch(modelConfig.url(apiEndpoint), {
@@ -20,17 +74,7 @@ export async function POST(req: Request) {
         messages: [
           {
             role: "system",
-            content: `你是一个专业的简历优化助手。请帮助优化以下文本，使其更加专业和有吸引力。
-              
-              优化原则：
-              1. 使用更专业的词汇和表达方式
-              2. 突出关键成就和技能
-              3. 保持简洁清晰
-              4. 使用主动语气
-              5. 保持原有信息的完整性
-              6. 保留我输入的格式
-              
-              请直接返回优化后的文本，不要包含任何解释或其他内容。`,
+            content: resolvedSystemPrompt,
           },
           {
             role: "user",
@@ -38,6 +82,9 @@ export async function POST(req: Request) {
           },
         ],
         stream: true,
+        temperature: resolvedTemperature,
+        top_p: resolvedTopP,
+        max_tokens: resolvedMaxTokens,
       }),
     });
 
@@ -97,7 +144,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Polish error:", error);
     return NextResponse.json(
-      { error: "Failed to polish content" },
+      { error: formatGeminiErrorMessage(error) },
       { status: 500 }
     );
   }

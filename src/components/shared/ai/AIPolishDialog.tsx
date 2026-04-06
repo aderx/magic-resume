@@ -65,6 +65,12 @@ export default function AIPolishDialog({
     openaiApiEndpoint,
     geminiApiKey,
     geminiModelId,
+    qwenApiKey,
+    qwenModelId,
+    polishTemperature,
+    polishTopP,
+    polishMaxTokens,
+    polishSystemPrompt,
     isConfigured
   } = useAIConfigStore();
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -87,6 +93,8 @@ export default function AIPolishDialog({
       const apiKey =
         selectedModel === "doubao"
           ? doubaoApiKey
+          : selectedModel === "qwen"
+            ? qwenApiKey
           : selectedModel === "openai"
             ? openaiApiKey
             : selectedModel === "gemini"
@@ -95,6 +103,8 @@ export default function AIPolishDialog({
       const modelId =
         selectedModel === "doubao"
           ? doubaoModelId
+          : selectedModel === "qwen"
+            ? qwenModelId
           : selectedModel === "openai"
             ? openaiModelId
             : selectedModel === "gemini"
@@ -112,7 +122,11 @@ export default function AIPolishDialog({
           apiEndpoint: selectedModel === "openai" ? openaiApiEndpoint : undefined,
           model: config.requiresModelId ? modelId : config.defaultModel,
           modelType: selectedModel,
-          customInstructions: customInstructions.trim() || undefined
+          customInstructions: customInstructions.trim() || undefined,
+          temperature: polishTemperature,
+          topP: polishTopP,
+          maxTokens: polishMaxTokens,
+          systemPrompt: polishSystemPrompt,
         }),
         signal: abortControllerRef.current.signal
       });

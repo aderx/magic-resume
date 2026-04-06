@@ -199,6 +199,23 @@
         "title": "AI 配置",
         "currentModel": "当前使用的模型",
         "selectModel": "选择模型",
+        "pageDescription": "统一管理简历润色、语法检查与 PDF 导入用到的 AI 服务商配置。左侧切换服务商，右侧编辑对应的连接信息，并指定当前默认模型。",
+        "providerDescription": "选择一个服务商查看和编辑其连接配置。",
+        "connectionTitle": "连接说明",
+        "connectionDescription": "配置会保存在本地浏览器中，仅在当前设备使用，不会上传到服务端。",
+        "useProvider": "设为当前模型",
+        "activeProvider": "当前模型",
+        "recommendedField": "推荐模型 ID",
+        "advancedTitle": "高级参数",
+        "advancedDescription": "为不同任务分别配置生成参数和系统提示词。这样既能保持默认可用，也方便你针对润色和校对做定制。",
+        "polishSettingsTitle": "润色设置",
+        "polishSettingsDescription": "用于 AI 润色弹窗。适合控制表达风格、稳定性和输出长度。",
+        "grammarSettingsTitle": "语法检查设置",
+        "grammarSettingsDescription": "用于语法检查与错别字识别。建议保持较低温度，确保结果稳定。",
+        "temperature": "Temperature",
+        "topP": "Top P",
+        "maxTokens": "Max Tokens",
+        "systemPrompt": "系统提示词",
         "getApiKey": "获取 API Key",
         "doubao": {
           "title": "豆包",
@@ -208,8 +225,9 @@
         },
         "deepseek": {
           "title": "DeepSeek",
-          "description": "在 DeepSeek 开放平台获取 API 密钥",
-          "apiKey": "API Key"
+          "description": "在 DeepSeek 开放平台获取 API 密钥，可自定义模型 ID，例如 deepseek-chat 或 deepseek-reasoner",
+          "apiKey": "API Key",
+          "modelId": "模型 ID"
         },
         "openai": {
           "title": "OpenAI",
@@ -223,6 +241,15 @@
           "description": "支持润色、语法检查和 PDF 图片识别导入。推荐模型 ID：gemini-flash-latest",
           "apiKey": "Gemini API Key",
           "modelId": "Gemini 模型 ID"
+        },
+        "qwen": {
+          "title": "Qwen",
+          "description": "通过阿里云百炼 DashScope 的 OpenAI 兼容接口接入通义千问。",
+          "apiKey": "DashScope API Key",
+          "modelId": "Qwen 模型 ID",
+          "apiEndpoint": "兼容 API 端点",
+          "compatibleMode": "OpenAI 兼容模式",
+          "compatibleModeDescription": "Qwen 使用 DashScope 提供的兼容接口，无需额外填写 API 端点。"
         }
       }
     },

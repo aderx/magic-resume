@@ -100,13 +100,21 @@ export const useGrammarStore = create<GrammarStore>((set, get) => ({
       openaiModelId,
       openaiApiEndpoint,
       geminiApiKey,
-      geminiModelId
+      geminiModelId,
+      qwenApiKey,
+      qwenModelId,
+      grammarTemperature,
+      grammarTopP,
+      grammarMaxTokens,
+      grammarSystemPrompt,
     } = useAIConfigStore.getState();
 
     const config = AI_MODEL_CONFIGS[selectedModel];
     const apiKey =
       selectedModel === "doubao"
         ? doubaoApiKey
+        : selectedModel === "qwen"
+          ? qwenApiKey
         : selectedModel === "openai"
           ? openaiApiKey
           : selectedModel === "gemini"
@@ -115,6 +123,8 @@ export const useGrammarStore = create<GrammarStore>((set, get) => ({
     const modelId =
       selectedModel === "doubao"
         ? doubaoModelId
+        : selectedModel === "qwen"
+          ? qwenModelId
         : selectedModel === "openai"
           ? openaiModelId
           : selectedModel === "gemini"
@@ -135,6 +145,10 @@ export const useGrammarStore = create<GrammarStore>((set, get) => ({
           model: config.requiresModelId ? modelId : config.defaultModel,
           modelType: selectedModel,
           apiEndpoint: selectedModel === "openai" ? openaiApiEndpoint : undefined,
+          temperature: grammarTemperature,
+          topP: grammarTopP,
+          maxTokens: grammarMaxTokens,
+          systemPrompt: grammarSystemPrompt,
         }),
       });
 

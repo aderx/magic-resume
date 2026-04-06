@@ -196,6 +196,23 @@
         "title": "AI Configuration",
         "currentModel": "Current Model",
         "selectModel": "Select Model",
+        "pageDescription": "Manage the providers used for resume polish, grammar check, and PDF import in one place. Select a provider on the left, update its connection settings on the right, and choose the default model for the workspace.",
+        "providerDescription": "Pick a provider to review and edit its connection settings.",
+        "connectionTitle": "Connection Notes",
+        "connectionDescription": "These settings are stored in your local browser only and are never uploaded to the server.",
+        "useProvider": "Use as Current Model",
+        "activeProvider": "Current Model",
+        "recommendedField": "Recommended Model ID",
+        "advancedTitle": "Advanced Settings",
+        "advancedDescription": "Configure generation parameters and system prompts separately for each task. This keeps the defaults usable while leaving room to tune polish and grammar workflows.",
+        "polishSettingsTitle": "Polish Settings",
+        "polishSettingsDescription": "Used by the AI polish dialog. Good for controlling tone, creativity, and output length.",
+        "grammarSettingsTitle": "Grammar Check Settings",
+        "grammarSettingsDescription": "Used by grammar and typo checking. Lower temperature is recommended for stable results.",
+        "temperature": "Temperature",
+        "topP": "Top P",
+        "maxTokens": "Max Tokens",
+        "systemPrompt": "System Prompt",
         "getApiKey": "Get API Key",
         "doubao": {
           "title": "Doubao",
@@ -205,8 +222,9 @@
         },
         "deepseek": {
           "title": "DeepSeek",
-          "description": "Get API key from DeepSeek Platform",
-          "apiKey": "DeepSeek API Key"
+          "description": "Get the API key from DeepSeek Platform and configure a model ID such as deepseek-chat or deepseek-reasoner.",
+          "apiKey": "DeepSeek API Key",
+          "modelId": "Model ID"
         },
         "openai": {
           "title": "OpenAI",
@@ -220,6 +238,15 @@
           "description": "Supports polish, grammar check, and PDF image resume import. Recommended model: gemini-flash-latest",
           "apiKey": "Gemini API Key",
           "modelId": "Gemini Model ID"
+        },
+        "qwen": {
+          "title": "Qwen",
+          "description": "Connect Tongyi Qianwen through DashScope's OpenAI-compatible API.",
+          "apiKey": "DashScope API Key",
+          "modelId": "Qwen Model ID",
+          "apiEndpoint": "Compatible API Endpoint",
+          "compatibleMode": "OpenAI-Compatible Mode",
+          "compatibleModeDescription": "Qwen uses DashScope's compatible endpoint, so no extra API endpoint setup is required."
         }
       }
     },
