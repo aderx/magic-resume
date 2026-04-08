@@ -1,5 +1,8 @@
 .tiptap {
   min-height: 300px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   border-radius: 0 0 4px 4px;
   ul {
     list-style-type: disc;
@@ -129,6 +132,21 @@
     border-top: 1px solid gray;
     margin: 2rem 0;
   }
+}
+
+.tiptap-scrollable {
+  height: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.tiptap-scrollable > :first-child {
+  margin-top: 0;
+}
+
+.tiptap-scrollable > :last-child {
+  margin-bottom: 0;
 }
 
 #resume-preview ul,

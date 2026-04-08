@@ -816,6 +816,7 @@
       "polishing": "正在为您润色内容...",
       "finished": "已经为您优化了内容，请查看效果"
     },
+    "defaultCustomInstructions": "请在不改变原始事实、时间线和结果的前提下优化表达。优先强化专业度、条理性和成果感，尽量保留量化信息、技术关键词和项目角色，避免空泛套话。",
     "error": {
       "configRequired": "请先配置 AI 模型",
       "polishFailed": "润色失败",
@@ -823,11 +824,19 @@
     },
     "content": {
       "original": "原始内容",
-      "polished": "润色后的内容"
+      "originalDescription": "可先手动调整原文，再发起润色。",
+      "polished": "润色后的内容",
+      "polishedDescription": "生成后可继续微调，再决定是否应用。"
     },
     "customInstructions": "自定义要求",
+    "customInstructionsHint": "默认已载入一条基础用户提示词，通常无需从零开始写。",
+    "customInstructionsDescription": "这段内容会附加到润色请求中，用来约束输出风格和强调重点。",
     "customInstructionsPlaceholder": "例如：请用更技术化的表述、突出量化成果、语气偏正式…（选填，留空则按默认规则润色）",
+    "showCustomInstructions": "展开用户提示词",
+    "hideCustomInstructions": "收起用户提示词",
+    "resetCustomInstructions": "恢复默认提示词",
     "button": {
+      "cancel": "取消",
       "start": "开始润色",
       "regenerate": "重新生成",
       "generating": "生成中...",

@@ -762,6 +762,7 @@
       "polishing": "Polishing your content...",
       "finished": "Content has been optimized, please check the result"
     },
+    "defaultCustomInstructions": "Improve the writing without changing the original facts, timeline, or outcomes. Prioritize stronger professional tone, clearer structure, and more convincing results while preserving metrics, technical keywords, and role ownership. Avoid generic filler.",
     "error": {
       "configRequired": "Please configure AI model first",
       "polishFailed": "Polish failed",
@@ -769,11 +770,19 @@
     },
     "content": {
       "original": "Original Content",
-      "polished": "Polished Content"
+      "originalDescription": "You can refine the source content before sending it to AI.",
+      "polished": "Polished Content",
+      "polishedDescription": "After generation, you can keep editing before applying it."
     },
     "customInstructions": "Custom instructions",
+    "customInstructionsHint": "A default user prompt is already loaded, so you usually only need small tweaks.",
+    "customInstructionsDescription": "This text is appended to the polish request to steer tone, emphasis, and output style.",
     "customInstructionsPlaceholder": "e.g. Use more technical terms, highlight metrics, keep tone formal… (optional)",
+    "showCustomInstructions": "Show user prompt",
+    "hideCustomInstructions": "Hide user prompt",
+    "resetCustomInstructions": "Restore default prompt",
     "button": {
+      "cancel": "Cancel",
       "start": "Start polish",
       "regenerate": "Regenerate",
       "generating": "Generating...",

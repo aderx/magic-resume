@@ -44,6 +44,10 @@ interface RichTextEditorProps {
   onChange: (content: string) => void;
   placeholder?: string;
   onPolish?: () => void;
+  className?: string;
+  toolbarClassName?: string;
+  editorClassName?: string;
+  contentClassName?: string;
 }
 
 interface ColorOption {
@@ -312,6 +316,10 @@ const RichTextEditor = ({
   content = "",
   onChange,
   onPolish,
+  className,
+  toolbarClassName,
+  editorClassName,
+  contentClassName,
 }: RichTextEditorProps) => {
   const t = useTranslations("richEditor");
   const editor = useEditor({
@@ -361,7 +369,8 @@ const RichTextEditor = ({
           "dark:prose-blockquote:text-neutral-300",
           "dark:prose-blockquote:border-neutral-700",
           "dark:prose-ul:text-neutral-300",
-          "dark:prose-ol:text-neutral-300"
+          "dark:prose-ol:text-neutral-300",
+          editorClassName
         ),
       },
     },
@@ -381,15 +390,17 @@ const RichTextEditor = ({
   return (
     <div
       className={cn(
-        "rounded-lg overflow-hidden border shadow-sm",
-        "bg-card border-gray-100 dark:bg-neutral-900/30 dark:border-neutral-800"
+        "flex min-h-0 flex-col rounded-lg overflow-hidden border shadow-sm",
+        "bg-card border-gray-100 dark:bg-neutral-900/30 dark:border-neutral-800",
+        className
       )}
       onClick={(e) => e.stopPropagation()}
     >
       <div
         className={cn(
-          "border-b px-2 py-1.5 flex flex-wrap items-center gap-3",
-          "bg-background dark:bg-neutral-900/50 dark:border-neutral-800"
+          "shrink-0 border-b px-2 py-1.5 flex flex-wrap items-center gap-3",
+          "bg-background dark:bg-neutral-900/50 dark:border-neutral-800",
+          toolbarClassName
         )}
       >
         <div className="flex items-center gap-0.5">
@@ -507,7 +518,13 @@ const RichTextEditor = ({
       </div>
 
       {/* Editor Content */}
-      <EditorContent editor={editor} />
+      <EditorContent
+        editor={editor}
+        className={cn(
+          "min-h-0 flex-1 overflow-hidden [&_.tiptap]:h-full [&_.tiptap]:overflow-y-auto [&_.tiptap]:overflow-x-hidden",
+          contentClassName
+        )}
+      />
 
       {/* Bubble Menu */}
       {/* {editor && (
