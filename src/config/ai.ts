@@ -85,6 +85,9 @@ export interface AIModelConfig {
   validate: (context: AIValidationContext) => boolean;
 }
 
+export const normalizeApiEndpoint = (endpoint?: string) =>
+  endpoint?.trim().replace(/\/+$/, "") ?? "";
+
 export const AI_MODEL_CONFIGS: Record<AIModelType, AIModelConfig> = {
   doubao: {
     url: () => "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
@@ -106,7 +109,7 @@ export const AI_MODEL_CONFIGS: Record<AIModelType, AIModelConfig> = {
     validate: (context: AIValidationContext) => !!(context.deepseekApiKey && context.deepseekModelId),
   },
   openai: {
-    url: (endpoint?: string) => `${endpoint}/chat/completions`,
+    url: (endpoint?: string) => `${normalizeApiEndpoint(endpoint)}/chat/completions`,
     requiresModelId: true,
     headers: (apiKey: string) => ({
       "Content-Type": "application/json",

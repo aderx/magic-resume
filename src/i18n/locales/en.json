@@ -214,6 +214,11 @@
         "maxTokens": "Max Tokens",
         "systemPrompt": "System Prompt",
         "getApiKey": "Get API Key",
+        "testConfig": "Test Configuration",
+        "testingConfig": "Testing...",
+        "testIncomplete": "Fill in the required fields for the current provider before testing.",
+        "testSuccess": "Configuration test succeeded",
+        "testFailed": "Configuration test failed",
         "doubao": {
           "title": "Doubao",
           "description": "Get API key from Volcengine",

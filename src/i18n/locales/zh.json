@@ -217,6 +217,11 @@
         "maxTokens": "Max Tokens",
         "systemPrompt": "系统提示词",
         "getApiKey": "获取 API Key",
+        "testConfig": "测试配置",
+        "testingConfig": "测试中...",
+        "testIncomplete": "请先填写当前服务商所需的配置项后再测试。",
+        "testSuccess": "配置测试成功",
+        "testFailed": "配置测试失败",
         "doubao": {
           "title": "豆包",
           "description": "在火山引擎获取 API 密钥",

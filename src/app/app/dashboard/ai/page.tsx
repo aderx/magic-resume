@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Check, CheckCircle2, ExternalLink, Link2, Sparkles } from "lucide-react";
+import { Check, CheckCircle2, ExternalLink, Link2, Loader2, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 import { useTranslations } from "@/i18n/compat/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,7 +22,7 @@ type ProviderField = "apiKey" | "modelId" | "apiEndpoint";
 type ProviderDefinition = {
   id: AIModelType;
   link: string;
-  icon: React.ComponentType<{ className?: string; size?: number }>;
+  icon: React.ComponentType<any>;
   accentClass: string;
   surfaceClass: string;
   borderClass: string;
@@ -74,6 +75,7 @@ const AISettingsPage = () => {
     setSelectedModel,
   } = useAIConfigStore();
   const [currentModel, setCurrentModel] = useState<AIModelType>(selectedModel);
+  const [isTesting, setIsTesting] = useState(false);
   const t = useTranslations();
 
   useEffect(() => {
@@ -227,6 +229,53 @@ const AISettingsPage = () => {
   const currentCopy = getProviderCopy(currentProvider.id);
   const currentState = getProviderState(currentProvider.id);
   const isSelected = selectedModel === currentProvider.id;
+
+  const handleTestConfiguration = async () => {
+    if (!currentState.isConfigured) {
+      toast.error(t("dashboard.settings.ai.testIncomplete"));
+      return;
+    }
+
+    try {
+      setIsTesting(true);
+
+      const response = await fetch("/api/ai/test", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          apiKey: currentState.apiKey,
+          model: currentState.modelId,
+          modelType: currentProvider.id,
+          apiEndpoint:
+            currentProvider.fields.includes("apiEndpoint") &&
+              !currentProvider.apiEndpointReadonly
+              ? currentState.apiEndpoint
+              : currentProvider.apiEndpointValue ?? currentState.apiEndpoint,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.error || t("dashboard.settings.ai.testFailed"));
+      }
+
+      toast.success(
+        data?.message
+          ? `${t("dashboard.settings.ai.testSuccess")} (${data.message})`
+          : t("dashboard.settings.ai.testSuccess")
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : t("dashboard.settings.ai.testFailed");
+      toast.error(`${t("dashboard.settings.ai.testFailed")}: ${message}`);
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
   const advancedSections = [
     {
       id: "polish" as const,
@@ -405,6 +454,22 @@ const AISettingsPage = () => {
                         </>
                       ) : (
                         t("dashboard.settings.ai.useProvider")
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="rounded-xl"
+                      onClick={handleTestConfiguration}
+                      disabled={isTesting}
+                    >
+                      {isTesting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          {t("dashboard.settings.ai.testingConfig")}
+                        </>
+                      ) : (
+                        t("dashboard.settings.ai.testConfig")
                       )}
                     </Button>
                     <Button
