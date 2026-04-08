@@ -14,18 +14,49 @@ const QwenLogo = ({
     <svg
       width={size}
       height={size}
-      viewBox="0 0 24 24"
+      viewBox="0 0 200 200"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       aria-label="Qwen Logo"
       {...props}
     >
       <title>Qwen</title>
-      <rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor" opacity="0.1" />
       <path
-        d="M12 4.5a7.5 7.5 0 1 0 4.77 13.29l2.23 1.98.99-1.11-2.2-1.95A7.5 7.5 0 0 0 12 4.5Zm0 1.5a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm-.15 2.4c-1.94 0-3.35 1.32-3.35 3.15 0 1.9 1.49 3.12 3.38 3.12.8 0 1.53-.22 2.08-.68l.72.83 1.03-.9-.72-.83c.35-.47.56-1.07.56-1.72 0-1.83-1.48-2.97-3.7-2.97Zm.09 1.38c1.18 0 2.06.65 2.06 1.7 0 .35-.1.68-.3.95l-.9-1.03-1.02.89.92 1.05c-.24.11-.5.17-.8.17-1.15 0-1.98-.75-1.98-1.81 0-1 .77-1.92 2.02-1.92Z"
-        fill="currentColor"
+        d="M174.82 108.75L155.38 75L165.64 57.75C166.46 56.31 166.46 54.53 165.64 53.09L155.38 35.84C154.86 34.91 153.87 34.33 152.78 34.33H114.88L106.14 19.03C105.62 18.1 104.63 17.52 103.54 17.52H83.3C82.21 17.52 81.22 18.1 80.7 19.03L61.26 52.77H41.02C39.93 52.77 38.94 53.35 38.42 54.28L28.16 71.53C27.34 72.97 27.34 74.75 28.16 76.19L45.52 107.5L36.78 122.8C35.96 124.24 35.96 126.02 36.78 127.46L47.04 144.71C47.56 145.64 48.55 146.22 49.64 146.22H87.54L96.28 161.52C96.8 162.45 97.79 163.03 98.88 163.03H119.12C120.21 163.03 121.2 162.45 121.72 161.52L141.16 127.78H158.52C159.61 127.78 160.6 127.2 161.12 126.27L171.38 109.02C172.2 107.58 172.2 105.8 171.38 104.36L174.82 108.75Z"
+        fill="url(#qwen-paint0-radial)"
       />
+      <path
+        d="M119.12 163.03H98.88L87.54 144.71H49.64L61.26 126.39H80.7L38.42 55.29H61.26L83.3 19.03L93.56 37.35L83.3 55.29H161.58L151.32 72.54L170.76 106.28H151.32L141.16 88.34L101.18 163.03H119.12Z"
+        fill="#fff"
+      />
+      <path
+        d="M127.86 79.83H76.14L101.18 122.11L127.86 79.83Z"
+        fill="url(#qwen-paint1-radial)"
+      />
+      <defs>
+        <radialGradient
+          id="qwen-paint0-radial"
+          cx="0"
+          cy="0"
+          r="1"
+          gradientUnits="userSpaceOnUse"
+          gradientTransform="translate(100 100) rotate(90) scale(100)"
+        >
+          <stop stopColor="#665CEE" />
+          <stop offset="1" stopColor="#332E91" />
+        </radialGradient>
+        <radialGradient
+          id="qwen-paint1-radial"
+          cx="0"
+          cy="0"
+          r="1"
+          gradientUnits="userSpaceOnUse"
+          gradientTransform="translate(100 100) rotate(90) scale(100)"
+        >
+          <stop stopColor="#665CEE" />
+          <stop offset="1" stopColor="#332E91" />
+        </radialGradient>
+      </defs>
     </svg>
   );
 };

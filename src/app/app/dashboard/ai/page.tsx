@@ -10,6 +10,7 @@ import {
   EyeOff,
   Link2,
   Loader2,
+  RotateCcw,
   Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -344,9 +345,9 @@ const AISettingsPage = () => {
           </p>
         </div>
 
-        <div className="grid items-stretch gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
+        <div className="grid items-stretch gap-6 xl:auto-rows-fr xl:grid-cols-[360px_minmax(0,1fr)]">
           <aside className="min-h-0 xl:sticky xl:top-8 xl:self-start">
-            <div className="flex h-full min-h-[760px] flex-col rounded-3xl border border-border/70 bg-card/70 p-4 shadow-sm backdrop-blur-sm">
+            <div className="flex h-full min-h-[760px] flex-col rounded-3xl border border-border/70 bg-card/70 p-4 shadow-sm backdrop-blur-sm xl:h-[820px] xl:min-h-0">
               <div className="mb-4 space-y-1 px-1">
                 <h2 className="text-sm font-semibold text-foreground">
                   {t("dashboard.settings.ai.selectModel")}
@@ -428,7 +429,7 @@ const AISettingsPage = () => {
           </aside>
 
           <section className="min-w-0">
-            <div className="flex min-h-[760px] flex-col rounded-[28px] border border-border/70 bg-card shadow-sm">
+            <div className="flex min-h-[760px] flex-col overflow-hidden rounded-[28px] border border-border/70 bg-card shadow-sm xl:h-[820px] xl:min-h-0">
               <div className="border-b border-border/60 px-6 py-6 lg:px-8">
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                   <div className="flex min-w-0 items-start gap-4">
@@ -477,45 +478,36 @@ const AISettingsPage = () => {
                         t("dashboard.settings.ai.useProvider")
                       )}
                     </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="rounded-xl"
-                      asChild
-                    >
-                      <a href={currentProvider.link} target="_blank" rel="noreferrer">
-                        {t("dashboard.settings.ai.getApiKey")}
-                        <ExternalLink className="ml-2 h-4 w-4" />
-                      </a>
-                    </Button>
                   </div>
                 </div>
               </div>
 
-              <div className="grid flex-1 gap-6 px-6 py-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:px-8">
-                <div className="min-w-0 space-y-6">
+              <div className="grid flex-1 gap-6 overflow-hidden px-6 py-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:px-8">
+                <div className="min-w-0 space-y-6 overflow-y-auto pr-1">
                   <div className="grid gap-6 md:grid-cols-2">
                     {currentProvider.fields.includes("apiEndpoint") && (
                       <div className="space-y-3 md:col-span-2">
                         <Label className="text-sm font-medium text-foreground">
                           {currentCopy.apiEndpoint}
                         </Label>
-                        <div className="flex flex-col gap-3 md:flex-row">
+                        <div className="relative">
                           <Input
                             value={currentState.apiEndpoint}
                             onChange={(event) =>
                               setProviderValue(currentProvider.id, "apiEndpoint", event.target.value)
                             }
                             placeholder={DEFAULT_AI_API_ENDPOINTS[currentProvider.id]}
-                            className="h-12 rounded-xl"
+                            className="h-12 rounded-xl pr-14"
                           />
                           <Button
                             type="button"
-                            variant="outline"
-                            className="h-12 shrink-0 rounded-xl px-4"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-1 top-1 h-10 w-10 rounded-lg"
                             onClick={handleResetApiEndpoint}
+                            aria-label={t("dashboard.settings.ai.resetApiEndpoint")}
                           >
-                            {t("dashboard.settings.ai.resetApiEndpoint")}
+                            <RotateCcw className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
@@ -559,7 +551,7 @@ const AISettingsPage = () => {
                     )}
 
                     {currentProvider.fields.includes("modelId") && (
-                      <div className="space-y-3">
+                      <div className="space-y-3 md:col-span-2">
                         <Label className="text-sm font-medium text-foreground">
                           {currentCopy.modelId}
                         </Label>
@@ -619,7 +611,7 @@ const AISettingsPage = () => {
                   </div>
                 </div>
 
-                <div className="flex h-full flex-col space-y-4 rounded-3xl border border-border/70 bg-muted/30 p-5">
+                <div className="flex h-full flex-col space-y-4 overflow-y-auto rounded-3xl border border-border/70 bg-muted/30 p-5">
                   <div className="space-y-1">
                     <p className="text-sm font-semibold text-foreground">
                       {t("dashboard.settings.ai.connectionTitle")}
@@ -630,15 +622,6 @@ const AISettingsPage = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                      <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                        API
-                      </p>
-                      <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                        {t("dashboard.settings.ai.connectionLocalOnly")}
-                      </p>
-                    </div>
-
                     {currentProvider.id === "qwen" && (
                       <div className="rounded-2xl bg-background px-4 py-3">
                         <div className="flex items-center gap-2 text-sm font-medium text-foreground">
@@ -651,25 +634,17 @@ const AISettingsPage = () => {
                       </div>
                     )}
 
-                    <div className="rounded-2xl border border-dashed border-border/70 bg-background/80 p-4">
-                      <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full rounded-2xl justify-between bg-background/80"
+                      asChild
+                    >
+                      <a href={currentProvider.link} target="_blank" rel="noreferrer">
                         {t("dashboard.settings.ai.providerPortal")}
-                      </p>
-                      <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                        {t("dashboard.settings.ai.providerPortalDescription")}
-                      </p>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="mt-4 w-full rounded-xl justify-between"
-                        asChild
-                      >
-                        <a href={currentProvider.link} target="_blank" rel="noreferrer">
-                          {t("dashboard.settings.ai.getApiKey")}
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
-                      </Button>
-                    </div>
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                    </Button>
 
                     <div className="rounded-2xl bg-background px-4 py-3">
                       <p className="text-xs text-muted-foreground">

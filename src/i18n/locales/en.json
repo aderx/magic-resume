@@ -138,6 +138,7 @@
         "title": "Local Storage",
         "description": "It is recommended to configure a resume backup folder in the settings to prevent your data from being lost when the browser cache is cleared",
         "summary": "Data is stored locally only and is never synced to the server.",
+        "configured": "A backup folder is configured. Newly created or imported resumes will also be saved to that directory, so keep its access permission available.",
         "pending": "Backup folder not configured",
         "recommendation": "We recommend configuring a resume backup folder in Settings to avoid losing data if the browser cache is cleared.",
         "goToSettings": "Go to Settings"
@@ -224,18 +225,16 @@
         "testFailed": "Configuration test failed",
         "showApiKey": "Show API Key",
         "hideApiKey": "Hide API Key",
-        "connectionLocalOnly": "These settings stay in your current browser only. If the API endpoint is edited incorrectly, use “Restore Default” next to the endpoint field.",
         "providerPortal": "Provider Console",
-        "providerPortalDescription": "Open the provider portal to review API docs, create keys, or verify the default endpoint.",
         "doubao": {
           "title": "Doubao",
-          "description": "Get API key from Volcengine",
+          "description": "Best for Volcengine Ark access.",
           "apiKey": "Doubao API Key",
           "modelId": "Model ID"
         },
         "deepseek": {
           "title": "DeepSeek",
-          "description": "Get the API key from DeepSeek Platform and configure a model ID such as deepseek-chat or deepseek-reasoner.",
+          "description": "Best for DeepSeek's official API.",
           "apiKey": "DeepSeek API Key",
           "modelId": "Model ID",
           "apiEndpoint": "API Endpoint"
@@ -249,14 +248,14 @@
         },
         "gemini": {
           "title": "Gemini",
-          "description": "Supports polish, grammar check, and PDF image resume import. Recommended model: gemini-flash-latest",
+          "description": "Supports polish, grammar check, and PDF image resume import.",
           "apiKey": "Gemini API Key",
           "modelId": "Gemini Model ID",
           "apiEndpoint": "Gemini API Endpoint"
         },
         "qwen": {
           "title": "Qwen",
-          "description": "Connect Tongyi Qianwen through DashScope's OpenAI-compatible API.",
+          "description": "Best for DashScope's compatible API.",
           "apiKey": "DashScope API Key",
           "modelId": "Qwen Model ID",
           "apiEndpoint": "Compatible API Endpoint",

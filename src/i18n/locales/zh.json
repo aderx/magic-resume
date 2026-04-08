@@ -141,6 +141,7 @@
       "notice": {
         "title": "数据说明",
         "summary": "数据仅保存在本地，不会被同步到服务端。",
+        "configured": "已配置备份文件夹，新增或导入的简历会同步保存到所选目录，建议保留该目录的访问权限。",
         "pending": "待配置备份文件夹",
         "recommendation": "建议在设置里配置简历备份文件夹，防止您的数据可能会在浏览器清除缓存后丢失。",
         "goToSettings": "前往设置"
@@ -227,18 +228,16 @@
         "testFailed": "配置测试失败",
         "showApiKey": "显示 API Key",
         "hideApiKey": "隐藏 API Key",
-        "connectionLocalOnly": "配置仅保存在当前浏览器本地。若误改 API 端点，建议点击左侧输入框后的“还原默认配置”。",
         "providerPortal": "服务商控制台",
-        "providerPortalDescription": "在服务商平台查看 API 文档、创建密钥或核对默认接入地址。",
         "doubao": {
           "title": "豆包",
-          "description": "在火山引擎获取 API 密钥",
+          "description": "适合火山引擎 Ark 接入。",
           "apiKey": "API Key",
           "modelId": "模型 ID"
         },
         "deepseek": {
           "title": "DeepSeek",
-          "description": "在 DeepSeek 开放平台获取 API 密钥，可自定义模型 ID，例如 deepseek-chat 或 deepseek-reasoner",
+          "description": "适合 DeepSeek 官方接口接入。",
           "apiKey": "API Key",
           "modelId": "模型 ID",
           "apiEndpoint": "API 端点"
@@ -252,14 +251,14 @@
         },
         "gemini": {
           "title": "Gemini",
-          "description": "支持润色、语法检查和 PDF 图片识别导入。推荐模型 ID：gemini-flash-latest",
+          "description": "支持润色、语法检查和 PDF 图片识别导入。",
           "apiKey": "Gemini API Key",
           "modelId": "Gemini 模型 ID",
           "apiEndpoint": "Gemini API 端点"
         },
         "qwen": {
           "title": "Qwen",
-          "description": "通过阿里云百炼 DashScope 的 OpenAI 兼容接口接入通义千问。",
+          "description": "适合通过 DashScope 兼容接口接入。",
           "apiKey": "DashScope API Key",
           "modelId": "Qwen 模型 ID",
           "apiEndpoint": "兼容 API 端点",
