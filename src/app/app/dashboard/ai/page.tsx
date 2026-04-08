@@ -32,6 +32,7 @@ import {
   DEFAULT_AI_API_ENDPOINTS,
   getAIProviderConfig,
 } from "@/config/ai";
+import { testAIConfigurationDirect } from "@/lib/ai/direct-client";
 import { cn } from "@/lib/utils";
 
 type ProviderField = "apiKey" | "modelId" | "apiEndpoint";
@@ -263,24 +264,12 @@ const AISettingsPage = () => {
       setIsTesting(true);
       setTestResult(null);
 
-      const response = await fetch("/api/ai/test", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          apiKey: currentState.apiKey,
-          model: currentState.modelId,
-          modelType: currentProvider.id,
-          apiEndpoint: currentState.apiEndpoint,
-        }),
+      const data = await testAIConfigurationDirect({
+        apiKey: currentState.apiKey,
+        model: currentState.modelId,
+        modelType: currentProvider.id,
+        apiEndpoint: currentState.apiEndpoint,
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data?.error || t("dashboard.settings.ai.testFailed"));
-      }
 
       const successMessage = data?.message
         ? `${t("dashboard.settings.ai.testSuccess")}: ${data.message}`

@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAIConfigStore } from "@/store/useAIConfigStore";
 import { AI_MODEL_CONFIGS, getAIProviderConfig } from "@/config/ai";
+import { polishContentDirect } from "@/lib/ai/direct-client";
 import { cn } from "@/lib/utils";
 
 interface AIPolishDialogProps {
@@ -112,52 +113,33 @@ export default function AIPolishDialog({
         qwenApiEndpoint,
       });
 
-      const response = await fetch("/api/polish", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
+      await polishContentDirect({
+        content: turndownService.turndown(content),
+        apiKey: providerConfig.apiKey,
+        apiEndpoint: providerConfig.apiEndpoint,
+        model: config.requiresModelId ? providerConfig.modelId : config.defaultModel ?? "",
+        modelType: selectedModel,
+        customInstructions: customInstructions.trim() || undefined,
+        temperature: polishTemperature,
+        topP: polishTopP,
+        maxTokens: polishMaxTokens,
+        systemPrompt: polishSystemPrompt,
+        signal: abortControllerRef.current.signal,
+        onDelta: (chunk) => {
+          setPolishedContent((prev) => prev + chunk);
         },
-        body: JSON.stringify({
-          content: turndownService.turndown(content),
-          apiKey: providerConfig.apiKey,
-          apiEndpoint: providerConfig.apiEndpoint,
-          model: config.requiresModelId ? providerConfig.modelId : config.defaultModel,
-          modelType: selectedModel,
-          customInstructions: customInstructions.trim() || undefined,
-          temperature: polishTemperature,
-          topP: polishTopP,
-          maxTokens: polishMaxTokens,
-          systemPrompt: polishSystemPrompt,
-        }),
-        signal: abortControllerRef.current.signal
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to polish content");
-      }
-
-      if (!response.body) {
-        throw new Error("No response body");
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        setPolishedContent((prev) => prev + chunk);
-      }
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") {
         console.log("Polish aborted");
         return;
       }
       console.error("Polish error:", error);
-      toast.error(t("error.polishFailed"));
-      onOpenChange(false);
+      const message =
+        error instanceof Error && error.message
+          ? `${t("error.polishFailed")}: ${error.message}`
+          : t("error.polishFailed");
+      toast.error(message);
     } finally {
       setIsPolishing(false);
     }

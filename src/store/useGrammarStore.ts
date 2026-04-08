@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import Mark from "mark.js";
 import { useAIConfigStore } from "@/store/useAIConfigStore";
 import { AI_MODEL_CONFIGS, getAIProviderConfig } from "@/config/ai";
+import { checkGrammarDirect } from "@/lib/ai/direct-client";
 import { cn } from "@/lib/utils";
 
 export interface GrammarError {
@@ -77,6 +78,19 @@ const getPreviewScrollContainer = (element: HTMLElement): HTMLElement | null => 
   return null;
 };
 
+const sanitizeJsonResponse = (value: string) => {
+  const trimmed = value.trim();
+
+  if (!trimmed.startsWith("```")) {
+    return trimmed;
+  }
+
+  return trimmed
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/, "")
+    .trim();
+};
+
 export const useGrammarStore = create<GrammarStore>((set, get) => ({
   isChecking: false,
   errors: [],
@@ -135,44 +149,20 @@ export const useGrammarStore = create<GrammarStore>((set, get) => ({
     set({ isChecking: true });
 
     try {
-      const response = await fetch("/api/grammar", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: text,
-          apiKey: providerConfig.apiKey,
-          model: config.requiresModelId ? providerConfig.modelId : config.defaultModel,
-          modelType: selectedModel,
-          apiEndpoint: providerConfig.apiEndpoint,
-          temperature: grammarTemperature,
-          topP: grammarTopP,
-          maxTokens: grammarMaxTokens,
-          systemPrompt: grammarSystemPrompt,
-        }),
+      const aiResponse = await checkGrammarDirect({
+        content: text,
+        apiKey: providerConfig.apiKey,
+        model: config.requiresModelId ? providerConfig.modelId : config.defaultModel ?? "",
+        modelType: selectedModel,
+        apiEndpoint: providerConfig.apiEndpoint,
+        temperature: grammarTemperature,
+        topP: grammarTopP,
+        maxTokens: grammarMaxTokens,
+        systemPrompt: grammarSystemPrompt,
       });
 
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.error) {
-        toast.error(data.error.message);
-        throw new Error(data.error.message);
-      }
-
-      if (data.error?.code === "AuthenticationError") {
-        toast.error("ApiKey 或 模型Id 不正确");
-        throw new Error(data.error.message);
-      }
-
-      const aiResponse = data.choices[0]?.message?.content;
-
       try {
-        const grammarErrors = JSON.parse(aiResponse);
+        const grammarErrors = JSON.parse(sanitizeJsonResponse(aiResponse));
         if (grammarErrors.errors.length === 0) {
           set({ errors: [] });
           toast.success("无语法错误");
@@ -194,6 +184,9 @@ export const useGrammarStore = create<GrammarStore>((set, get) => ({
         set({ errors: [] });
       }
     } catch (error) {
+      if (error instanceof Error && error.message) {
+        toast.error(error.message);
+      }
       set({ errors: [] });
     } finally {
       set({ isChecking: false });
