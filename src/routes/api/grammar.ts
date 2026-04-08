@@ -4,7 +4,11 @@ import {
   AI_MODEL_CONFIGS,
   DEFAULT_GRAMMAR_CONFIG,
 } from "@/config/ai";
-import { formatGeminiErrorMessage, getGeminiModelInstance } from "@/lib/server/gemini";
+import {
+  createGeminiTextContent,
+  formatGeminiErrorMessage,
+  requestGeminiContent,
+} from "@/lib/server/gemini";
 
 export const Route = createFileRoute("/api/grammar")({
   server: {
@@ -36,9 +40,11 @@ export const Route = createFileRoute("/api/grammar")({
 
           if (modelType === "gemini") {
             const geminiModel = model || "gemini-flash-latest";
-            const modelInstance = getGeminiModelInstance({
+            const text = await requestGeminiContent({
               apiKey,
+              apiEndpoint: apiEndpoint || "",
               model: geminiModel,
+              contents: [createGeminiTextContent(content)],
               systemInstruction: resolvedSystemPrompt,
               generationConfig: {
                 temperature: resolvedTemperature,
@@ -47,9 +53,6 @@ export const Route = createFileRoute("/api/grammar")({
                 responseMimeType: "application/json",
               },
             });
-
-            const result = await modelInstance.generateContent(content);
-            const text = result.response.text() || "";
 
             return Response.json({
               choices: [

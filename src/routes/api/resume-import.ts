@@ -1,5 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { formatGeminiErrorMessage, getGeminiModelInstance } from "@/lib/server/gemini";
+import {
+  createGeminiInlineDataPart,
+  formatGeminiErrorMessage,
+  requestGeminiContent,
+} from "@/lib/server/gemini";
 
 const parseJsonPayload = (content: string) => {
   const text = content.trim();
@@ -45,8 +49,9 @@ export const Route = createFileRoute("/api/resume-import")({
       POST: async ({ request }) => {
         try {
           const body = await request.json();
-          const { apiKey, model, content, images, locale } = body as {
+          const { apiKey, apiEndpoint, model, content, images, locale } = body as {
             apiKey: string;
+            apiEndpoint?: string;
             model?: string;
             content?: string;
             images?: string[];
@@ -65,17 +70,21 @@ export const Route = createFileRoute("/api/resume-import")({
           const imageParts = Array.isArray(images)
             ? images.map((image) => {
                 const payload = extractBase64Payload(image);
-                return {
-                  inlineData: {
-                    mimeType: payload.mimeType,
-                    data: payload.data,
-                  },
-                };
+                return createGeminiInlineDataPart(payload.mimeType, payload.data);
               })
             : [];
-          const modelInstance = getGeminiModelInstance({
+          const promptText =
+            content || "请识别以下简历页面图片中的信息，并严格按 JSON 结构输出。";
+          const aiContent = await requestGeminiContent({
             apiKey,
+            apiEndpoint: apiEndpoint || "",
             model: geminiModel,
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: promptText }, ...imageParts],
+              },
+            ],
             systemInstruction: `你是一个专业的简历结构化助手。根据用户提供的简历内容，提取信息并只输出一个合法 JSON 对象。
 
 输出约束：
@@ -132,18 +141,6 @@ JSON 结构：
               responseMimeType: "application/json",
             },
           });
-
-          const inputParts = [
-            {
-              text:
-                content ||
-                "请识别以下简历页面图片中的信息，并严格按 JSON 结构输出。",
-            },
-            ...imageParts,
-          ];
-
-          const result = await modelInstance.generateContent(inputParts);
-          const aiContent = result.response.text();
 
           if (!aiContent || typeof aiContent !== "string") {
             return Response.json(

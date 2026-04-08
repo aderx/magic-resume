@@ -4,7 +4,11 @@ import {
   AI_MODEL_CONFIGS,
   DEFAULT_POLISH_CONFIG,
 } from "@/config/ai";
-import { formatGeminiErrorMessage, getGeminiModelInstance } from "@/lib/server/gemini";
+import {
+  createGeminiTextContent,
+  formatGeminiErrorMessage,
+  requestGeminiContent,
+} from "@/lib/server/gemini";
 
 export const Route = createFileRoute("/api/polish")({
   server: {
@@ -41,9 +45,11 @@ export const Route = createFileRoute("/api/polish")({
 
           if (modelType === "gemini") {
             const geminiModel = model || "gemini-flash-latest";
-            const modelInstance = getGeminiModelInstance({
+            const text = await requestGeminiContent({
               apiKey,
+              apiEndpoint: apiEndpoint || "",
               model: geminiModel,
+              contents: [createGeminiTextContent(content)],
               systemInstruction: resolvedSystemPrompt,
               generationConfig: {
                 temperature: resolvedTemperature,
@@ -52,29 +58,9 @@ export const Route = createFileRoute("/api/polish")({
               },
             });
 
-            const encoder = new TextEncoder();
-
-            const stream = new ReadableStream({
-              async start(controller) {
-                try {
-                  const result = await modelInstance.generateContentStream(content);
-                  for await (const chunk of result.stream) {
-                    const chunkText = chunk.text();
-                    if (chunkText) {
-                      controller.enqueue(encoder.encode(chunkText));
-                    }
-                  }
-                } catch (error) {
-                  controller.error(error);
-                  return;
-                }
-                controller.close();
-              },
-            });
-
-            return new Response(stream, {
+            return new Response(text, {
               headers: {
-                "Content-Type": "text/event-stream",
+                "Content-Type": "text/plain; charset=utf-8",
                 "Cache-Control": "no-cache",
                 Connection: "keep-alive"
               }

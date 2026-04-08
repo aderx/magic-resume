@@ -1,20 +1,36 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Check, CheckCircle2, ExternalLink, Link2, Loader2, Sparkles } from "lucide-react";
+import {
+  AlertCircle,
+  Check,
+  CheckCircle2,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  Link2,
+  Loader2,
+  Sparkles,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "@/i18n/compat/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import DeepSeekLogo from "@/components/ai/icon/IconDeepseek";
 import IconDoubao from "@/components/ai/icon/IconDoubao";
 import IconOpenAi from "@/components/ai/icon/IconOpenAi";
 import IconQwen from "@/components/ai/icon/IconQwen";
 import { useAIConfigStore } from "@/store/useAIConfigStore";
-import { AIModelType } from "@/config/ai";
+import {
+  AI_MODEL_CONFIGS,
+  AIModelType,
+  DEFAULT_AI_API_ENDPOINTS,
+  getAIProviderConfig,
+} from "@/config/ai";
 import { cn } from "@/lib/utils";
 
 type ProviderField = "apiKey" | "modelId" | "apiEndpoint";
@@ -27,34 +43,45 @@ type ProviderDefinition = {
   surfaceClass: string;
   borderClass: string;
   fields: ProviderField[];
-  apiEndpointValue?: string;
-  apiEndpointReadonly?: boolean;
+};
+
+type TestResultState = null | {
+  type: "success" | "error";
+  message: string;
 };
 
 const AISettingsPage = () => {
   const {
     doubaoApiKey,
     doubaoModelId,
+    doubaoApiEndpoint,
     deepseekApiKey,
     deepseekModelId,
+    deepseekApiEndpoint,
     openaiApiKey,
     openaiModelId,
     openaiApiEndpoint,
     geminiApiKey,
     geminiModelId,
+    geminiApiEndpoint,
     qwenApiKey,
     qwenModelId,
+    qwenApiEndpoint,
     setDoubaoApiKey,
     setDoubaoModelId,
+    setDoubaoApiEndpoint,
     setDeepseekApiKey,
     setDeepseekModelId,
+    setDeepseekApiEndpoint,
     setOpenaiApiKey,
     setOpenaiModelId,
     setOpenaiApiEndpoint,
     setGeminiApiKey,
     setGeminiModelId,
+    setGeminiApiEndpoint,
     setQwenApiKey,
     setQwenModelId,
+    setQwenApiEndpoint,
     polishTemperature,
     polishTopP,
     polishMaxTokens,
@@ -76,6 +103,8 @@ const AISettingsPage = () => {
   } = useAIConfigStore();
   const [currentModel, setCurrentModel] = useState<AIModelType>(selectedModel);
   const [isTesting, setIsTesting] = useState(false);
+  const [isApiKeyVisible, setIsApiKeyVisible] = useState(false);
+  const [testResult, setTestResult] = useState<TestResultState>(null);
   const t = useTranslations();
 
   useEffect(() => {
@@ -92,8 +121,6 @@ const AISettingsPage = () => {
         surfaceClass: "bg-cyan-50 dark:bg-cyan-950/30",
         borderClass: "border-cyan-200/70 dark:border-cyan-900/70",
         fields: ["apiKey", "modelId", "apiEndpoint"],
-        apiEndpointValue: "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        apiEndpointReadonly: true,
       },
       {
         id: "deepseek",
@@ -102,7 +129,7 @@ const AISettingsPage = () => {
         accentClass: "text-indigo-600 dark:text-indigo-400",
         surfaceClass: "bg-indigo-50 dark:bg-indigo-950/30",
         borderClass: "border-indigo-200/70 dark:border-indigo-900/70",
-        fields: ["apiKey", "modelId"],
+        fields: ["apiKey", "modelId", "apiEndpoint"],
       },
       {
         id: "doubao",
@@ -111,7 +138,7 @@ const AISettingsPage = () => {
         accentClass: "text-blue-600 dark:text-blue-400",
         surfaceClass: "bg-blue-50 dark:bg-blue-950/30",
         borderClass: "border-blue-200/70 dark:border-blue-900/70",
-        fields: ["apiKey", "modelId"],
+        fields: ["apiKey", "modelId", "apiEndpoint"],
       },
       {
         id: "openai",
@@ -129,7 +156,7 @@ const AISettingsPage = () => {
         accentClass: "text-amber-600 dark:text-amber-400",
         surfaceClass: "bg-amber-50 dark:bg-amber-950/30",
         borderClass: "border-amber-200/70 dark:border-amber-900/70",
-        fields: ["apiKey", "modelId"],
+        fields: ["apiKey", "modelId", "apiEndpoint"],
       },
 
     ],
@@ -148,50 +175,33 @@ const AISettingsPage = () => {
         providerId === "qwen"
         ? t(`dashboard.settings.ai.${providerId}.modelId`)
         : "",
-    apiEndpoint:
-      providerId === "openai" || providerId === "qwen"
-        ? t(`dashboard.settings.ai.${providerId}.apiEndpoint`)
-        : "",
+    apiEndpoint: t("dashboard.settings.ai.apiEndpoint"),
   });
 
+  const providerContext = {
+    doubaoApiKey,
+    doubaoModelId,
+    doubaoApiEndpoint,
+    deepseekApiKey,
+    deepseekModelId,
+    deepseekApiEndpoint,
+    openaiApiKey,
+    openaiModelId,
+    openaiApiEndpoint,
+    geminiApiKey,
+    geminiModelId,
+    geminiApiEndpoint,
+    qwenApiKey,
+    qwenModelId,
+    qwenApiEndpoint,
+  };
+
   const getProviderState = (providerId: AIModelType) => {
-    switch (providerId) {
-      case "doubao":
-        return {
-          apiKey: doubaoApiKey,
-          modelId: doubaoModelId,
-          apiEndpoint: "",
-          isConfigured: Boolean(doubaoApiKey && doubaoModelId),
-        };
-      case "deepseek":
-        return {
-          apiKey: deepseekApiKey,
-          modelId: deepseekModelId,
-          apiEndpoint: "",
-          isConfigured: Boolean(deepseekApiKey && deepseekModelId),
-        };
-      case "openai":
-        return {
-          apiKey: openaiApiKey,
-          modelId: openaiModelId,
-          apiEndpoint: openaiApiEndpoint,
-          isConfigured: Boolean(openaiApiKey && openaiModelId && openaiApiEndpoint),
-        };
-      case "gemini":
-        return {
-          apiKey: geminiApiKey,
-          modelId: geminiModelId,
-          apiEndpoint: "",
-          isConfigured: Boolean(geminiApiKey && geminiModelId),
-        };
-      case "qwen":
-        return {
-          apiKey: qwenApiKey,
-          modelId: qwenModelId,
-          apiEndpoint: "https://dashscope.aliyuncs.com/compatible-mode/v1",
-          isConfigured: Boolean(qwenApiKey && qwenModelId),
-        };
-    }
+    const config = getAIProviderConfig(providerId, providerContext);
+    return {
+      ...config,
+      isConfigured: AI_MODEL_CONFIGS[providerId].validate(providerContext),
+    };
   };
 
   const setProviderValue = (
@@ -203,10 +213,12 @@ const AISettingsPage = () => {
       case "doubao":
         if (field === "apiKey") setDoubaoApiKey(value);
         if (field === "modelId") setDoubaoModelId(value);
+        if (field === "apiEndpoint") setDoubaoApiEndpoint(value);
         return;
       case "deepseek":
         if (field === "apiKey") setDeepseekApiKey(value);
         if (field === "modelId") setDeepseekModelId(value);
+        if (field === "apiEndpoint") setDeepseekApiEndpoint(value);
         return;
       case "openai":
         if (field === "apiKey") setOpenaiApiKey(value);
@@ -216,10 +228,12 @@ const AISettingsPage = () => {
       case "gemini":
         if (field === "apiKey") setGeminiApiKey(value);
         if (field === "modelId") setGeminiModelId(value);
+        if (field === "apiEndpoint") setGeminiApiEndpoint(value);
         return;
       case "qwen":
         if (field === "apiKey") setQwenApiKey(value);
         if (field === "modelId") setQwenModelId(value);
+        if (field === "apiEndpoint") setQwenApiEndpoint(value);
         return;
     }
   };
@@ -229,15 +243,24 @@ const AISettingsPage = () => {
   const currentCopy = getProviderCopy(currentProvider.id);
   const currentState = getProviderState(currentProvider.id);
   const isSelected = selectedModel === currentProvider.id;
+  const currentDefaultApiEndpoint = DEFAULT_AI_API_ENDPOINTS[currentProvider.id];
+
+  useEffect(() => {
+    setIsApiKeyVisible(false);
+    setTestResult(null);
+  }, [currentModel, currentState.apiKey, currentState.modelId, currentState.apiEndpoint]);
 
   const handleTestConfiguration = async () => {
     if (!currentState.isConfigured) {
-      toast.error(t("dashboard.settings.ai.testIncomplete"));
+      const message = t("dashboard.settings.ai.testIncomplete");
+      setTestResult({ type: "error", message });
+      toast.error(message);
       return;
     }
 
     try {
       setIsTesting(true);
+      setTestResult(null);
 
       const response = await fetch("/api/ai/test", {
         method: "POST",
@@ -248,11 +271,7 @@ const AISettingsPage = () => {
           apiKey: currentState.apiKey,
           model: currentState.modelId,
           modelType: currentProvider.id,
-          apiEndpoint:
-            currentProvider.fields.includes("apiEndpoint") &&
-              !currentProvider.apiEndpointReadonly
-              ? currentState.apiEndpoint
-              : currentProvider.apiEndpointValue ?? currentState.apiEndpoint,
+          apiEndpoint: currentState.apiEndpoint,
         }),
       });
 
@@ -262,18 +281,26 @@ const AISettingsPage = () => {
         throw new Error(data?.error || t("dashboard.settings.ai.testFailed"));
       }
 
-      toast.success(
-        data?.message
-          ? `${t("dashboard.settings.ai.testSuccess")} (${data.message})`
-          : t("dashboard.settings.ai.testSuccess")
-      );
+      const successMessage = data?.message
+        ? `${t("dashboard.settings.ai.testSuccess")}: ${data.message}`
+        : t("dashboard.settings.ai.testSuccess");
+      setTestResult({ type: "success", message: successMessage });
+      toast.success(successMessage);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : t("dashboard.settings.ai.testFailed");
-      toast.error(`${t("dashboard.settings.ai.testFailed")}: ${message}`);
+      const errorMessage = `${t("dashboard.settings.ai.testFailed")}: ${message}`;
+      setTestResult({ type: "error", message: errorMessage });
+      toast.error(errorMessage);
     } finally {
       setIsTesting(false);
     }
+  };
+
+  const handleResetApiEndpoint = () => {
+    setProviderValue(currentProvider.id, "apiEndpoint", currentDefaultApiEndpoint);
+    setTestResult(null);
+    toast.success(t("dashboard.settings.ai.resetApiEndpointSuccess"));
   };
 
   const advancedSections = [
@@ -308,24 +335,18 @@ const AISettingsPage = () => {
   return (
     <div className="w-full px-6 py-8 lg:px-8">
       <div className="mx-auto flex w-full max-w-[1800px] flex-col gap-8">
-        <div className="flex flex-col gap-3">
-          <Badge variant="outline" className="w-fit rounded-full px-3 py-1 text-xs font-medium">
-            {t("dashboard.settings.ai.currentModel")}:
-            <span className="ml-2">{t(`dashboard.settings.ai.${selectedModel}.title`)}</span>
-          </Badge>
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              {t("dashboard.settings.ai.title")}
-            </h1>
-            <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-              {t("dashboard.settings.ai.pageDescription")}
-            </p>
-          </div>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            {t("dashboard.settings.ai.title")}
+          </h1>
+          <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
+            {t("dashboard.settings.ai.pageDescription")}
+          </p>
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
-          <aside className="xl:sticky xl:top-8 xl:self-start">
-            <div className="rounded-3xl border border-border/70 bg-card/70 p-4 shadow-sm backdrop-blur-sm">
+        <div className="grid items-stretch gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
+          <aside className="min-h-0 xl:sticky xl:top-8 xl:self-start">
+            <div className="flex h-full min-h-[760px] flex-col rounded-3xl border border-border/70 bg-card/70 p-4 shadow-sm backdrop-blur-sm">
               <div className="mb-4 space-y-1 px-1">
                 <h2 className="text-sm font-semibold text-foreground">
                   {t("dashboard.settings.ai.selectModel")}
@@ -335,7 +356,7 @@ const AISettingsPage = () => {
                 </p>
               </div>
 
-              <div className="space-y-3">
+              <div className="flex-1 space-y-3 overflow-y-auto pr-1">
                 {providers.map((provider) => {
                   const providerCopy = getProviderCopy(provider.id);
                   const providerState = getProviderState(provider.id);
@@ -407,7 +428,7 @@ const AISettingsPage = () => {
           </aside>
 
           <section className="min-w-0">
-            <div className="rounded-[28px] border border-border/70 bg-card shadow-sm">
+            <div className="flex min-h-[760px] flex-col rounded-[28px] border border-border/70 bg-card shadow-sm">
               <div className="border-b border-border/60 px-6 py-6 lg:px-8">
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                   <div className="flex min-w-0 items-start gap-4">
@@ -435,7 +456,7 @@ const AISettingsPage = () => {
                         </Badge>
                       </div>
                       <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-                        {currentCopy.description}
+                      {currentCopy.description}
                       </p>
                     </div>
                   </div>
@@ -460,22 +481,6 @@ const AISettingsPage = () => {
                       type="button"
                       variant="outline"
                       className="rounded-xl"
-                      onClick={handleTestConfiguration}
-                      disabled={isTesting}
-                    >
-                      {isTesting ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          {t("dashboard.settings.ai.testingConfig")}
-                        </>
-                      ) : (
-                        t("dashboard.settings.ai.testConfig")
-                      )}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="rounded-xl"
                       asChild
                     >
                       <a href={currentProvider.link} target="_blank" rel="noreferrer">
@@ -487,23 +492,69 @@ const AISettingsPage = () => {
                 </div>
               </div>
 
-              <div className="grid gap-6 px-6 py-6 lg:grid-cols-[minmax(0,1fr)_280px] lg:px-8">
+              <div className="grid flex-1 gap-6 px-6 py-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:px-8">
                 <div className="min-w-0 space-y-6">
                   <div className="grid gap-6 md:grid-cols-2">
+                    {currentProvider.fields.includes("apiEndpoint") && (
+                      <div className="space-y-3 md:col-span-2">
+                        <Label className="text-sm font-medium text-foreground">
+                          {currentCopy.apiEndpoint}
+                        </Label>
+                        <div className="flex flex-col gap-3 md:flex-row">
+                          <Input
+                            value={currentState.apiEndpoint}
+                            onChange={(event) =>
+                              setProviderValue(currentProvider.id, "apiEndpoint", event.target.value)
+                            }
+                            placeholder={DEFAULT_AI_API_ENDPOINTS[currentProvider.id]}
+                            className="h-12 rounded-xl"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="h-12 shrink-0 rounded-xl px-4"
+                            onClick={handleResetApiEndpoint}
+                          >
+                            {t("dashboard.settings.ai.resetApiEndpoint")}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
                     {currentProvider.fields.includes("apiKey") && (
                       <div className="space-y-3 md:col-span-2">
                         <Label className="text-sm font-medium text-foreground">
                           {currentCopy.apiKey}
                         </Label>
-                        <Input
-                          type="password"
-                          value={currentState.apiKey}
-                          onChange={(event) =>
-                            setProviderValue(currentProvider.id, "apiKey", event.target.value)
-                          }
-                          placeholder={currentCopy.apiKey}
-                          className="h-12 rounded-xl"
-                        />
+                        <div className="relative">
+                          <Input
+                            type={isApiKeyVisible ? "text" : "password"}
+                            value={currentState.apiKey}
+                            onChange={(event) =>
+                              setProviderValue(currentProvider.id, "apiKey", event.target.value)
+                            }
+                            placeholder={currentCopy.apiKey}
+                            className="h-12 rounded-xl pr-14"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-1 top-1 h-10 w-10 rounded-lg"
+                            onClick={() => setIsApiKeyVisible((value) => !value)}
+                            aria-label={
+                              isApiKeyVisible
+                                ? t("dashboard.settings.ai.hideApiKey")
+                                : t("dashboard.settings.ai.showApiKey")
+                            }
+                          >
+                            {isApiKeyVisible ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
                       </div>
                     )}
 
@@ -523,27 +574,52 @@ const AISettingsPage = () => {
                       </div>
                     )}
 
-                    {currentProvider.fields.includes("apiEndpoint") && (
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium text-foreground">
-                          {currentCopy.apiEndpoint}
-                        </Label>
-                        <Input
-                          value={currentProvider.apiEndpointValue ?? currentState.apiEndpoint}
-                          onChange={(event) =>
-                            setProviderValue(currentProvider.id, "apiEndpoint", event.target.value)
-                          }
-                          placeholder={currentCopy.apiEndpoint}
-                          className="h-12 rounded-xl"
-                          readOnly={currentProvider.apiEndpointReadonly}
-                          disabled={currentProvider.apiEndpointReadonly}
-                        />
-                      </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="rounded-xl"
+                      onClick={handleTestConfiguration}
+                      disabled={isTesting}
+                    >
+                      {isTesting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          {t("dashboard.settings.ai.testingConfig")}
+                        </>
+                      ) : (
+                        t("dashboard.settings.ai.testConfig")
+                      )}
+                    </Button>
+
+                    {testResult && (
+                      <Alert
+                        variant={testResult.type === "error" ? "destructive" : "default"}
+                        className={cn(
+                          "rounded-2xl border",
+                          testResult.type === "success" &&
+                            "border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900/70 dark:bg-emerald-950/30 dark:text-emerald-100"
+                        )}
+                      >
+                        {testResult.type === "success" ? (
+                          <CheckCircle2 className="h-4 w-4" />
+                        ) : (
+                          <AlertCircle className="h-4 w-4" />
+                        )}
+                        <AlertTitle>
+                          {testResult.type === "success"
+                            ? t("dashboard.settings.ai.testSuccess")
+                            : t("dashboard.settings.ai.testFailed")}
+                        </AlertTitle>
+                        <AlertDescription>{testResult.message}</AlertDescription>
+                      </Alert>
                     )}
                   </div>
                 </div>
 
-                <div className="space-y-4 rounded-3xl border border-border/70 bg-muted/30 p-5">
+                <div className="flex h-full flex-col space-y-4 rounded-3xl border border-border/70 bg-muted/30 p-5">
                   <div className="space-y-1">
                     <p className="text-sm font-semibold text-foreground">
                       {t("dashboard.settings.ai.connectionTitle")}
@@ -554,12 +630,12 @@ const AISettingsPage = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <div className="rounded-2xl bg-background px-4 py-3">
-                      <p className="text-xs text-muted-foreground">
-                        {t("dashboard.settings.ai.currentModel")}
+                    <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
+                      <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                        API
                       </p>
-                      <p className="mt-1 text-sm font-medium text-foreground">
-                        {t(`dashboard.settings.ai.${selectedModel}.title`)}
+                      <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                        {t("dashboard.settings.ai.connectionLocalOnly")}
                       </p>
                     </div>
 
@@ -574,6 +650,26 @@ const AISettingsPage = () => {
                         </p>
                       </div>
                     )}
+
+                    <div className="rounded-2xl border border-dashed border-border/70 bg-background/80 p-4">
+                      <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                        {t("dashboard.settings.ai.providerPortal")}
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                        {t("dashboard.settings.ai.providerPortalDescription")}
+                      </p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="mt-4 w-full rounded-xl justify-between"
+                        asChild
+                      >
+                        <a href={currentProvider.link} target="_blank" rel="noreferrer">
+                          {t("dashboard.settings.ai.getApiKey")}
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      </Button>
+                    </div>
 
                     <div className="rounded-2xl bg-background px-4 py-3">
                       <p className="text-xs text-muted-foreground">

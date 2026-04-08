@@ -1,7 +1,8 @@
 import { AI_MODEL_CONFIGS, AIModelType } from "@/config/ai";
 import {
+  createGeminiTextContent,
   formatGeminiErrorMessage,
-  getGeminiModelInstance,
+  requestGeminiContent,
 } from "@/lib/server/gemini";
 
 type TestAIConfigurationInput = {
@@ -54,14 +55,16 @@ export const testAIConfiguration = async ({
     throw new Error("Model ID is required");
   }
 
-  if (modelType === "openai" && !apiEndpoint?.trim()) {
+  if (!apiEndpoint?.trim()) {
     throw new Error("API endpoint is required");
   }
 
   if (modelType === "gemini") {
-    const modelInstance = getGeminiModelInstance({
+    const text = await requestGeminiContent({
       apiKey: apiKey.trim(),
+      apiEndpoint: apiEndpoint.trim(),
       model: model.trim(),
+      contents: [createGeminiTextContent(TEST_USER_PROMPT)],
       systemInstruction: TEST_SYSTEM_PROMPT,
       generationConfig: {
         temperature: 0,
@@ -70,8 +73,6 @@ export const testAIConfiguration = async ({
       },
     });
 
-    const result = await modelInstance.generateContent(TEST_USER_PROMPT);
-    const text = result.response.text()?.trim();
     if (!text) {
       throw new Error("Provider returned an empty response");
     }

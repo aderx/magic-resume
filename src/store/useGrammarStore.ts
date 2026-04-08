@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { toast } from "sonner";
 import Mark from "mark.js";
 import { useAIConfigStore } from "@/store/useAIConfigStore";
-import { AI_MODEL_CONFIGS } from "@/config/ai";
+import { AI_MODEL_CONFIGS, getAIProviderConfig } from "@/config/ai";
 import { cn } from "@/lib/utils";
 
 export interface GrammarError {
@@ -94,15 +94,19 @@ export const useGrammarStore = create<GrammarStore>((set, get) => ({
       selectedModel,
       doubaoApiKey,
       doubaoModelId,
+      doubaoApiEndpoint,
       deepseekApiKey,
       deepseekModelId,
+      deepseekApiEndpoint,
       openaiApiKey,
       openaiModelId,
       openaiApiEndpoint,
       geminiApiKey,
       geminiModelId,
+      geminiApiEndpoint,
       qwenApiKey,
       qwenModelId,
+      qwenApiEndpoint,
       grammarTemperature,
       grammarTopP,
       grammarMaxTokens,
@@ -110,26 +114,23 @@ export const useGrammarStore = create<GrammarStore>((set, get) => ({
     } = useAIConfigStore.getState();
 
     const config = AI_MODEL_CONFIGS[selectedModel];
-    const apiKey =
-      selectedModel === "doubao"
-        ? doubaoApiKey
-        : selectedModel === "qwen"
-          ? qwenApiKey
-        : selectedModel === "openai"
-          ? openaiApiKey
-          : selectedModel === "gemini"
-            ? geminiApiKey
-            : deepseekApiKey;
-    const modelId =
-      selectedModel === "doubao"
-        ? doubaoModelId
-        : selectedModel === "qwen"
-          ? qwenModelId
-        : selectedModel === "openai"
-          ? openaiModelId
-          : selectedModel === "gemini"
-            ? geminiModelId
-            : deepseekModelId;
+    const providerConfig = getAIProviderConfig(selectedModel, {
+      doubaoApiKey,
+      doubaoModelId,
+      doubaoApiEndpoint,
+      deepseekApiKey,
+      deepseekModelId,
+      deepseekApiEndpoint,
+      openaiApiKey,
+      openaiModelId,
+      openaiApiEndpoint,
+      geminiApiKey,
+      geminiModelId,
+      geminiApiEndpoint,
+      qwenApiKey,
+      qwenModelId,
+      qwenApiEndpoint,
+    });
 
     set({ isChecking: true });
 
@@ -141,10 +142,10 @@ export const useGrammarStore = create<GrammarStore>((set, get) => ({
         },
         body: JSON.stringify({
           content: text,
-          apiKey,
-          model: config.requiresModelId ? modelId : config.defaultModel,
+          apiKey: providerConfig.apiKey,
+          model: config.requiresModelId ? providerConfig.modelId : config.defaultModel,
           modelType: selectedModel,
-          apiEndpoint: selectedModel === "openai" ? openaiApiEndpoint : undefined,
+          apiEndpoint: providerConfig.apiEndpoint,
           temperature: grammarTemperature,
           topP: grammarTopP,
           maxTokens: grammarMaxTokens,

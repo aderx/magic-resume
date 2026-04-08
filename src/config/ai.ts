@@ -66,15 +66,19 @@ export const DEFAULT_GRAMMAR_CONFIG: AIOperationConfig = {
 export interface AIValidationContext {
   doubaoApiKey?: string;
   doubaoModelId?: string;
+  doubaoApiEndpoint?: string;
   deepseekApiKey?: string;
   deepseekModelId?: string;
+  deepseekApiEndpoint?: string;
   openaiApiKey?: string;
   openaiModelId?: string;
   openaiApiEndpoint?: string;
   geminiApiKey?: string;
   geminiModelId?: string;
+  geminiApiEndpoint?: string;
   qwenApiKey?: string;
   qwenModelId?: string;
+  qwenApiEndpoint?: string;
 }
 
 export interface AIModelConfig {
@@ -88,25 +92,92 @@ export interface AIModelConfig {
 export const normalizeApiEndpoint = (endpoint?: string) =>
   endpoint?.trim().replace(/\/+$/, "") ?? "";
 
+export const DEFAULT_AI_API_ENDPOINTS: Record<AIModelType, string> = {
+  doubao: "https://ark.cn-beijing.volces.com/api/v3",
+  deepseek: "https://api.deepseek.com/v1",
+  openai: "https://api.openai.com/v1",
+  gemini: "https://generativelanguage.googleapis.com/v1beta",
+  qwen: "https://dashscope.aliyuncs.com/compatible-mode/v1",
+};
+
+export type ResolvedAIProviderConfig = {
+  apiKey: string;
+  modelId: string;
+  apiEndpoint: string;
+};
+
+export const getAIProviderConfig = (
+  providerId: AIModelType,
+  context: AIValidationContext
+): ResolvedAIProviderConfig => {
+  switch (providerId) {
+    case "doubao":
+      return {
+        apiKey: context.doubaoApiKey ?? "",
+        modelId: context.doubaoModelId ?? "",
+        apiEndpoint: context.doubaoApiEndpoint ?? "",
+      };
+    case "deepseek":
+      return {
+        apiKey: context.deepseekApiKey ?? "",
+        modelId: context.deepseekModelId ?? "",
+        apiEndpoint: context.deepseekApiEndpoint ?? "",
+      };
+    case "openai":
+      return {
+        apiKey: context.openaiApiKey ?? "",
+        modelId: context.openaiModelId ?? "",
+        apiEndpoint: context.openaiApiEndpoint ?? "",
+      };
+    case "gemini":
+      return {
+        apiKey: context.geminiApiKey ?? "",
+        modelId: context.geminiModelId ?? "",
+        apiEndpoint: context.geminiApiEndpoint ?? "",
+      };
+    case "qwen":
+      return {
+        apiKey: context.qwenApiKey ?? "",
+        modelId: context.qwenModelId ?? "",
+        apiEndpoint: context.qwenApiEndpoint ?? "",
+      };
+  }
+};
+
+const validateAIProviderConfig = (
+  providerId: AIModelType,
+  context: AIValidationContext
+) => {
+  const config = getAIProviderConfig(providerId, context);
+
+  return !!(
+    config.apiKey.trim() &&
+    config.modelId.trim() &&
+    normalizeApiEndpoint(config.apiEndpoint)
+  );
+};
+
 export const AI_MODEL_CONFIGS: Record<AIModelType, AIModelConfig> = {
   doubao: {
-    url: () => "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
+    url: (endpoint?: string) => `${normalizeApiEndpoint(endpoint)}/chat/completions`,
     requiresModelId: true,
     headers: (apiKey: string) => ({
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     }),
-    validate: (context: AIValidationContext) => !!(context.doubaoApiKey && context.doubaoModelId),
+    validate: (context: AIValidationContext) =>
+      validateAIProviderConfig("doubao", context),
   },
   deepseek: {
-    url: () => "https://api.deepseek.com/v1/chat/completions",
+    url: (endpoint?: string) => `${normalizeApiEndpoint(endpoint)}/chat/completions`,
     requiresModelId: true,
     defaultModel: "deepseek-chat",
     headers: (apiKey: string) => ({
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     }),
-    validate: (context: AIValidationContext) => !!(context.deepseekApiKey && context.deepseekModelId),
+    validate: (context: AIValidationContext) =>
+      validateAIProviderConfig("deepseek", context),
   },
   openai: {
     url: (endpoint?: string) => `${normalizeApiEndpoint(endpoint)}/chat/completions`,
@@ -115,25 +186,28 @@ export const AI_MODEL_CONFIGS: Record<AIModelType, AIModelConfig> = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     }),
-    validate: (context: AIValidationContext) => !!(context.openaiApiKey && context.openaiModelId && context.openaiApiEndpoint),
+    validate: (context: AIValidationContext) =>
+      validateAIProviderConfig("openai", context),
   },
   gemini: {
-    url: () => "https://generativelanguage.googleapis.com/v1beta",
+    url: (endpoint?: string) => normalizeApiEndpoint(endpoint),
     requiresModelId: true,
     headers: (apiKey: string) => ({
       "Content-Type": "application/json",
       "x-goog-api-key": apiKey,
     }),
-    validate: (context: AIValidationContext) => !!(context.geminiApiKey && context.geminiModelId),
+    validate: (context: AIValidationContext) =>
+      validateAIProviderConfig("gemini", context),
   },
   qwen: {
-    url: () => "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+    url: (endpoint?: string) => `${normalizeApiEndpoint(endpoint)}/chat/completions`,
     requiresModelId: true,
     defaultModel: "qwen-plus",
     headers: (apiKey: string) => ({
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     }),
-    validate: (context: AIValidationContext) => !!(context.qwenApiKey && context.qwenModelId),
+    validate: (context: AIValidationContext) =>
+      validateAIProviderConfig("qwen", context),
   },
 };

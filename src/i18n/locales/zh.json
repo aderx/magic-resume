@@ -134,7 +134,7 @@
         "pdfTitle": "导入 PDF",
         "pdfDescription": "使用 Gemini 自动识别生成简历结构",
         "importing": "正在导入，请稍候...",
-        "geminiConfigRequired": "请先在 AI 服务商设置页配置 Gemini API Key 和模型 ID",
+        "geminiConfigRequired": "请先在 AI 服务商设置页配置 Gemini API Key、模型 ID 和 API 端点",
         "pdfSuccess": "PDF 导入成功",
         "pdfError": "PDF 导入失败，请检查 PDF 内容或 Gemini 配置"
       },
@@ -216,12 +216,20 @@
         "topP": "Top P",
         "maxTokens": "Max Tokens",
         "systemPrompt": "系统提示词",
+        "apiEndpoint": "API 端点",
         "getApiKey": "获取 API Key",
+        "resetApiEndpoint": "还原默认配置",
+        "resetApiEndpointSuccess": "已恢复默认 API 端点",
         "testConfig": "测试配置",
         "testingConfig": "测试中...",
         "testIncomplete": "请先填写当前服务商所需的配置项后再测试。",
         "testSuccess": "配置测试成功",
         "testFailed": "配置测试失败",
+        "showApiKey": "显示 API Key",
+        "hideApiKey": "隐藏 API Key",
+        "connectionLocalOnly": "配置仅保存在当前浏览器本地。若误改 API 端点，建议点击左侧输入框后的“还原默认配置”。",
+        "providerPortal": "服务商控制台",
+        "providerPortalDescription": "在服务商平台查看 API 文档、创建密钥或核对默认接入地址。",
         "doubao": {
           "title": "豆包",
           "description": "在火山引擎获取 API 密钥",
@@ -232,7 +240,8 @@
           "title": "DeepSeek",
           "description": "在 DeepSeek 开放平台获取 API 密钥，可自定义模型 ID，例如 deepseek-chat 或 deepseek-reasoner",
           "apiKey": "API Key",
-          "modelId": "模型 ID"
+          "modelId": "模型 ID",
+          "apiEndpoint": "API 端点"
         },
         "openai": {
           "title": "OpenAI",
@@ -245,7 +254,8 @@
           "title": "Gemini",
           "description": "支持润色、语法检查和 PDF 图片识别导入。推荐模型 ID：gemini-flash-latest",
           "apiKey": "Gemini API Key",
-          "modelId": "Gemini 模型 ID"
+          "modelId": "Gemini 模型 ID",
+          "apiEndpoint": "Gemini API 端点"
         },
         "qwen": {
           "title": "Qwen",
@@ -254,7 +264,7 @@
           "modelId": "Qwen 模型 ID",
           "apiEndpoint": "兼容 API 端点",
           "compatibleMode": "OpenAI 兼容模式",
-          "compatibleModeDescription": "Qwen 使用 DashScope 提供的兼容接口，无需额外填写 API 端点。"
+          "compatibleModeDescription": "默认使用 DashScope 提供的兼容接口，你也可以按需修改 API 端点。"
         }
       }
     },

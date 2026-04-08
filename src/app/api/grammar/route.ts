@@ -4,7 +4,11 @@ import {
   AIModelType,
   DEFAULT_GRAMMAR_CONFIG,
 } from "@/config/ai";
-import { formatGeminiErrorMessage, getGeminiModelInstance } from "@/lib/server/gemini";
+import {
+  createGeminiTextContent,
+  formatGeminiErrorMessage,
+  requestGeminiContent,
+} from "@/lib/server/gemini";
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,9 +27,11 @@ export async function POST(req: NextRequest) {
 
     if (modelType === "gemini") {
       const geminiModel = model || "gemini-flash-latest";
-      const modelInstance = getGeminiModelInstance({
+      const text = await requestGeminiContent({
         apiKey,
+        apiEndpoint,
         model: geminiModel,
+        contents: [createGeminiTextContent(content)],
         systemInstruction: resolvedSystemPrompt,
         generationConfig: {
           temperature: resolvedTemperature,
@@ -34,9 +40,6 @@ export async function POST(req: NextRequest) {
           responseMimeType: "application/json",
         },
       });
-
-      const result = await modelInstance.generateContent(content);
-      const text = result.response.text() || "";
 
       return NextResponse.json({
         choices: [

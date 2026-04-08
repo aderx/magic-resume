@@ -130,7 +130,7 @@
         "pdfTitle": "Import PDF",
         "pdfDescription": "Use Gemini into structured resume data",
         "importing": "Importing, please wait...",
-        "geminiConfigRequired": "Please configure Gemini API Key and Model ID in AI settings first",
+        "geminiConfigRequired": "Please configure Gemini API Key, Model ID, and API endpoint in AI settings first",
         "pdfSuccess": "PDF imported successfully",
         "pdfError": "PDF import failed. Please check PDF content or Gemini configuration"
       },
@@ -213,12 +213,20 @@
         "topP": "Top P",
         "maxTokens": "Max Tokens",
         "systemPrompt": "System Prompt",
+        "apiEndpoint": "API Endpoint",
         "getApiKey": "Get API Key",
+        "resetApiEndpoint": "Restore Default",
+        "resetApiEndpointSuccess": "Default API endpoint restored",
         "testConfig": "Test Configuration",
         "testingConfig": "Testing...",
         "testIncomplete": "Fill in the required fields for the current provider before testing.",
         "testSuccess": "Configuration test succeeded",
         "testFailed": "Configuration test failed",
+        "showApiKey": "Show API Key",
+        "hideApiKey": "Hide API Key",
+        "connectionLocalOnly": "These settings stay in your current browser only. If the API endpoint is edited incorrectly, use “Restore Default” next to the endpoint field.",
+        "providerPortal": "Provider Console",
+        "providerPortalDescription": "Open the provider portal to review API docs, create keys, or verify the default endpoint.",
         "doubao": {
           "title": "Doubao",
           "description": "Get API key from Volcengine",
@@ -229,7 +237,8 @@
           "title": "DeepSeek",
           "description": "Get the API key from DeepSeek Platform and configure a model ID such as deepseek-chat or deepseek-reasoner.",
           "apiKey": "DeepSeek API Key",
-          "modelId": "Model ID"
+          "modelId": "Model ID",
+          "apiEndpoint": "API Endpoint"
         },
         "openai": {
           "title": "OpenAI",
@@ -242,7 +251,8 @@
           "title": "Gemini",
           "description": "Supports polish, grammar check, and PDF image resume import. Recommended model: gemini-flash-latest",
           "apiKey": "Gemini API Key",
-          "modelId": "Gemini Model ID"
+          "modelId": "Gemini Model ID",
+          "apiEndpoint": "Gemini API Endpoint"
         },
         "qwen": {
           "title": "Qwen",
@@ -251,7 +261,7 @@
           "modelId": "Qwen Model ID",
           "apiEndpoint": "Compatible API Endpoint",
           "compatibleMode": "OpenAI-Compatible Mode",
-          "compatibleModeDescription": "Qwen uses DashScope's compatible endpoint, so no extra API endpoint setup is required."
+          "compatibleModeDescription": "DashScope's compatible endpoint is used by default, and you can edit the API endpoint when needed."
         }
       }
     },

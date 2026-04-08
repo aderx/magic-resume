@@ -1,25 +1,123 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { normalizeApiEndpoint } from "@/config/ai";
 
-export const ensureGeminiProxyDispatcher = () => {
-  // Intentionally left as a no-op.
-  // Importing `undici` here breaks the current webpack/edge build because it
-  // pulls in `node:` scheme modules such as `node:diagnostics_channel`.
+type GeminiPart = {
+  text?: string;
+  inline_data?: {
+    mime_type: string;
+    data: string;
+  };
 };
 
-export const getGeminiModelInstance = (params: {
-  apiKey: string;
-  model: string;
-  systemInstruction?: string;
-  generationConfig?: Record<string, unknown>;
-}) => {
-  ensureGeminiProxyDispatcher();
-  const genAI = new GoogleGenerativeAI(params.apiKey);
+type GeminiContent = {
+  role?: "user" | "model";
+  parts: GeminiPart[];
+};
 
-  return genAI.getGenerativeModel({
-    model: params.model,
-    systemInstruction: params.systemInstruction,
-    generationConfig: params.generationConfig,
+type GeminiGenerationConfig = {
+  temperature?: number;
+  topP?: number;
+  maxOutputTokens?: number;
+  responseMimeType?: string;
+};
+
+type GeminiRequestParams = {
+  apiKey: string;
+  apiEndpoint: string;
+  model: string;
+  contents: GeminiContent[];
+  systemInstruction?: string;
+  generationConfig?: GeminiGenerationConfig;
+};
+
+const getGeminiErrorMessage = async (response: Response) => {
+  const fallbackMessage = `Gemini request failed: ${response.status} ${response.statusText}`;
+
+  try {
+    const data = await response.json();
+    if (typeof data?.error?.message === "string" && data.error.message.trim()) {
+      return data.error.message;
+    }
+    if (typeof data?.message === "string" && data.message.trim()) {
+      return data.message;
+    }
+    return fallbackMessage;
+  } catch {
+    return fallbackMessage;
+  }
+};
+
+const extractGeminiText = (payload: any) => {
+  const candidates = Array.isArray(payload?.candidates) ? payload.candidates : [];
+
+  return candidates
+    .flatMap((candidate: any) =>
+      Array.isArray(candidate?.content?.parts) ? candidate.content.parts : []
+    )
+    .map((part: any) => (typeof part?.text === "string" ? part.text : ""))
+    .join("")
+    .trim();
+};
+
+export const createGeminiTextContent = (text: string): GeminiContent => ({
+  role: "user",
+  parts: [{ text }],
+});
+
+export const createGeminiInlineDataPart = (
+  mimeType: string,
+  data: string
+): GeminiPart => ({
+  inline_data: {
+    mime_type: mimeType,
+    data,
+  },
+});
+
+export const requestGeminiContent = async ({
+  apiKey,
+  apiEndpoint,
+  model,
+  contents,
+  systemInstruction,
+  generationConfig,
+}: GeminiRequestParams) => {
+  const endpoint = normalizeApiEndpoint(apiEndpoint);
+  if (!endpoint) {
+    throw new Error("Gemini API endpoint is required");
+  }
+  const url = new URL(`${endpoint}/models/${model}:generateContent`);
+  url.searchParams.set("key", apiKey.trim());
+
+  const response = await fetch(url.toString(), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      contents,
+      ...(systemInstruction?.trim()
+        ? {
+            systemInstruction: {
+              parts: [{ text: systemInstruction.trim() }],
+            },
+          }
+        : {}),
+      ...(generationConfig ? { generationConfig } : {}),
+    }),
   });
+
+  if (!response.ok) {
+    throw new Error(await getGeminiErrorMessage(response));
+  }
+
+  const data = await response.json();
+  const text = extractGeminiText(data);
+
+  if (!text) {
+    throw new Error("Gemini returned an empty response");
+  }
+
+  return text;
 };
 
 export const formatGeminiErrorMessage = (error: unknown) => {
@@ -37,7 +135,7 @@ export const formatGeminiErrorMessage = (error: unknown) => {
       ? JSON.stringify(details)
       : String(details);
     return `${baseMessage} | details: ${detailText}`;
-  } catch (stringifyError) {
+  } catch {
     return baseMessage;
   }
 };
