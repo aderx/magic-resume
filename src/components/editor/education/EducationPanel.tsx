@@ -24,6 +24,7 @@ const EducationPanel = () => {
       startDate: "2015-09-01",
       endDate: "2019-06-30",
       description: "",
+      remark: "",
       visible: true,
     };
     updateEducation(newEducation);

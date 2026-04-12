@@ -56,6 +56,8 @@ const CustomItemEditor = ({
           label="详细描述"
           value={item.description}
           onChange={(value) => handleChange("description", value)}
+          remarkValue={item.remark || ""}
+          onRemarkChange={(value) => handleChange("remark", value)}
           type="editor"
           placeholder="请输入详细描述..."
         />

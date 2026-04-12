@@ -65,6 +65,8 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({
           label={t("labels.details")}
           value={experience.details}
           onChange={(value) => handleChange("details", value)}
+          remarkValue={experience.remark || ""}
+          onRemarkChange={(value) => handleChange("remark", value)}
           type="editor"
           placeholder={t("placeholders.details")}
         />
@@ -226,17 +228,11 @@ const ExperienceItem = ({ experience }: { experience: Experience }) => {
             >
               <div
                 className={cn(
-                  "px-4 pb-4 space-y-4",
+                  "px-4 pb-4 pt-2 space-y-4",
                   "border-border"
                 )}
                 onClick={(e) => e.stopPropagation()}
               >
-                <div
-                  className={cn(
-                    "h-px w-full",
-                    "bg-border"
-                  )}
-                />
                 <ProjectEditor
                   experience={experience}
                   onSave={updateExperience}

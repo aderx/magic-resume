@@ -1,10 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 import { useTranslations } from "@/i18n/compat/client";
 
 import { cn } from "@/lib/utils";
+import { hasMeaningfulRichTextContent } from "@/lib/richText";
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import RichTextEditor from "../shared/rich-editor/RichEditor";
 import AIPolishDialog from "../shared/ai/AIPolishDialog";
@@ -22,6 +25,9 @@ interface FieldProps {
   className?: string;
   showPresentSwitch?: boolean;
   disabled?: boolean;
+  remarkValue?: string;
+  onRemarkChange?: (value: string) => void;
+  remarkPlaceholder?: string;
 }
 
 const Field = ({
@@ -34,8 +40,12 @@ const Field = ({
   className,
   showPresentSwitch,
   disabled = false,
+  remarkValue,
+  onRemarkChange,
+  remarkPlaceholder,
 }: FieldProps) => {
   const [showPolishDialog, setShowPolishDialog] = useState(false);
+  const [remarkExpanded, setRemarkExpanded] = useState(false);
   const { checkConfiguration } = useAIConfiguration();
   const t = useTranslations();
   const [rangeStart] = value.split(" - ");
@@ -54,6 +64,16 @@ const Field = ({
 
     return false;
   }, [disabled, type, rangeStart]);
+  const hasRemark = useMemo(
+    () => hasMeaningfulRichTextContent(remarkValue),
+    [remarkValue]
+  );
+
+  useEffect(() => {
+    if (!onRemarkChange) {
+      setRemarkExpanded(false);
+    }
+  }, [onRemarkChange]);
 
   const handlePresentToggle = (checked: boolean) => {
     if (presentSwitchDisabled) {
@@ -166,6 +186,54 @@ const Field = ({
             }}
           />
         </div>
+
+        {onRemarkChange && (
+          <div className="mt-3">
+            <div className="mb-1.5 flex items-center justify-between font-medium">
+              <span className="flex items-center gap-2 text-sm text-foreground">
+                {t("field.remark")}
+                {hasRemark && (
+                  <span className="text-xs font-normal text-muted-foreground">
+                    {t("field.remarkFilled")}
+                  </span>
+                )}
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-xs text-muted-foreground"
+                onClick={() => setRemarkExpanded((prev) => !prev)}
+              >
+                <ChevronDown
+                  className={cn(
+                    "mr-1 h-4 w-4 transition-transform",
+                    remarkExpanded && "rotate-180"
+                  )}
+                />
+                {remarkExpanded ? t("field.collapse") : t("field.expand")}
+              </Button>
+            </div>
+
+            <AnimatePresence initial={false}>
+              {remarkExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <RichTextEditor
+                    content={remarkValue || ""}
+                    onChange={onRemarkChange}
+                    placeholder={remarkPlaceholder || t("field.remarkPlaceholder")}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
 
         <AIPolishDialog
           open={showPolishDialog}

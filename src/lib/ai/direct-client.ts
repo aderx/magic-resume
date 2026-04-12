@@ -27,6 +27,7 @@ type DirectPolishRequest = DirectAIRequestBase & {
   maxTokens?: number;
   systemPrompt?: string;
   onDelta?: (chunk: string) => void;
+  onReasoningDelta?: (chunk: string) => void;
 };
 
 type DirectGrammarRequest = DirectAIRequestBase & {
@@ -153,6 +154,23 @@ const extractCompatibleDelta = (payload: any) => {
   return "";
 };
 
+const extractCompatibleReasoningDelta = (payload: any) => {
+  const choice = payload?.choices?.[0];
+  const deltaReasoning = choice?.delta?.reasoning_content;
+
+  if (typeof deltaReasoning === "string") {
+    return deltaReasoning;
+  }
+
+  if (Array.isArray(deltaReasoning)) {
+    return deltaReasoning
+      .map((part: any) => (typeof part?.text === "string" ? part.text : ""))
+      .join("");
+  }
+
+  return "";
+};
+
 const extractGeminiText = (payload: any) => {
   const candidates = Array.isArray(payload?.candidates) ? payload.candidates : [];
 
@@ -187,7 +205,8 @@ const getGeminiErrorMessage = async (response: Response) => {
 
 const readCompatibleStream = async (
   response: Response,
-  onDelta?: (chunk: string) => void
+  onDelta?: (chunk: string) => void,
+  onReasoningDelta?: (chunk: string) => void
 ) => {
   const contentType = response.headers.get("content-type") || "";
 
@@ -246,6 +265,11 @@ const readCompatibleStream = async (
       try {
         const payload = JSON.parse(data);
         const chunk = extractCompatibleDelta(payload);
+        const reasoningChunk = extractCompatibleReasoningDelta(payload);
+
+        if (reasoningChunk) {
+          onReasoningDelta?.(reasoningChunk);
+        }
 
         if (!chunk) continue;
 
@@ -265,6 +289,11 @@ const readCompatibleStream = async (
       try {
         const payload = JSON.parse(data);
         const chunk = extractCompatibleDelta(payload);
+        const reasoningChunk = extractCompatibleReasoningDelta(payload);
+
+        if (reasoningChunk) {
+          onReasoningDelta?.(reasoningChunk);
+        }
 
         if (chunk) {
           fullText += chunk;
@@ -295,6 +324,7 @@ const requestCompatibleText = async ({
   maxTokens,
   stream = false,
   onDelta,
+  onReasoningDelta,
 }: DirectAIRequestBase & {
   messages: CompatibleMessage[];
   temperature: number;
@@ -302,6 +332,7 @@ const requestCompatibleText = async ({
   maxTokens: number;
   stream?: boolean;
   onDelta?: (chunk: string) => void;
+  onReasoningDelta?: (chunk: string) => void;
 }) => {
   const modelConfig = AI_MODEL_CONFIGS[modelType];
   const resolvedEndpoint = normalizeApiEndpoint(apiEndpoint);
@@ -329,7 +360,7 @@ const requestCompatibleText = async ({
   }
 
   if (stream) {
-    return readCompatibleStream(response, onDelta);
+    return readCompatibleStream(response, onDelta, onReasoningDelta);
   }
 
   const data = await response.json();
@@ -480,6 +511,7 @@ export const polishContentDirect = async ({
   maxTokens,
   systemPrompt,
   onDelta,
+  onReasoningDelta,
 }: DirectPolishRequest) => {
   try {
     let resolvedSystemPrompt =
@@ -540,6 +572,7 @@ export const polishContentDirect = async ({
           : DEFAULT_POLISH_CONFIG.maxTokens,
       stream: true,
       onDelta,
+      onReasoningDelta,
     });
   } catch (error) {
     normalizeDirectClientError(error);

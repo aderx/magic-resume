@@ -549,7 +549,7 @@
         "description": "Project Description",
         "technologies": "Tech Stack",
         "link": "Project Link",
-        "linkLabel": "Display Text"
+        "linkLabel": "Link Copy"
       },
       "placeholders": {
         "name": "Enter project name",
@@ -558,10 +558,11 @@
         "description": "Briefly describe project background and goals",
         "technologies": "Technologies and tools used",
         "link": "Project link",
-        "linkLabel": "Display text"
+        "linkLabel": "Link copy"
       },
       "hints": {
-        "linkLabel": "If display text is empty, the domain or full URL will be shown automatically. Only http:// and https:// links are supported."
+        "link": "Use this to show a clickable project link on the resume.",
+        "linkLabel": "If left empty, the domain or full URL will be shown automatically."
       },
       "buttons": {
         "edit": "Edit",
@@ -632,14 +633,23 @@
     }
   },
   "field": {
-    "selectDate": "Select Date",
+    "selectDate": "Select a date",
     "enterYear": "Enter Year",
     "toPresent": "To Present",
     "clear": "Clear",
     "startDate": "Start Date",
-    "endDate": "End Date"
+    "endDate": "End Date",
+    "startDatePlaceholder": "Select a start date",
+    "endDatePlaceholder": "Select an end date",
+    "remark": "Remark",
+    "remarkFilled": "Filled",
+    "remarkPlaceholder": "Enter remark content",
+    "expand": "Expand",
+    "collapse": "Collapse"
   },
   "richEditor": {
+    "empty": "No content",
+    "textAlign": "Text alignment",
     "bold": "Bold",
     "italic": "Italic",
     "underline": "Underline",
@@ -648,6 +658,7 @@
     "linkApply": "Apply",
     "linkRemove": "Remove",
     "linkInvalid": "Please enter a valid URL",
+    "colorSettings": "Color settings",
     "textColor": "Text Color",
     "backgroundColor": "Background Color",
     "alignLeft": "Align Left",
@@ -774,18 +785,27 @@
       "polished": "Polished Content",
       "polishedDescription": "After generation, you can keep editing before applying it."
     },
-    "customInstructions": "Custom instructions",
+    "customInstructions": "User Prompt",
     "customInstructionsHint": "A default user prompt is already loaded, so you usually only need small tweaks.",
     "customInstructionsDescription": "This text is appended to the polish request to steer tone, emphasis, and output style.",
     "customInstructionsPlaceholder": "e.g. Use more technical terms, highlight metrics, keep tone formal… (optional)",
+    "modelTagHint": "The current model provider is {model}. Click to open the settings page and switch providers.",
     "showCustomInstructions": "Show user prompt",
     "hideCustomInstructions": "Hide user prompt",
     "resetCustomInstructions": "Restore default prompt",
+    "stopDialog": {
+      "title": "Stop polishing",
+      "description": "Polishing is still in progress. Do you want to stop this run?",
+      "cancel": "Keep running",
+      "confirm": "Stop now"
+    },
     "button": {
       "cancel": "Cancel",
       "start": "Start polish",
-      "regenerate": "Regenerate",
-      "generating": "Generating...",
+      "regenerate": "Polish again",
+      "thinking": "Model is thinking...",
+      "generating": "Polishing...",
+      "stop": "Stop",
       "apply": "Apply Content"
     }
   },

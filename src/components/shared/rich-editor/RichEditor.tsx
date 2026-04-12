@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import { useTranslations } from "@/i18n/compat/client";
 import StarterKit from "@tiptap/starter-kit";
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/popover";
 import {
   Bold,
+  Check,
   Italic,
   Underline as UnderlineIcon,
   AlignLeft,
@@ -32,6 +33,7 @@ import {
 } from "lucide-react";
 import Highlight from "@tiptap/extension-highlight";
 import { cn } from "@/lib/utils";
+import { hasMeaningfulRichTextContent } from "@/lib/richText";
 import ListItem from "@tiptap/extension-list-item";
 import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
@@ -44,6 +46,7 @@ interface RichTextEditorProps {
   onChange: (content: string) => void;
   placeholder?: string;
   onPolish?: () => void;
+  editable?: boolean;
   className?: string;
   toolbarClassName?: string;
   editorClassName?: string;
@@ -75,17 +78,15 @@ const getColors = (t: any): ColorOption[] => [
 
 const getBgColors = getColors;
 
-interface MenuButtonProps {
-  onClick: () => void;
-  isActive?: boolean;
-  disabled?: boolean;
-  children: React.ReactNode;
-  className?: string;
-  tooltip?: string;
-}
+const ALIGNMENT_OPTIONS = [
+  { key: "left", icon: AlignLeft, labelKey: "alignLeft" },
+  { key: "center", icon: AlignCenter, labelKey: "alignCenter" },
+  { key: "right", icon: AlignRight, labelKey: "alignRight" },
+  { key: "justify", icon: AlignJustify, labelKey: "alignJustify" },
+] as const;
 
 interface MenuButtonProps {
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
   isActive?: boolean;
   disabled?: boolean;
   children: React.ReactNode;
@@ -106,7 +107,7 @@ const MenuButton = ({
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onClick();
+    onClick(e);
   };
 
   return (
@@ -116,7 +117,7 @@ const MenuButton = ({
         variant={isActive ? "secondary" : "ghost"}
         size="sm"
         className={cn(
-          "h-9 w-9 rounded-md transition-all duration-200 hover:scale-105 p-0",
+          "h-8 w-8 rounded-md p-0 transition-all duration-200 hover:scale-105",
           isActive
             ? "bg-primary/10 text-primary hover:bg-primary/20 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700"
             : "hover:bg-primary/5 dark:hover:bg-neutral-800",
@@ -146,14 +147,29 @@ const MenuButton = ({
   );
 };
 
-const TextColorButton = ({ editor }) => {
+interface EditorControlButtonProps {
+  editor: ReturnType<typeof useEditor>;
+  disabled?: boolean;
+}
+
+const ColorMenuButton = ({
+  editor,
+  disabled = false,
+}: EditorControlButtonProps) => {
   const [activeColor, setActiveColor] = React.useState<string | null>(null);
+  const [activeBgColor, setActiveBgColor] = React.useState<string | null>(null);
   const t = useTranslations("richEditor");
   const colors = getColors(t);
+  const bgColors = getBgColors(t);
 
   React.useEffect(() => {
     const color = editor?.getAttributes("textStyle").color;
     setActiveColor(color);
+
+    const highlight =
+      editor?.getAttributes("highlight").color ||
+      editor?.getAttributes("highlight");
+    setActiveBgColor(typeof highlight === "string" ? highlight : null);
   }, [editor]);
 
   return (
@@ -162,24 +178,31 @@ const TextColorButton = ({ editor }) => {
         <Button
           variant="ghost"
           size="sm"
-          className="h-9 w-9 p-0 rounded-md hover:scale-105 transition-all duration-200 hover:bg-primary/5 relative group"
+          className="relative h-8 w-8 rounded-md p-0 transition-all duration-200 hover:scale-105 hover:bg-primary/5"
+          disabled={disabled}
         >
           <PaintBucket
             className="h-5 w-5"
             style={{
-              color: activeColor || "currentColor",
-              filter: activeColor
+              color: activeColor || activeBgColor || "currentColor",
+              filter: activeColor || activeBgColor
                 ? "drop-shadow(0 1px 1px rgba(0,0,0,0.1))"
                 : "none",
             }}
           />
-          <span className="sr-only">{t("textColor")}</span>
+          {(activeColor || activeBgColor) && (
+            <span
+              className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border border-background"
+              style={{ backgroundColor: activeBgColor || activeColor || "#000000" }}
+            />
+          )}
+          <span className="sr-only">{t("colorSettings")}</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-64 p-3 rounded-lg">
-        <div className="flex flex-col gap-2">
+      <PopoverContent className="w-64 rounded-lg p-3">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <PaintBucket className="h-4 w-4" />
+            <Highlighter className="h-4 w-4" />
             <span className="text-sm font-medium">{t("textColor")}</span>
           </div>
           <div className="grid grid-cols-5 gap-1">
@@ -189,6 +212,7 @@ const TextColorButton = ({ editor }) => {
                 editor.chain().focus().unsetColor().run();
                 setActiveColor(null);
               }}
+              disabled={disabled}
             >
               <span className="text-xl leading-none text-muted-foreground">
                 /
@@ -212,61 +236,14 @@ const TextColorButton = ({ editor }) => {
                   editor.chain().focus().setColor(color.value).run();
                   setActiveColor(color.value);
                 }}
+                disabled={disabled}
                 title={color.label}
               />
             ))}
           </div>
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
-};
 
-const BackgroundColorButton = ({ editor }) => {
-  const [activeBgColor, setActiveBgColor] = React.useState<string | null>(null);
-  const t = useTranslations("richEditor");
-  const bgColors = getBgColors(t);
-
-  useEffect(() => {
-    // highlight 属性可能直接返回颜色值
-    const highlight =
-      editor?.getAttributes("highlight").color ||
-      editor?.getAttributes("highlight");
-    setActiveBgColor(typeof highlight === "string" ? highlight : null);
-  }, [editor]);
-
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-9 w-9 p-0 rounded-md hover:scale-105 transition-all duration-200 hover:bg-primary/5 relative group"
-        >
-          <div className="relative">
-            <Highlighter
-              className="h-5 w-5"
-              style={{
-                color: activeBgColor ? "currentColor" : "currentColor",
-                filter: activeBgColor
-                  ? "drop-shadow(0 1px 1px rgba(0,0,0,0.1))"
-                  : "none",
-              }}
-            />
-            {activeBgColor && (
-              <div
-                className="absolute -right-1 -bottom-1 w-2 h-2 rounded-full border border-white"
-                style={{ backgroundColor: activeBgColor }}
-              />
-            )}
-          </div>
-          <span className="sr-only">{t("backgroundColor")}</span>
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-64 p-3 rounded-lg">
-        <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <Highlighter className="h-4 w-4" />
+            <PaintBucket className="h-4 w-4" />
             <span className="text-sm font-medium">{t("backgroundColor")}</span>
           </div>
           <div className="grid grid-cols-5 gap-1">
@@ -276,6 +253,7 @@ const BackgroundColorButton = ({ editor }) => {
                 editor.chain().focus().unsetHighlight().run();
                 setActiveBgColor(null);
               }}
+              disabled={disabled}
             >
               <span className="text-xl leading-none text-muted-foreground">
                 /
@@ -302,6 +280,7 @@ const BackgroundColorButton = ({ editor }) => {
                     .run();
                   setActiveBgColor(color.value);
                 }}
+                disabled={disabled}
                 title={color.label}
               />
             ))}
@@ -312,16 +291,80 @@ const BackgroundColorButton = ({ editor }) => {
   );
 };
 
+const AlignMenuButton = ({
+  editor,
+  disabled = false,
+}: EditorControlButtonProps) => {
+  const t = useTranslations("richEditor");
+  const currentAlignment =
+    (editor?.isActive({ textAlign: "center" }) && "center") ||
+    (editor?.isActive({ textAlign: "right" }) && "right") ||
+    (editor?.isActive({ textAlign: "justify" }) && "justify") ||
+    "left";
+  const activeOption =
+    ALIGNMENT_OPTIONS.find((option) => option.key === currentAlignment) ||
+    ALIGNMENT_OPTIONS[0];
+  const ActiveIcon = activeOption.icon;
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 rounded-md p-0 transition-all duration-200 hover:scale-105 hover:bg-primary/5"
+          disabled={disabled}
+        >
+          <ActiveIcon className="h-5 w-5" />
+          <span className="sr-only">{t("textAlign")}</span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-44 p-1.5">
+        <div className="flex flex-col gap-1">
+          {ALIGNMENT_OPTIONS.map((option) => {
+            const Icon = option.icon;
+            const isActive = currentAlignment === option.key;
+
+            return (
+              <Button
+                key={option.key}
+                type="button"
+                variant="ghost"
+                className={cn(
+                  "h-9 justify-start px-2 text-sm",
+                  isActive && "bg-primary/10 text-primary hover:bg-primary/15"
+                )}
+                disabled={disabled}
+                onClick={() => editor.chain().focus().setTextAlign(option.key).run()}
+              >
+                <Icon className="mr-2 h-4 w-4" />
+                <span>{t(option.labelKey)}</span>
+                {isActive && <Check className="ml-auto h-4 w-4" />}
+              </Button>
+            );
+          })}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
 const RichTextEditor = ({
   content = "",
   onChange,
+  placeholder,
   onPolish,
+  editable = true,
   className,
   toolbarClassName,
   editorClassName,
   contentClassName,
 }: RichTextEditorProps) => {
   const t = useTranslations("richEditor");
+  const [isEditorEmpty, setIsEditorEmpty] = useState(
+    !hasMeaningfulRichTextContent(content)
+  );
+  const effectivePlaceholder = placeholder || t("empty");
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -354,7 +397,9 @@ const RichTextEditor = ({
       BetterSpace,
     ],
     content,
+    editable,
     onUpdate: ({ editor }) => {
+      setIsEditorEmpty(editor.isEmpty);
       onChange(editor.getHTML());
     },
     editorProps: {
@@ -380,8 +425,15 @@ const RichTextEditor = ({
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
       editor.commands.setContent(content);
+      setIsEditorEmpty(editor.isEmpty);
     }
   }, [content, editor]);
+
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(editable);
+    }
+  }, [editable, editor]);
 
   if (!editor) {
     return null;
@@ -398,7 +450,7 @@ const RichTextEditor = ({
     >
       <div
         className={cn(
-          "shrink-0 border-b px-2 py-1.5 flex flex-wrap items-center gap-3",
+          "sticky top-0 z-20 flex shrink-0 flex-wrap items-center gap-2 border-b px-1.5 py-1.5",
           "bg-background dark:bg-neutral-900/50 dark:border-neutral-800",
           toolbarClassName
         )}
@@ -407,6 +459,7 @@ const RichTextEditor = ({
           <MenuButton
             onClick={() => editor.chain().focus().toggleBold().run()}
             isActive={editor.isActive("bold")}
+            disabled={!editable}
             tooltip={t("bold")}
           >
             <Bold className="h-5 w-5" />
@@ -414,6 +467,7 @@ const RichTextEditor = ({
           <MenuButton
             onClick={() => editor.chain().focus().toggleItalic().run()}
             isActive={editor.isActive("italic")}
+            disabled={!editable}
             tooltip={t("italic")}
           >
             <Italic className="h-5 w-5" />
@@ -421,45 +475,13 @@ const RichTextEditor = ({
           <MenuButton
             onClick={() => editor.chain().focus().toggleUnderline().run()}
             isActive={editor.isActive("underline")}
+            disabled={!editable}
             tooltip={t("underline")}
           >
             <UnderlineIcon className="h-5 w-5" />
           </MenuButton>
-          <TextColorButton editor={editor} />
-          <BackgroundColorButton editor={editor} />
-        </div>
-
-        <div className={cn("h-5 w-px", "bg-border/60 dark:bg-neutral-800")} />
-
-        <div className="flex items-center gap-0.5">
-          <MenuButton
-            onClick={() => editor.chain().focus().setTextAlign("left").run()}
-            isActive={editor.isActive({ textAlign: "left" })}
-            tooltip={t("alignLeft")}
-          >
-            <AlignLeft className="h-5 w-5" />
-          </MenuButton>
-          <MenuButton
-            onClick={() => editor.chain().focus().setTextAlign("center").run()}
-            isActive={editor.isActive({ textAlign: "center" })}
-            tooltip={t("alignCenter")}
-          >
-            <AlignCenter className="h-5 w-5" />
-          </MenuButton>
-          <MenuButton
-            onClick={() => editor.chain().focus().setTextAlign("right").run()}
-            isActive={editor.isActive({ textAlign: "right" })}
-            tooltip={t("alignRight")}
-          >
-            <AlignRight className="h-5 w-5" />
-          </MenuButton>
-          <MenuButton
-            onClick={() => editor.chain().focus().setTextAlign("justify").run()}
-            isActive={editor.isActive({ textAlign: "justify" })}
-            tooltip={t("alignJustify")}
-          >
-            <AlignJustify className="h-5 w-5" />
-          </MenuButton>
+          <AlignMenuButton editor={editor} disabled={!editable} />
+          <ColorMenuButton editor={editor} disabled={!editable} />
         </div>
 
         <div className={cn("h-5 w-px", "bg-border/60 dark:bg-neutral-800")} />
@@ -468,6 +490,7 @@ const RichTextEditor = ({
           <MenuButton
             onClick={() => editor.chain().focus().toggleBulletList().run()}
             isActive={editor.isActive("bulletList")}
+            disabled={!editable}
             tooltip={t("bulletList")}
           >
             <List className="h-5 w-5" />
@@ -475,6 +498,7 @@ const RichTextEditor = ({
           <MenuButton
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
             isActive={editor.isActive("orderedList")}
+            disabled={!editable}
             tooltip={t("orderedList")}
           >
             <ListOrdered className="h-5 w-5" />
@@ -483,48 +507,54 @@ const RichTextEditor = ({
 
         <div className={cn("h-5 w-px", "bg-border/60 dark:bg-neutral-800")} />
 
-        <div className="flex items-center space-x-1">
+        <div className="flex items-center gap-0.5">
           <MenuButton
             onClick={() => editor.chain().focus().undo().run()}
-            disabled={!editor.can().undo()}
+            disabled={!editable || !editor.can().undo()}
             tooltip={t("undo")}
           >
             <Undo className="h-4 w-4" />
           </MenuButton>
           <MenuButton
             onClick={() => editor.chain().focus().redo().run()}
-            disabled={!editor.can().redo()}
+            disabled={!editable || !editor.can().redo()}
             tooltip={t("redo")}
           >
             <Redo className="h-4 w-4" />
           </MenuButton>
           {onPolish && (
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onPolish();
-              }}
-              className="h-8 px-3 text-xs gap-1.5 ml-1 border-primary/20 hover:border-primary/40 text-primary hover:bg-primary/5 transition-all duration-300 group"
-            >
-              <Wand2 className="h-3 w-3 group-hover:rotate-12 transition-transform" />
-              {t("aiPolish")}
-            </Button>
+            <>
+              <div className={cn("mx-1 h-5 w-px", "bg-border/60 dark:bg-neutral-800")} />
+              <MenuButton
+                onClick={(e) => {
+                  onPolish();
+                }}
+                disabled={!editable}
+                className="text-primary hover:bg-primary/5"
+                tooltip={t("aiPolish")}
+              >
+                <Wand2 className="h-4 w-4" />
+              </MenuButton>
+            </>
           )}
         </div>
       </div>
 
       {/* Editor Content */}
-      <EditorContent
-        editor={editor}
-        className={cn(
-          "min-h-0 flex-1 overflow-hidden [&_.tiptap]:h-full [&_.tiptap]:overflow-y-auto [&_.tiptap]:overflow-x-hidden",
-          contentClassName
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+        {isEditorEmpty && (
+          <div className="pointer-events-none absolute left-4 top-3 z-10 text-sm text-muted-foreground/70">
+            {effectivePlaceholder}
+          </div>
         )}
-      />
+        <EditorContent
+          editor={editor}
+          className={cn(
+            "min-h-0 flex-1 overflow-hidden [&_.tiptap]:h-full [&_.tiptap]:min-h-0 [&_.tiptap]:overflow-y-auto [&_.tiptap]:overflow-x-hidden",
+            contentClassName
+          )}
+        />
+      </div>
 
       {/* Bubble Menu */}
       {/* {editor && (

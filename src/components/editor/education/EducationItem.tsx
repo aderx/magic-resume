@@ -96,8 +96,10 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
 
         <Field
           label={t("labels.description")}
-          value={education.description}
+          value={education.description || ""}
           onChange={(value) => handleChange("description", value)}
+          remarkValue={education.remark || ""}
+          onRemarkChange={(value) => handleChange("remark", value)}
           type="editor"
           placeholder={t("placeholders.description")}
         />

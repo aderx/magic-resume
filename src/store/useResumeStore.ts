@@ -45,7 +45,9 @@ interface ResumeStore {
   deleteProject: (id: string) => void;
   setDraggingProjectId: (id: string | null) => void;
   updateSkillContent: (skillContent: string) => void;
+  updateSkillRemark: (skillRemark: string) => void;
   updateSelfEvaluationContent: (content: string) => void;
+  updateSelfEvaluationRemark: (remark: string) => void;
   reorderSections: (newOrder: ResumeData["menuSections"]) => void;
   toggleSectionVisibility: (sectionId: string) => void;
   setActiveSection: (sectionId: string) => void;
@@ -449,10 +451,24 @@ export const useResumeStore = create(
         }
       },
 
+      updateSkillRemark: (skillRemark) => {
+        const { activeResumeId } = get();
+        if (activeResumeId) {
+          get().updateResume(activeResumeId, { skillRemark });
+        }
+      },
+
       updateSelfEvaluationContent: (selfEvaluationContent) => {
         const { activeResumeId } = get();
         if (activeResumeId) {
           get().updateResume(activeResumeId, { selfEvaluationContent });
+        }
+      },
+
+      updateSelfEvaluationRemark: (selfEvaluationRemark) => {
+        const { activeResumeId } = get();
+        if (activeResumeId) {
+          get().updateResume(activeResumeId, { selfEvaluationRemark });
         }
       },
 
@@ -516,6 +532,7 @@ export const useResumeStore = create(
                 subtitle: "",
                 dateRange: "",
                 description: "",
+                remark: "",
                 visible: true,
               },
             ],
@@ -559,6 +576,7 @@ export const useResumeStore = create(
                 subtitle: "",
                 dateRange: "",
                 description: "",
+                remark: "",
                 visible: true,
               },
             ],

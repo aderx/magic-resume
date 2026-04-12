@@ -90,6 +90,7 @@ export interface Education {
   endDate: string;
   gpa?: string;
   description?: string;
+  remark?: string;
   visible?: boolean;
 }
 
@@ -99,6 +100,7 @@ export interface Experience {
   position: string;
   date: string;
   details: string;
+  remark?: string;
   visible?: boolean;
 }
 
@@ -114,6 +116,7 @@ export interface Project {
   role: string;
   date: string;
   description: string;
+  remark?: string;
   visible: boolean;
   link?: string;
   linkLabel?: string;
@@ -153,6 +156,7 @@ export interface CustomItem {
   subtitle: string;
   dateRange: string;
   description: string;
+  remark?: string;
   visible: boolean;
 }
 
@@ -192,7 +196,9 @@ export interface ResumeData {
   certificates: Certificate[];
   customData: Record<string, CustomItem[]>;
   skillContent: string;
+  skillRemark?: string;
   selfEvaluationContent: string;
+  selfEvaluationRemark?: string;
   activeSection: string;
   draggingProjectId: string | null;
   menuSections: MenuSection[];

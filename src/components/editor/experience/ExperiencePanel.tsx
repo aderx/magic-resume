@@ -22,6 +22,7 @@ const ExperiencePanel = () => {
       position: t("defaultProject.position"),
       date: t("defaultProject.date"),
       details: t("defaultProject.details"),
+      remark: "",
       visible: true,
     };
     updateExperience(newProject);

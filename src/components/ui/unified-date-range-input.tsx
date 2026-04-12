@@ -39,7 +39,6 @@ function parseRangeValue(rangeValue: string) {
 export function UnifiedDateRangeInput({
   value,
   onChange,
-  placeholder,
   className,
 }: UnifiedDateRangeInputProps) {
   const t = useTranslations();
@@ -70,14 +69,14 @@ export function UnifiedDateRangeInput({
         <UnifiedDateInput
           value={start}
           onChange={(nextStart) => updateValue(nextStart, end)}
-          placeholder={placeholder || t("field.startDate")}
+          placeholder={t("field.startDatePlaceholder")}
           className="flex-1"
         />
         <span className="text-muted-foreground">-</span>
         <UnifiedDateInput
           value={isPresent ? "" : end}
           onChange={(nextEnd) => updateValue(start, nextEnd)}
-          placeholder={placeholder || t("field.endDate")}
+          placeholder={t("field.endDatePlaceholder")}
           className={cn("flex-1", (!hasStart || isPresent) && "opacity-50")}
           disabled={!hasStart || isPresent}
         />

@@ -9,13 +9,26 @@ import {
   Reorder,
   useDragControls,
 } from "framer-motion";
-import { ChevronDown, Eye, EyeOff, GripVertical, Trash2 } from "lucide-react";
+import {
+  ChevronDown,
+  CircleHelp,
+  Eye,
+  EyeOff,
+  GripVertical,
+  Trash2,
+} from "lucide-react";
 import { useCallback, useState } from "react";
 import Field from "../Field";
 import ThemeModal from "@/components/shared/ThemeModal";
 import { useTranslations } from "@/i18n/compat/client";
 import { Project } from "@/types/resume";
 import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ProjectEditorProps {
   project: Project;
@@ -50,40 +63,61 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ project, onSave }) => {
             placeholder={t("placeholders.role")}
           />
         </div>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between font-medium">
-            <span className="text-sm text-foreground">{t("labels.link")}</span>
+        <TooltipProvider delayDuration={150}>
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block space-y-1.5">
+              <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                {t("labels.link")}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className="text-muted-foreground transition-colors hover:text-foreground"
+                      onClick={(e) => e.preventDefault()}
+                    >
+                      <CircleHelp className="h-4 w-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p>{t("hints.link")}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </span>
+              <Input
+                type="text"
+                value={project.link || ""}
+                onChange={(e) => handleChange("link", e.target.value)}
+                placeholder={t("placeholders.link")}
+              />
+            </label>
+
+            <label className="block space-y-1.5">
+              <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                {t("labels.linkLabel")}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className="text-muted-foreground transition-colors hover:text-foreground"
+                      onClick={(e) => e.preventDefault()}
+                    >
+                      <CircleHelp className="h-4 w-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p>{t("hints.linkLabel")}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </span>
+              <Input
+                type="text"
+                value={project.linkLabel || ""}
+                onChange={(e) => handleChange("linkLabel", e.target.value)}
+                placeholder={t("placeholders.linkLabel")}
+              />
+            </label>
           </div>
-          <div className="rounded-lg border border-input bg-background/40 p-3">
-            <div className="grid gap-3 md:grid-cols-2">
-              <label className="block space-y-1.5">
-                <span className="text-xs text-muted-foreground">
-                  {t("labels.link")}
-                </span>
-                <Input
-                  type="text"
-                  value={project.link || ""}
-                  onChange={(e) => handleChange("link", e.target.value)}
-                  placeholder={t("placeholders.link")}
-                />
-              </label>
-              <label className="block space-y-1.5">
-                <span className="text-xs text-muted-foreground">
-                  {t("labels.linkLabel")}
-                </span>
-                <Input
-                  type="text"
-                  value={project.linkLabel || ""}
-                  onChange={(e) => handleChange("linkLabel", e.target.value)}
-                  placeholder={t("placeholders.linkLabel")}
-                />
-              </label>
-            </div>
-            <p className="mt-3 text-xs text-muted-foreground">
-              {t("hints.linkLabel")}
-            </p>
-          </div>
-        </div>
+        </TooltipProvider>
         <Field
           label={t("labels.date")}
           value={project.date}
@@ -96,6 +130,8 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ project, onSave }) => {
           label={t("labels.description")}
           value={project.description}
           onChange={(value) => handleChange("description", value)}
+          remarkValue={project.remark || ""}
+          onRemarkChange={(value) => handleChange("remark", value)}
           type="editor"
           placeholder={t("placeholders.description")}
         />

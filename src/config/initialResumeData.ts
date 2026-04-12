@@ -61,6 +61,7 @@ export const initialResumeState = {
         <li>担任计算机协会技术部部长，组织多次技术分享会</li>
         <li>参与开源项目贡献，获得 GitHub Campus Expert 认证</li>
       </ul>`,
+      remark: "",
     },
   ],
   skillContent: `<div class="skill-content">
@@ -76,7 +77,9 @@ export const initialResumeState = {
     <li>技术管理：具备团队管理经验，主导过多个大型项目的技术选型和架构设计</li>
   </ul>
 </div>`,
+  skillRemark: "",
   selfEvaluationContent: "",
+  selfEvaluationRemark: "",
   experience: [
     {
       id: "1",
@@ -91,6 +94,7 @@ export const initialResumeState = {
       <li>主导性能优化项目，使平台首屏加载时间减少 50%，接入 APM 监控系统</li>
       <li>指导初级工程师，组织技术分享会，提升团队整体技术水平</li>
     </ul>`,
+      remark: "",
     },
   ],
   draggingProjectId: null,
@@ -107,6 +111,7 @@ export const initialResumeState = {
         <li>采用 Ant Design 组件库，确保界面设计的一致性和用户体验</li>
         <li>实施代码分割和懒加载策略，优化大规模应用的加载性能</li>
       </ul>`,
+      remark: "",
       visible: true,
     },
     {
@@ -121,6 +126,7 @@ export const initialResumeState = {
         <li>提供实时的错误日志和性能分析工具</li>
         <li>集成第三方插件和 SDK，支持开发者自定义功能</li>
       </ul>`,
+      remark: "",
       visible: true,
     },
     {
@@ -135,6 +141,7 @@ export const initialResumeState = {
         <li>提供详细的错误日志和性能分析工具，帮助开发者定位和优化问题。</li>
         <li>集成第三方插件和 SDK，支持开发者自定义功能。</li>
       </ul>`,
+      remark: "",
       visible: true,
     },
   ],
@@ -211,6 +218,7 @@ export const initialResumeStateEn = {
         <li>Served as Technical Director of the Computer Science Association, organized multiple tech workshops</li>
         <li>Contributed to open-source projects, earned GitHub Campus Expert certification</li>
       </ul>`,
+      remark: "",
     },
   ],
   skillContent: `<div class="skill-content">
@@ -226,7 +234,9 @@ export const initialResumeStateEn = {
     <li>Technical Leadership: Team management experience, led technology selection and architecture design for large projects</li>
   </ul>
 </div>`,
+  skillRemark: "",
   selfEvaluationContent: "",
+  selfEvaluationRemark: "",
   experience: [
     {
       id: "1",
@@ -241,6 +251,7 @@ export const initialResumeStateEn = {
       <li>Led performance optimization project, reducing platform first-screen loading time by 50%, integrated APM monitoring system</li>
       <li>Mentored junior engineers, organized technical sharing sessions to improve overall team technical capabilities</li>
     </ul>`,
+      remark: "",
     },
   ],
   draggingProjectId: null,
@@ -257,6 +268,7 @@ export const initialResumeStateEn = {
         <li>Used Ant Design component library to ensure UI consistency and user experience</li>
         <li>Implemented code splitting and lazy loading strategies to optimize loading performance</li>
       </ul>`,
+      remark: "",
       visible: true,
     },
     {
@@ -271,6 +283,7 @@ export const initialResumeStateEn = {
         <li>Provides real-time error logging and performance analysis tools</li>
         <li>Integrates third-party plugins and SDKs for custom functionality</li>
       </ul>`,
+      remark: "",
       visible: true,
     },
     {
@@ -285,6 +298,7 @@ export const initialResumeStateEn = {
         <li>Provides detailed error logs and performance analysis tools to help developers identify and optimize issues</li>
         <li>Integrates third-party plugins and SDKs for custom functionality</li>
       </ul>`,
+      remark: "",
       visible: true,
     },
   ],
@@ -348,7 +362,9 @@ export const blankResumeState = {
   },
   education: [],
   skillContent: "",
+  skillRemark: "",
   selfEvaluationContent: "",
+  selfEvaluationRemark: "",
   experience: [],
   projects: [],
   certificates: [],
@@ -372,7 +388,9 @@ export const blankResumeStateEn = {
   },
   education: [],
   skillContent: "",
+  skillRemark: "",
   selfEvaluationContent: "",
+  selfEvaluationRemark: "",
   experience: [],
   projects: [],
   certificates: [],

@@ -516,7 +516,7 @@
         "date": "项目时间",
         "description": "项目描述",
         "link": "项目链接",
-        "linkLabel": "显示文字"
+        "linkLabel": "链接文案"
       },
       "placeholders": {
         "name": "请输入项目名称",
@@ -524,10 +524,11 @@
         "date": "项目时间范围",
         "description": "简要描述项目背景和目标",
         "link": "项目链接",
-        "linkLabel": "显示文字"
+        "linkLabel": "链接文案"
       },
       "hints": {
-        "linkLabel": "显示文字留空时，将自动显示域名或完整链接。链接仅支持 http:// 或 https:// 链接。"
+        "link": "用于在简历中展示可点击的项目链接。",
+        "linkLabel": "留空时，将自动显示域名或完整链接。"
       },
       "buttons": {
         "edit": "编辑",
@@ -596,14 +597,23 @@
     }
   },
   "field": {
-    "selectDate": "选择日期",
+    "selectDate": "请选择日期",
     "enterYear": "输入年份",
     "toPresent": "至今",
     "clear": "清空",
     "startDate": "开始时间",
-    "endDate": "结束时间"
+    "endDate": "结束时间",
+    "startDatePlaceholder": "请选择开始时间",
+    "endDatePlaceholder": "请选择结束时间",
+    "remark": "备注",
+    "remarkFilled": "已填写",
+    "remarkPlaceholder": "请输入备注内容",
+    "expand": "展开",
+    "collapse": "收起"
   },
   "richEditor": {
+    "empty": "无内容",
+    "textAlign": "文字对齐",
     "bold": "加粗",
     "italic": "斜体",
     "underline": "下划线",
@@ -612,6 +622,7 @@
     "linkApply": "应用",
     "linkRemove": "移除",
     "linkInvalid": "请输入有效链接",
+    "colorSettings": "颜色设置",
     "textColor": "文字颜色",
     "backgroundColor": "背景颜色",
     "alignLeft": "左对齐",
@@ -828,18 +839,27 @@
       "polished": "润色后的内容",
       "polishedDescription": "生成后可继续微调，再决定是否应用。"
     },
-    "customInstructions": "自定义要求",
+    "customInstructions": "用户提示词",
     "customInstructionsHint": "默认已载入一条基础用户提示词，通常无需从零开始写。",
     "customInstructionsDescription": "这段内容会附加到润色请求中，用来约束输出风格和强调重点。",
     "customInstructionsPlaceholder": "例如：请用更技术化的表述、突出量化成果、语气偏正式…（选填，留空则按默认规则润色）",
+    "modelTagHint": "当前使用的模型供应商为 {model}，点击可前往配置页切换供应商。",
     "showCustomInstructions": "展开用户提示词",
     "hideCustomInstructions": "收起用户提示词",
     "resetCustomInstructions": "恢复默认提示词",
+    "stopDialog": {
+      "title": "终止润色",
+      "description": "当前润色尚未完成，确认终止本次操作吗？",
+      "cancel": "继续等待",
+      "confirm": "确认终止"
+    },
     "button": {
       "cancel": "取消",
       "start": "开始润色",
-      "regenerate": "重新生成",
-      "generating": "生成中...",
+      "regenerate": "重新润色",
+      "thinking": "模型思考中...",
+      "generating": "润色中...",
+      "stop": "终止",
       "apply": "应用内容"
     }
   },

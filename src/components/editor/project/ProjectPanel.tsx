@@ -22,6 +22,7 @@ const ProjectPanel = () => {
       role: t("defaultProject.role"),
       date: t("defaultProject.date"),
       description: t("defaultProject.description"),
+      remark: "",
       visible: true,
     };
     updateProjects(newProject);
